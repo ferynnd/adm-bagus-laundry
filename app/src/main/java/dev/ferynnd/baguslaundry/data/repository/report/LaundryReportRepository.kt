@@ -1,0 +1,80 @@
+package dev.ferynnd.baguslaundry.data.repository.report
+
+import android.content.Context
+import dev.ferynnd.baguslaundry.data.api.ApiResponse
+import dev.ferynnd.baguslaundry.data.api.DefaultRequest
+import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
+import dev.ferynnd.baguslaundry.model.ReportLaundry
+
+class LaundryReportRepository (context: Context) {
+
+    private val retrofitHelper = RetrofitHelper(context)
+    private val laundryReportApiService = retrofitHelper.laundryReportApiService
+
+    suspend fun getReportLaundry(): ApiResponse<ReportLaundry> {
+        try {
+            val response = laundryReportApiService.getReportRental()
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+//    suspend fun createReportLaundry(productLaundry : ReportLaundry): DefaultRequest<ReportLaundry> {
+//        try {
+//            val response = laundryReportApiService.createReportLaundry(productLaundry )
+//            if (response.success) {
+//                return response
+//            } else {
+//                throw Exception("API request failed")
+//            }
+//        } catch (e: Exception) {
+//            throw e
+//
+//        }
+//    }
+
+    suspend fun getReportLaundryById(id: Int): DefaultRequest<ReportLaundry> {
+        try {
+            val response = laundryReportApiService.getReportLaundryById(id)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+
+        }
+    }
+
+    suspend fun deleteReportLaundry(id: Int): DefaultRequest<ReportLaundry> {
+        try {
+            val response = laundryReportApiService.deleteReportLaundry(id)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    suspend fun updateReportLaundry(id: Int, productLaundry : ReportLaundry): DefaultRequest<ReportLaundry> {
+        try {
+            val response = laundryReportApiService.updateReportLaundry(id, productLaundry )
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+}

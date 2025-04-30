@@ -1,0 +1,31 @@
+package dev.ferynnd.baguslaundry.data.api
+
+import dev.ferynnd.baguslaundry.model.User
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
+//
+//interface UserApiService {
+//
+//    @GET("api/users")
+//    suspend fun getUser(): ApiResponse<User>
+//
+//    @GET("api/users/{id}")
+//    suspend fun getUserById(@Path("id") id: Int): DefaultRequest<User>
+//
+//}
+
+interface UserApiService {
+
+    @GET("api/{role}/users")
+    suspend fun getUser(@Path("role") role: String): ApiResponse<User>
+
+    @GET("api/{role}/users/{id}")
+    suspend fun getUserById(
+        @Path("role") role: String,
+        @Path("id") id: Int
+    ): DefaultRequest<User>
+}

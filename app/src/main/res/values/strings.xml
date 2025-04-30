@@ -1,0 +1,32 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">BAGUS LAUNDRY</string>
+    <string name="daftar">DAFTAR</string>
+    <string name="cabang">CABANG</string>
+    <string name="client">KLIEN</string>
+    <string name="user">USER</string>
+    <string name="contact">KONTAK</string>
+    <string name="tambah">TAMBAH</string>
+    <string name="masuk">MASUK</string>
+    <string name="kirim">KIRIM</string>
+    <string name="username">NAMA PENGGUNA</string>
+    <string name="password">KATA SANDI</string>
+    <string name="name">NAMA</string>
+    <string name="city">KOTA</string>
+    <string name="address">ALAMAT</string>
+    <string name="phone">TELEPHON</string>
+    <string name="status">STATUS</string>
+    <string name="back">KEMBALI</string>
+    <string name="number">NOMOR</string>
+    <string name="add">TAMBAH</string>
+    <string name="note">CATATAN</string>
+    <string name="price">HARGA</string>
+    <string name="rupiah">Rp</string>
+    <string name="berat">Kg</string>
+    <string name="pcs">Pcs</string>
+    <string name="productLaundry">PRODUK LAUNDRY</string>
+    <string name="productRental">PRODUK PERSEWAAN</string>
+
+    <string name="pencarian" tools:ignore="TypographyEllipsis">Pencarian...</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

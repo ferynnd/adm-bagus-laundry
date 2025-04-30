@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom Style untuk TextInputLayout -->
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeWidthFocused">1dp</item>
+        <item name="boxStrokeColor">@color/primary</item>
+        <item name="hintTextColor">@color/blue900</item>
+        <item name="placeholderTextColor">@color/gray900</item>
+        <item name="android:textColorHint">@color/blue900</item>
+        <item name="passwordToggleTint">@color/gray900</item>
+        <item name="materialThemeOverlay">@style/CustomTextInputOverlay</item>
+    </style>
+
+    <!-- Overlay untuk atribut Material Components -->
+    <style name="CustomTextInputOverlay" parent="">
+        <item name="colorControlActivated">@color/primary</item>
+        <item name="colorControlNormal">@color/gray900</item>
+        <item name="colorAccent">@color/blue900</item>
+    </style>
+
+    <!-- Custom Style untuk TextInputEditText -->
+    <style name="CustomTextInputEditText" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/gray900</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+
+
+    <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
+<!--        <item name="queryHint">@string/pencarian</item>-->
+        <item name="android:fontFamily">@font/inter_medium</item>
+        <item name="android:textColorHint">@color/blue900</item>
+        <item name="android:textColor">@color/blue900</item>
+        <item name="android:tint">@color/blue900</item> <!-- Untuk warna ikon -->
+    </style>
+
+
+    <style name="MaterialAlertDialog_rounded" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/DialogCorners</item>
+    </style>
+
+    <style name="DialogCorners">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+</resources>

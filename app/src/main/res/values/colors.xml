@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="background">#F1F3F4</color>
+    <color name="primary">#3551F2</color>
+    <color name="secondary">#536AF4</color>
+    <color name="blueBase">#E7F0FF</color>
+    <color name="blue900">#283954</color>
+    <color name="blueCharcoal">#02081A</color>
+    <color name="gray900">#535353</color>
+    <color name="success">#00A600</color>
+    <color name="blue500">#5596FB</color>
+    <color name="pink500">#CC75D3</color>
+    <color name="buttonBack">#F1F3F4</color>
+    <color name="greenBase">#DFF5B2</color>
+    <color name="orage">#FFDA77</color>
+    <color name="baseRed">#FFE7DF</color>
+</resources>

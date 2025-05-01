@@ -37,7 +37,7 @@ class AdminDashboardFragment : Fragment() {
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
 
-          viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
               try {
                   val nameUser = sharePrefrences.getString(PREF_USER_NAME, null)
                   binding.headerName.text = nameUser

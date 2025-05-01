@@ -9,21 +9,33 @@ import retrofit2.http.DELETE
 import retrofit2.http.Path
 
 interface LaundryProductApiService {
+    @GET("api/{role}/laundry_items")
+    suspend fun getProductLaundry(
+        @Path("role") role: String,
+    ): ApiResponse<ProductLaundry>
 
-    @GET("api/laundry_items")
-    suspend fun getProductLaundry(): ApiResponse<ProductLaundry>
+    @POST("api/{role}/create_laundry_items")
+    suspend fun createProductLaundry(
+        @Path("role") role: String,
+        @Body productLaundry: ProductLaundry
+    ): DefaultRequest<ProductLaundry>
 
-    @POST("api/create_laundry_items")
-    suspend fun createProductLaundry( @Body productLaundry: ProductLaundry): DefaultRequest<ProductLaundry>
+    @GET("api/{role}/laundry_items/{id}")
+    suspend fun getProductLaundryById(
+        @Path("role") role: String,
+        @Path("id") id: Int
+    ): DefaultRequest<ProductLaundry>
 
-    @GET("api/laundry_items/{id}")
-    suspend fun getProductLaundryById(@Path("id") id: Int): DefaultRequest<ProductLaundry>
+    @DELETE("api/{role}/delete_laundry_items/{id}")
+    suspend fun deleteProductLaundry(
+        @Path("role") role: String,
+        @Path("id") id: Int
+    ): DefaultRequest<ProductLaundry>
 
-    @DELETE("api/delete_laundry_items/{id}")
-    suspend fun deleteProductLaundry(@Path("id") id: Int): DefaultRequest<ProductLaundry>
-
-    @PUT("api/edit_laundry_items/{id}")
-    suspend fun updateProductLaundry(@Path("id") id: Int, @Body productLaundry: ProductLaundry): DefaultRequest<ProductLaundry>
-
-
+    @PUT("api/{role}/edit_laundry_items/{id}")
+    suspend fun updateProductLaundry(
+        @Path("role") role: String,
+        @Path("id") id: Int,
+        @Body productLaundry: ProductLaundry
+    ): DefaultRequest<ProductLaundry>
 }

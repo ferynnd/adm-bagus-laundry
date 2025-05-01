@@ -12,27 +12,26 @@ import dev.ferynnd.baguslaundry.data.repository.product.LaundryProductRepository
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import kotlinx.coroutines.launch
 
-class LaundryProductViewModel (application: Application) : AndroidViewModel(application) {
+class LaundryProductViewModel(application: Application) : AndroidViewModel(application) {
 
-    private lateinit var laundryProductRepository: LaundryProductRepository
+    private var laundryProductRepository = LaundryProductRepository(application.applicationContext)
 
     private val _laundryProducts = MutableLiveData<List<ProductLaundry>>()
     val laundryProducts: LiveData<List<ProductLaundry>> get() = _laundryProducts
 
-    fun init(context: Context) {
-       laundryProductRepository = LaundryProductRepository(context)
-        getAllProductLaundry()
+    init {
+        if (laundryProductRepository.isLoggedIn()) {   // <<< cek dulu
+            getAllProductLaundry()
+        }
     }
 
 
     private fun getAllProductLaundry() {
-    viewModelScope.launch {
-        val result = laundryProductRepository.getProductLaundry().data
-        _laundryProducts.postValue(result)
+        viewModelScope.launch {
+            val result = laundryProductRepository.getProductLaundry().data
+            _laundryProducts.postValue(result)
+        }
     }
-}
-
-
 
     suspend fun getProductLaundry() {
         try {
@@ -61,7 +60,11 @@ class LaundryProductViewModel (application: Application) : AndroidViewModel(appl
     }
 
     suspend fun updateProductLaundry(productLaundry: ProductLaundry) {
-        productLaundry.id_laundry_item?.let { laundryProductRepository.updateProductLaundry(it,productLaundry) }
+        productLaundry.id_laundry_item?.let {
+            laundryProductRepository.updateProductLaundry(
+                it,
+                productLaundry
+            )
+        }
     }
-
 }

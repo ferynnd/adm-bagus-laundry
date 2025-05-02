@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context=".ui.user.product_laundry.ListProductLaundryFragment">
+    tools:context=".ui.user.product_rental.ListProductRentalFragment">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineLeft"
@@ -46,7 +46,7 @@
         android:layout_margin="0dp"
         android:fontFamily="@font/inter_bold"
         android:padding="0dp"
-        android:text="@string/productLaundry"
+        android:text="@string/productRental"
         android:textColor="@color/blue900"
         android:textSize="20sp"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
@@ -114,6 +114,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
+
             <TextView
                 android:id="@+id/countKeterangan"
                 android:layout_width="match_parent"

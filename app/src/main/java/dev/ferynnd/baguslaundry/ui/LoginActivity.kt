@@ -54,6 +54,7 @@ class LoginActivity : AppCompatActivity() {
                                     )
                                 }
                                 it.token?.let { it1 -> sharedPreferences.put(Constant.PREF_USER_TOKEN, it1) }
+                                it.data.id_user.let { it1 -> sharedPreferences.put(Constant.PREF_USER_ID, it1.toString()) }
                                 it.data.role_user.let { it1 -> sharedPreferences.put(Constant.PREF_USER_ROLE, it1.toString()) }
                                 navigateToRole(it.data.role_user)
                             }

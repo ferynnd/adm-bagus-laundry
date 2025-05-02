@@ -17,6 +17,7 @@ import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentUserDashboardBinding
 import dev.ferynnd.baguslaundry.ui.LoginActivity
+import dev.ferynnd.baguslaundry.ui.user.product_laundry.ListProductLaundryFragment
 import kotlinx.coroutines.launch
 
 
@@ -70,28 +71,14 @@ class UserDashboardFragment : Fragment() {
             popup.show()
         }
 
-        binding.menuBranch.setOnClickListener {
-//            parentFragmentManager.beginTransaction()
-//                .replace(R.id.host_fragment_admin, ListBranchFragment())
-//                .addToBackStack("branch")
-//                .commit()
-        }
-
-        binding.menuClient.setOnClickListener {
-//             parentFragmentManager.beginTransaction()
-//                .replace(R.id.host_fragment_admin, ListClientFragment())
-//                 .addToBackStack("client")
-//                .commit()
+        binding.menuLaundry.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.host_fragment_user, ListProductLaundryFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
 
-        binding.menuProduct.setOnClickListener {
-//           showDialogMEnu(" PRODUK")
-        }
-
-        binding.menuReport.setOnClickListener {
-//            showDialogMEnu(" LAPORAN")
-        }
 
         return binding.root
 

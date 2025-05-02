@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -119,7 +120,8 @@ class ListProductLaundryFragment : Fragment() {
         _binding = null
     }
 
-    private fun onDetailClick(supplier: ProductLaundry) {
+    private fun onDetailClick(itemLaundry: ProductLaundry) {
+        Toast.makeText(context, "Detail ${itemLaundry.id_laundry_item} akan ditampilkan", Toast.LENGTH_SHORT).show()
 //        val bundle = Bundle().apply {
 //            putLong("supplierId", supplier.id_supplier)  // Mengirimkan ID supplier ke fragment berikutnya
 //        }

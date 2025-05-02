@@ -4,16 +4,27 @@ import android.content.Context
 import dev.ferynnd.baguslaundry.data.api.ApiResponse
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
+import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.model.ProductRental
 
-class RentalProductRepository (context: Context) {
-
+class RentalProductRepository(context: Context) {
+    private val sharedPreferences = SharePrefrenceHelper(context)
     private val retrofitHelper = RetrofitHelper(context)
+
+    private val role: String
+        get() = sharedPreferences.getString("PREF_USER_ROLE").toString()
+
+    fun isLoggedIn(): Boolean {
+        val token =
+            sharedPreferences.getString("PREF_USER_TOKEN", null)  // atau apapun key token kamu
+        return !token.isNullOrEmpty()
+    }
+
     private val rentalProductApiService = retrofitHelper.rentalProductApiService
 
     suspend fun getProductRental(): ApiResponse<ProductRental> {
         try {
-            val response = rentalProductApiService.getProductRental()
+            val response = rentalProductApiService.getProductRental(role)
             if (response.success) {
                 return response
             } else {
@@ -24,9 +35,9 @@ class RentalProductRepository (context: Context) {
         }
     }
 
-    suspend fun createProductRental(productRental : ProductRental): DefaultRequest<ProductRental> {
+    suspend fun createProductRental(productRental: ProductRental): DefaultRequest<ProductRental> {
         try {
-            val response = rentalProductApiService.createProductRental(productRental )
+            val response = rentalProductApiService.createProductRental(role, productRental)
             if (response.success) {
                 return response
             } else {
@@ -40,7 +51,7 @@ class RentalProductRepository (context: Context) {
 
     suspend fun getProductRentalById(id: Int): DefaultRequest<ProductRental> {
         try {
-            val response = rentalProductApiService.getProductRentalById(id)
+            val response = rentalProductApiService.getProductRentalById(role, id)
             if (response.success) {
                 return response
             } else {
@@ -54,7 +65,7 @@ class RentalProductRepository (context: Context) {
 
     suspend fun deleteProductRental(id: Int): DefaultRequest<ProductRental> {
         try {
-            val response = rentalProductApiService.deleteProductRental(id)
+            val response = rentalProductApiService.deleteProductRental(role, id)
             if (response.success) {
                 return response
             } else {
@@ -65,9 +76,12 @@ class RentalProductRepository (context: Context) {
         }
     }
 
-    suspend fun updateProductRental(id: Int, productRental : ProductRental): DefaultRequest<ProductRental> {
+    suspend fun updateProductRental(
+        id: Int,
+        productRental: ProductRental
+    ): DefaultRequest<ProductRental> {
         try {
-            val response = rentalProductApiService.updateProductRental(id, productRental )
+            val response = rentalProductApiService.updateProductRental(role, id, productRental)
             if (response.success) {
                 return response
             } else {

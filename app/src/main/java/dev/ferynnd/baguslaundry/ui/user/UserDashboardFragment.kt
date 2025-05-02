@@ -18,6 +18,7 @@ import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentUserDashboardBinding
 import dev.ferynnd.baguslaundry.ui.LoginActivity
 import dev.ferynnd.baguslaundry.ui.user.product_laundry.ListProductLaundryFragment
+import dev.ferynnd.baguslaundry.ui.user.product_rental.ListProductRentalFragment
 import kotlinx.coroutines.launch
 
 
@@ -78,7 +79,12 @@ class UserDashboardFragment : Fragment() {
                 .commit()
         }
 
-
+        binding.menuRental.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.host_fragment_user, ListProductRentalFragment())
+                .addToBackStack(null)
+                .commit()
+        }
 
         return binding.root
 

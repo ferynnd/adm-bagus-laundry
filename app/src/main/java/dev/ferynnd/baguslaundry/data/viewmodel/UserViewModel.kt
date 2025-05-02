@@ -38,19 +38,20 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun getAllUsers() {
-        viewModelScope.launch {
-            val userList = userRepository.getUser().data
-            val filteredUsers = userList.filter { it.role_user == UserRole.owner }
-            _users.postValue(filteredUsers)
-        }
+    viewModelScope.launch {
+        val userList = userRepository.getUser().data
+        val filteredUsers = userList.filter { it.role_user == UserRole.kurir } // Ganti dari owner ke kurir
+        _users.postValue(filteredUsers)
     }
+}
+
 
 
     suspend fun getUser() {
         try {
             val response = userRepository.getUser()
             if (response.success) {
-                val filterUsers = response.data.filter { it.role_user != UserRole.owner }
+                val filterUsers = response.data.filter { it.role_user == UserRole.kurir }
                 _users.postValue(filterUsers)
             } else {
                 throw Exception("API request failed")

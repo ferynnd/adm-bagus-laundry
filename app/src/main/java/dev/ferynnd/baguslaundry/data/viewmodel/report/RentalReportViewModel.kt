@@ -51,12 +51,5 @@ class RentalReportViewModel   (application: Application) : AndroidViewModel(appl
         return rentalReportRepository.getReportRentalById(id)
     }
 
-    suspend fun deleteReportRental(client: ReportRental) {
-        client.id_transaction_rental?.let { rentalReportRepository.deleteReportRental(it) }
-    }
-
-    suspend fun updateReportRental(client: ReportRental) {
-        client.id_transaction_rental?.let { rentalReportRepository.updateReportRental(it, client) }
-    }
 
 }

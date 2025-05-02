@@ -11,19 +11,10 @@ import retrofit2.http.Path
 
 interface RentalReportApiService {
 
-    @GET("api/transaction_rentals")
-    suspend fun getReportRental(): ApiResponse<ReportRental>
+    @GET("api/{role}/transaction_rentals")
+    suspend fun getReportRental(@Path("role") role: String): ApiResponse<ReportRental>
 
-//    @POST("api/create_transaction_rentals")
-//    suspend fun createReportRental( @Body reportRental: ReportRental): DefaultRequest<ReportRental>
-
-    @GET("api/transaction_rentals/{id}")
-    suspend fun getReportRentalById(@Path("id") id: Int): DefaultRequest<ReportRental>
-
-    @DELETE("api/delete_transaction_rentals/{id}")
-    suspend fun deleteReportRental(@Path("id") id: Int): DefaultRequest<ReportRental>
-
-    @PUT("api/edit_transaction_rentals/{id}")
-    suspend fun updateReportRental(@Path("id") id: Int, @Body reportRental: ReportRental): DefaultRequest<ReportRental>
+    @GET("api/{role}/transaction_rentals/{id}")
+    suspend fun getReportRentalById(@Path("role") role: String,@Path("id") id: Int): DefaultRequest<ReportRental>
 
 }

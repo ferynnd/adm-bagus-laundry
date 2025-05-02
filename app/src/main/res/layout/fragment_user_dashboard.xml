@@ -25,7 +25,7 @@
     <androidx.constraintlayout.widget.Guideline
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintGuide_percent="0.07"
+        app:layout_constraintGuide_percent="0.05"
         android:orientation="horizontal"
         android:id="@+id/guidelineTop"/>
 

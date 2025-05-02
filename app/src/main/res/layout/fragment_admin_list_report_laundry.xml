@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_list_user"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/background">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintGuide_percent="0.05"
+        android:orientation="vertical"
+        android:id="@+id/guidelineLeft"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintGuide_percent="0.95"
+        android:orientation="vertical"
+        android:id="@+id/guidelineRight"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintGuide_percent="0.05"
+        android:orientation="horizontal"
+        android:id="@+id/guidelineTop"/>
+
+    <ImageView
+        android:id="@+id/arrowBack"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/back"
+        app:layout_constraintTop_toTopOf="@id/textHeaderLight"
+        app:layout_constraintBottom_toBottomOf="@id/textHeaderLight"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/guidelineTop"/>
+
+    <TextView
+        android:id="@+id/textHeaderBold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_bold"
+        app:layout_constraintTop_toBottomOf="@id/guidelineTop"
+        android:text="LAPORAN LAUNDRY"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        android:textSize="20sp"
+        android:textColor="@color/blue900"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
+
+    <TextView
+        android:id="@+id/textHeaderLight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_light"
+        android:text="@string/daftar"
+        android:paddingEnd="10dp"
+        app:layout_constraintTop_toTopOf="@id/textHeaderBold"
+        app:layout_constraintEnd_toStartOf="@id/textHeaderBold"
+        app:layout_constraintBottom_toBottomOf="@id/textHeaderBold"
+        android:textSize="20sp"
+        android:textColor="@color/blue900"
+        android:padding="0dp"
+        android:layout_margin="0dp"
+        tools:ignore="RtlSymmetry" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/layoutSearch"
+        android:layout_width="0dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="20dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/textHeaderLight"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"/>
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:theme="@style/CustomSearchView"
+        app:layout_constraintStart_toStartOf="@id/layoutSearch"
+        app:layout_constraintEnd_toEndOf="@id/layoutSearch"
+        app:layout_constraintTop_toTopOf="@id/layoutSearch"
+        app:layout_constraintBottom_toBottomOf="@id/layoutSearch"/>
+
+    <!--    Nanti Ini Dihapus-->
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="0dp"
+        android:cacheColorHint="@color/blue900"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/searchView"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintTop_toBottomOf="@id/searchView"
+        android:visibility="gone"
+        />
+    <!--    Nanti Ini Dihapus-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        tools:listitem="@layout/card_client"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/layoutSearch"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

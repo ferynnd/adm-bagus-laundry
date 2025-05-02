@@ -10,19 +10,19 @@ import retrofit2.http.Path
 
 interface BranchApiService {
 
-    @GET("api/branches")
-    suspend fun getBranch(): ApiResponse<Branch>
+    @GET("api/{role}/branches")
+    suspend fun getBranch(@Path("role") role: String): ApiResponse<Branch>
 
-    @POST("api/create_branches")
-    suspend fun createBranch( @Body branch: Branch): DefaultRequest<Branch>
+    @POST("api/{role}/create_branches")
+    suspend fun createBranch(@Path("role") role: String, @Body branch: Branch): DefaultRequest<Branch>
 
-    @GET("api/branches/{id}")
-    suspend fun getBranchById(@Path("id") id: Int): DefaultRequest<Branch>
+    @GET("api/{role}/branches/{id}")
+    suspend fun getBranchById(@Path("role") role: String,@Path("id") id: Int): DefaultRequest<Branch>
 
-    @DELETE("api/delete_branches/{id}")
-    suspend fun deleteBranch(@Path("id") id: Int): DefaultRequest<Branch>
+    @DELETE("api/{role}/delete_branches/{id}")
+    suspend fun deleteBranch(@Path("role") role: String,@Path("id") id: Int): DefaultRequest<Branch>
 
-    @PUT("api/edit_branches/{id}")
-    suspend fun updateBranch(@Path("id") id: Int, @Body branch: Branch): DefaultRequest<Branch>
+    @PUT("api/{role}/edit_branches/{id}")
+    suspend fun updateBranch(@Path("role") role: String,@Path("id") id: Int, @Body branch: Branch): DefaultRequest<Branch>
 
 }

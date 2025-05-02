@@ -23,7 +23,7 @@ class UserActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         // Inisialisasi binding
         binding = ActivityUserBinding.inflate(layoutInflater)
         setContentView(binding.root)

@@ -2,6 +2,7 @@ package dev.ferynnd.baguslaundry.data.repository.report
 import android.content.Context
 import dev.ferynnd.baguslaundry.data.api.ApiResponse
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
+import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.model.ListTransactionLaundry
 
 class ListTransactionReportLaundryRepository  (context: Context) {
@@ -10,9 +11,15 @@ class ListTransactionReportLaundryRepository  (context: Context) {
     private val listTransactionLaundryReportApiService =
         retrofitHelper.listTransactionLaundryReportApiService
 
+    private val sharedPreferences = SharePrefrenceHelper(context)
+
+    private val role: String
+        get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
+
+
     suspend fun getListTransactionReportLaundry(): ApiResponse<ListTransactionLaundry> {
         try {
-            val response = listTransactionLaundryReportApiService.getListTrListTransactionLaundry()
+            val response = listTransactionLaundryReportApiService.getListTrListTransactionLaundry(role)
             if (response.success) {
                 return response
             } else {

@@ -45,20 +45,9 @@ class BranchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    suspend fun createBranch(branch: Branch) {
-        branchRepository.createBranch(branch)
-    }
-
     suspend fun getBranchById(id: Int): DefaultRequest<Branch> {
         return branchRepository.getBranchById(id)
     }
 
-    suspend fun deleteBranch(branch: Branch) {
-        branch.id_branch?.let { branchRepository.deleteBranch(it) }
-    }
-
-    suspend fun updateBranch(branch: Branch) {
-        branch.id_branch?.let { branchRepository.updateBranch(it,branch) }
-    }
 
 }

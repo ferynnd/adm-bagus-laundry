@@ -7,16 +7,6 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
-//
-//interface UserApiService {
-//
-//    @GET("api/users")
-//    suspend fun getUser(): ApiResponse<User>
-//
-//    @GET("api/users/{id}")
-//    suspend fun getUserById(@Path("id") id: Int): DefaultRequest<User>
-//
-//}
 
 interface UserApiService {
 

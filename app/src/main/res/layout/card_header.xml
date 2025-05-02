@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="@color/primary"
+    app:cardCornerRadius="5dp"
+    android:layout_height="50dp">
+
+    <TextView
+        android:id="@+id/inputNameBranch"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="CABANG"
+        android:layout_marginVertical="10dp"
+        android:layout_marginStart="30dp"
+        android:fontFamily="@font/inter_semibold"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        />
+</androidx.cardview.widget.CardView>

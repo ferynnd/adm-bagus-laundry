@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="30dp"
+    android:layout_height="270dp">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent="0.1"
+        android:orientation="horizontal"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent="0.95"
+        android:orientation="horizontal"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineMid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent="0.5"
+        android:orientation="vertical"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardBackground"
+        android:layout_width="match_parent"
+        app:cardBackgroundColor="@color/white"
+        android:layout_height="match_parent"
+        android:translationZ="-10dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="10dp"/>
+
+    <LinearLayout
+        android:id="@+id/layoutText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/guidelineTop"
+        app:layout_constraintStart_toStartOf="@id/cardBackground"
+        app:layout_constraintEnd_toStartOf="@id/guidelineMid"
+        >
+
+        <TextView
+            android:id="@+id/textHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PILIH"
+            android:layout_marginStart="20dp"
+            android:textAlignment="textEnd"
+            android:fontFamily="@font/inter_light"
+            android:textSize="20sp"
+            android:textColor="@color/blue900"
+            />
+
+        <TextView
+            android:id="@+id/textHeaderSecond"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" PRODUK"
+            android:layout_weight="1"
+            android:fontFamily="@font/inter_bold"
+            android:textSize="20sp"
+            android:textColor="@color/blue900"
+            />
+
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/layoutProductRental"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardBackgroundColor="@color/background"
+        app:cardCornerRadius="10dp"
+        android:translationZ="10dp"
+        android:layout_marginStart="20dp"
+        app:cardElevation="0dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginVertical="20dp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
+        app:layout_constraintEnd_toStartOf="@id/guidelineMid"
+        app:layout_constraintStart_toStartOf="@id/cardBackground"
+        app:layout_constraintTop_toBottomOf="@+id/layoutText" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/layoutProductLaundry"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardBackgroundColor="@color/background"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp"
+        android:translationZ="10dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginVertical="20dp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
+        app:layout_constraintStart_toEndOf="@id/guidelineMid"
+        app:layout_constraintEnd_toEndOf="@id/cardBackground"
+        app:layout_constraintTop_toBottomOf="@+id/layoutText" />
+
+    <LinearLayout
+        android:id="@+id/iconProductRental"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:translationZ="20dp"
+        app:layout_constraintStart_toStartOf="@id/layoutProductRental"
+        app:layout_constraintEnd_toEndOf="@id/layoutProductRental"
+        app:layout_constraintTop_toTopOf="@id/layoutProductRental"
+        app:layout_constraintBottom_toBottomOf="@id/layoutProductRental"
+        >
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="90dp"
+            android:src="@drawable/sewa"
+            android:layout_weight="1"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/inter_semibold"
+            android:textColor="@color/blue900"
+            android:textSize="16sp"
+            android:text="PERSEWAAN"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/iconProductLaundry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:translationZ="20dp"
+        app:layout_constraintStart_toStartOf="@id/layoutProductLaundry"
+        app:layout_constraintEnd_toEndOf="@id/layoutProductLaundry"
+        app:layout_constraintTop_toTopOf="@id/layoutProductLaundry"
+        app:layout_constraintBottom_toBottomOf="@id/layoutProductLaundry"
+        >
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="90dp"
+            android:padding="8dp"
+            android:src="@drawable/laundry"
+            android:layout_weight="1"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/inter_semibold"
+            android:textColor="@color/blue900"
+            android:textSize="16sp"
+            android:text="LAUNDRY"/>
+
+    </LinearLayout>
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

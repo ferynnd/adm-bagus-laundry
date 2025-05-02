@@ -23,7 +23,7 @@ class AdminActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         // Inisialisasi binding
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)

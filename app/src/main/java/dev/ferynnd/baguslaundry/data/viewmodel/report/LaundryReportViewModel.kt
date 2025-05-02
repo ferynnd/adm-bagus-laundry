@@ -52,12 +52,5 @@ class LaundryReportViewModel  (application: Application) : AndroidViewModel(appl
         return laundryReportRepository.getReportLaundryById(id)
     }
 
-    suspend fun deleteReportLaundry(client: ReportLaundry) {
-        client.id_transaction_laundry?.let { laundryReportRepository.deleteReportLaundry(it) }
-    }
-
-    suspend fun updateReportLaundry(client: ReportLaundry) {
-        client.id_transaction_laundry?.let { laundryReportRepository.updateReportLaundry(it, client) }
-    }
 
 }

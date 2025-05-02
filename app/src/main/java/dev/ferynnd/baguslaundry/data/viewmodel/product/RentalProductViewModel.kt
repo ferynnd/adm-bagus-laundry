@@ -44,20 +44,11 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    suspend fun createProductRental(client: ProductRental) {
-        rentalProductRepository.createProductRental(client)
-    }
+
 
     suspend fun getProductRentalById(id: Int): DefaultRequest<ProductRental> {
         return rentalProductRepository.getProductRentalById(id)
     }
 
-    suspend fun deleteProductRental(client: ProductRental) {
-        client.id_rental_item?.let { rentalProductRepository.deleteProductRental(it) }
-    }
-
-    suspend fun updateProductRental(client: ProductRental) {
-        client.id_rental_item?.let { rentalProductRepository.updateProductRental(it,client) }
-    }
 
 }

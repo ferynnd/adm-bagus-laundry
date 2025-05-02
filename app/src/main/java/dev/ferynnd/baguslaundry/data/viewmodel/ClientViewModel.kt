@@ -45,20 +45,11 @@ class ClientViewModel (application: Application) : AndroidViewModel(application)
         }
     }
 
-    suspend fun createClient(client: Client) {
-        clientRepository.createClient(client)
-    }
 
     suspend fun getClientById(id: Int): DefaultRequest<Client> {
         return clientRepository.getClientById(id)
     }
 
-    suspend fun deleteClient(client: Client) {
-        client.id_client?.let { clientRepository.deleteClient(it) }
-    }
 
-    suspend fun updateClient(client: Client) {
-        client.id_client?.let { clientRepository.updateClient(it,client) }
-    }
 
 }

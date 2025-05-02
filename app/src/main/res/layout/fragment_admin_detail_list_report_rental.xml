@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/cardReportRental"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="5dp"
+        android:background="@color/background">
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintGuide_percent="0.05"
+            android:orientation="vertical"
+            android:id="@+id/guidelineLeft"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintGuide_percent="0.95"
+            android:orientation="vertical"
+            android:id="@+id/guidelineRight"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintGuide_percent="0.02"
+            android:orientation="horizontal"
+            android:id="@+id/guidelineTop"/>
+
+        <ImageView
+            android:id="@+id/arrowBack"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/back"
+            app:layout_constraintTop_toTopOf="@id/textHeaderLight"
+            app:layout_constraintBottom_toBottomOf="@id/textHeaderLight"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/guidelineTop"/>
+
+        <TextView
+            android:id="@+id/textHeaderBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="LAPORAN SEWA"
+            app:layout_constraintTop_toBottomOf="@id/guidelineTop"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            android:textSize="20sp"
+            android:textColor="@color/blue900"
+            android:padding="0dp"
+            android:layout_margin="0dp"/>
+
+        <TextView
+            android:id="@+id/textHeaderLight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_light"
+            android:text="DETIL"
+            android:paddingEnd="10dp"
+            app:layout_constraintTop_toTopOf="@id/textHeaderBold"
+            app:layout_constraintEnd_toStartOf="@id/textHeaderBold"
+            app:layout_constraintBottom_toBottomOf="@id/textHeaderBold"
+            android:textSize="20sp"
+            android:textColor="@color/blue900"
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            tools:ignore="RtlSymmetry" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardBackground"
+                android:layout_width="0dp"
+                android:layout_height="650dp"
+                app:cardBackgroundColor="@color/blueBase"
+                app:cardCornerRadius="10dp"
+                android:layout_marginTop="20dp"
+                app:cardElevation="0dp"
+                app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+                app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+                app:layout_constraintTop_toBottomOf="@id/textHeaderBold"
+                />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardForeground"
+                android:layout_width="0dp"
+                android:layout_height="600dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp"
+                app:layout_constraintStart_toStartOf="@id/cardBackground"
+                app:layout_constraintEnd_toEndOf="@id/cardBackground"
+                app:layout_constraintBottom_toBottomOf="@id/cardBackground"
+                />
+
+            <TextView
+                android:id="@+id/idUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CAB001234"
+                android:fontFamily="@font/inter_medium"
+                android:textSize="18sp"
+                android:textColor="@color/gray900"
+                android:layout_marginStart="15dp"
+                app:layout_constraintBottom_toTopOf="@id/cardForeground"
+                app:layout_constraintStart_toStartOf="@id/cardBackground"
+                app:layout_constraintTop_toTopOf="@id/cardBackground"
+                android:translationZ="2dp"
+                />
+
+        <TableLayout
+                android:id="@+id/tableLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:layout_constraintStart_toStartOf="@id/cardForeground"
+                app:layout_constraintEnd_toEndOf="@id/cardForeground"
+                app:layout_constraintTop_toTopOf="@id/cardForeground"
+                >
+
+                <TableRow>
+                    <TextView
+                        android:text="PELANGGAN"
+                        android:padding="10dp"
+                        android:textSize="12sp"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/inter"
+                        android:textColor="@color/blue900"
+                        android:textAlignment="textStart"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        /> <!-- kasih lebar minimum -->
+
+                     <TextView
+                         android:id="@+id/inputCustommer"
+                        android:text="NamaKu"
+                        android:padding="10dp"
+                         android:textSize="14sp"
+                         android:layout_marginEnd="10dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:textColor="@color/blue900"
+                         android:textAlignment="textEnd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        /> <!-- kasih lebar minimum -->
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:text="KARYAWAN"
+                        android:padding="10dp"
+                        android:textSize="12sp"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/inter"
+                        android:textColor="@color/blue900"
+                        android:textAlignment="textStart"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        /> <!-- kasih lebar minimum -->
+
+                     <TextView
+                         android:id="@+id/inputEmployment"
+                        android:text="CABANG"
+                        android:padding="10dp"
+                         android:textSize="14sp"
+                        android:layout_marginEnd="10dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:textColor="@color/blue900"
+                         android:textAlignment="textEnd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        />
+                </TableRow>
+
+                <TableRow>
+                    <TextView
+                        android:text="CABANG"
+                        android:padding="10dp"
+                        android:textSize="12sp"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/inter"
+                        android:textColor="@color/blue900"
+                        android:textAlignment="textStart"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        /> <!-- kasih lebar minimum -->
+
+                     <TextView
+                     android:id="@+id/inputBranch"
+                    android:text="CABANG"
+                    android:padding="10dp"
+                     android:textSize="14sp"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:textColor="@color/blue900"
+                     android:textAlignment="textEnd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:text="STATUS"
+                    android:padding="10dp"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/inter"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/blue900"
+                    android:textAlignment="textStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    /> <!-- kasih lebar minimum -->
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/layoutStatus"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    app:cardBackgroundColor="@color/success"
+                    android:layout_marginVertical="5dp"
+                    android:layout_marginEnd="10dp"
+                    app:cardCornerRadius="5dp"
+                    app:cardElevation="2dp"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/inputStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fontFamily="@font/inter_medium"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:textColor="@color/white"
+                        android:text="ACTIVE"
+                        />
+
+                </androidx.cardview.widget.CardView>
+
+            </TableRow>
+
+             <TableRow>
+
+                 <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                     android:orientation="horizontal">
+                        <TextView
+                            android:text="BERAT"
+                            android:padding="10dp"
+                            android:textSize="12sp"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/blue900"
+                            android:textAlignment="textStart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            />
+                         <TextView
+                            android:text="@string/berat"
+                            android:padding="10dp"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/primary"
+                            android:textAlignment="textStart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            />
+                 </LinearLayout>
+
+                 <TextView
+                    android:id="@+id/inputWeight"
+                    android:text="10,15"
+                    android:padding="10dp"
+                     android:textSize="14sp"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:textColor="@color/blue900"
+                     android:textAlignment="textEnd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+            </TableRow>
+
+
+            <TableRow>
+                  <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                     android:orientation="horizontal">
+                        <TextView
+                            android:text="TOTAL HARGA"
+                            android:padding="10dp"
+                            android:textSize="12sp"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/blue900"
+                            android:textAlignment="textStart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            />
+                         <TextView
+                            android:text="@string/rupiah"
+                            android:padding="10dp"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/primary"
+                            android:textAlignment="textStart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            />
+                 </LinearLayout>
+
+                <TextView
+                     android:id="@+id/inputTotalPrice"
+                    android:text="10"
+                    android:padding="10dp"
+                     android:textSize="14sp"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:textColor="@color/blue900"
+                     android:textAlignment="textEnd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+            </TableRow>
+
+             <TableRow>
+                              <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                 android:orientation="horizontal">
+                                    <TextView
+                                        android:text="TOTAL HARGA TRANSAKSI"
+                                        android:padding="10dp"
+                                        android:textSize="12sp"
+                                        android:layout_marginStart="10dp"
+                                        android:fontFamily="@font/inter"
+                                        android:textColor="@color/blue900"
+                                        android:textAlignment="textStart"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        />
+                                     <TextView
+                                        android:text="@string/rupiah"
+                                        android:padding="10dp"
+                                        android:textSize="12sp"
+                                        android:fontFamily="@font/inter"
+                                        android:textColor="@color/primary"
+                                        android:textAlignment="textStart"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        />
+                             </LinearLayout>
+
+                            <TextView
+                                 android:id="@+id/inputTotalPriceTransaction"
+                                android:text="10"
+                                android:padding="10dp"
+                                 android:textSize="14sp"
+                                android:layout_marginEnd="10dp"
+                                android:fontFamily="@font/inter_semibold"
+                                android:textColor="@color/blue900"
+                                 android:textAlignment="textEnd"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                />
+                        </TableRow>
+
+            <TableRow>
+                  <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                     android:orientation="horizontal">
+                        <TextView
+                            android:text="TUNAI"
+                            android:padding="10dp"
+                            android:textSize="12sp"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/blue900"
+                            android:textAlignment="textStart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            />
+                         <TextView
+                            android:text="@string/rupiah"
+                            android:padding="10dp"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/primary"
+                            android:textAlignment="textStart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            />
+                 </LinearLayout>
+
+                <TextView
+                     android:id="@+id/inputCash"
+                    android:text="10.000"
+                    android:padding="10dp"
+                     android:textSize="14sp"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:textColor="@color/blue900"
+                     android:textAlignment="textEnd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+            </TableRow>
+
+            <TableRow>
+                  <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                     android:orientation="horizontal">
+                        <TextView
+                            android:text="KEMBALIAN"
+                            android:padding="10dp"
+                            android:textSize="12sp"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/blue900"
+                            android:textAlignment="textStart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            />
+                         <TextView
+                            android:text="@string/rupiah"
+                            android:padding="10dp"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/inter"
+                            android:textColor="@color/primary"
+                            android:textAlignment="textStart"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            />
+                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/inputChangeMoney"
+                    android:text="10.000"
+                    android:padding="10dp"
+                     android:textSize="14sp"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:textColor="@color/blue900"
+                     android:textAlignment="textEnd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+            </TableRow>
+
+          <TableRow>
+                <TextView
+                    android:text="AKTIF"
+                    android:padding="10dp"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/inter"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/blue900"
+                    android:textAlignment="textStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    /> <!-- kasih lebar minimum -->
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/layoutIsActive"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    app:cardBackgroundColor="@color/success"
+                    android:layout_marginVertical="5dp"
+                    android:layout_marginEnd="10dp"
+                    app:cardCornerRadius="5dp"
+                    app:cardElevation="2dp"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/inputIsActive"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fontFamily="@font/inter_medium"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:textColor="@color/white"
+                        android:text="ACTIVE"
+                        />
+
+                </androidx.cardview.widget.CardView>
+
+            </TableRow>
+
+                 <TableRow>
+                    <TextView
+                        android:text="WAKTU MASUK"
+                        android:padding="10dp"
+                        android:textSize="12sp"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/inter"
+                        android:textColor="@color/blue900"
+                        android:textAlignment="textStart"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        /> <!-- kasih lebar minimum -->
+
+                     <TextView
+                         android:id="@+id/inputTimeIn"
+                        android:text="20:00"
+                        android:padding="10dp"
+                         android:textSize="14sp"
+                         android:layout_marginEnd="10dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:textColor="@color/blue900"
+                         android:textAlignment="textEnd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        /> <!-- kasih lebar minimum -->
+                </TableRow>
+
+                 <TableRow>
+                    <TextView
+                        android:text="WAKTU KELUAR"
+                        android:padding="10dp"
+                        android:textSize="12sp"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/inter"
+                        android:textColor="@color/blue900"
+                        android:textAlignment="textStart"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        /> <!-- kasih lebar minimum -->
+
+                     <TextView
+                         android:id="@+id/inputTimeOut"
+                        android:text="12:20"
+                        android:padding="10dp"
+                         android:textSize="14sp"
+                         android:layout_marginEnd="10dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:textColor="@color/blue900"
+                         android:textAlignment="textEnd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        /> <!-- kasih lebar minimum -->
+                </TableRow>
+
+        </TableLayout>
+
+
+        <TextView
+              android:id="@+id/titleNotes"
+              android:text="CATATAN"
+              android:padding="10dp"
+              android:textSize="12sp"
+              android:layout_marginStart="10dp"
+              android:fontFamily="@font/inter"
+              android:textColor="@color/blue900"
+              android:textAlignment="textStart"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              app:layout_constraintTop_toBottomOf="@id/tableLayout"
+              app:layout_constraintStart_toStartOf="@id/cardForeground"
+              />
+
+        <TextView
+            android:id="@+id/inputNotes"
+            android:text=" Ini catatan Ku "
+            android:padding="10dp"
+            android:textSize="12sp"
+            android:translationZ="20dp"
+            android:fontFamily="@font/inter"
+            android:textColor="@color/gray900"
+            android:textAlignment="textStart"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/cardNotes"
+            app:layout_constraintEnd_toEndOf="@id/cardNotes"
+            app:layout_constraintTop_toTopOf="@id/cardNotes"
+            />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardNotes"
+            android:layout_width="0dp"
+            android:layout_height="75dp"
+            app:cardBackgroundColor="@color/blueBase"
+            app:cardCornerRadius="10dp"
+            android:layout_marginHorizontal="15dp"
+            app:cardElevation="0dp"
+            android:maxLines="3"
+            app:layout_constraintTop_toBottomOf="@+id/titleNotes"
+            app:layout_constraintStart_toStartOf="@id/cardForeground"
+            app:layout_constraintEnd_toEndOf="@id/cardForeground"
+            />
+
+
+           <TextView
+            android:id="@+id/textHeaderItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_semibold"
+            android:text="LIST ITEM"
+            app:layout_constraintTop_toBottomOf="@id/cardBackground"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+               app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            android:textSize="20sp"
+            android:textColor="@color/blue900"
+               android:layout_marginVertical="15dp"
+            android:padding="0dp"/>
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewListItem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:scrollbars="none"
+            tools:listitem="@layout/card_list_detail_report_rental"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintTop_toBottomOf="@id/textHeaderItem"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</ScrollView>

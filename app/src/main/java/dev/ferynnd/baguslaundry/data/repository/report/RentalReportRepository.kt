@@ -3,6 +3,7 @@ import android.content.Context
 import dev.ferynnd.baguslaundry.data.api.ApiResponse
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
+import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.model.ReportRental
 
 class RentalReportRepository  (context: Context) {
@@ -10,9 +11,15 @@ class RentalReportRepository  (context: Context) {
     private val retrofitHelper = RetrofitHelper(context)
     private val rentalReportApiService = retrofitHelper.rentalReportApiService
 
+    private val sharedPreferences = SharePrefrenceHelper(context)
+
+    private val role: String
+        get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
+
+
     suspend fun getReportRental(): ApiResponse<ReportRental> {
         try {
-            val response = rentalReportApiService.getReportRental()
+            val response = rentalReportApiService.getReportRental(role)
             if (response.success) {
                 return response
             } else {
@@ -23,23 +30,10 @@ class RentalReportRepository  (context: Context) {
         }
     }
 
-//    suspend fun createReportRental(productRental : ReportRental): DefaultRequest<ReportRental> {
-//        try {
-//            val response = rentalReportApiService.createReportRental(productRental )
-//            if (response.success) {
-//                return response
-//            } else {
-//                throw Exception("API request failed")
-//            }
-//        } catch (e: Exception) {
-//            throw e
-//
-//        }
-//    }
 
     suspend fun getReportRentalById(id: Int): DefaultRequest<ReportRental> {
         try {
-            val response = rentalReportApiService.getReportRentalById(id)
+            val response = rentalReportApiService.getReportRentalById(role,id)
             if (response.success) {
                 return response
             } else {
@@ -51,29 +45,5 @@ class RentalReportRepository  (context: Context) {
         }
     }
 
-    suspend fun deleteReportRental(id: Int): DefaultRequest<ReportRental> {
-        try {
-            val response = rentalReportApiService.deleteReportRental(id)
-            if (response.success) {
-                return response
-            } else {
-                throw Exception("API request failed")
-            }
-        } catch (e: Exception) {
-            throw e
-        }
-    }
 
-    suspend fun updateReportRental(id: Int, productRental : ReportRental): DefaultRequest<ReportRental> {
-        try {
-            val response = rentalReportApiService.updateReportRental(id, productRental )
-            if (response.success) {
-                return response
-            } else {
-                throw Exception("API request failed")
-            }
-        } catch (e: Exception) {
-            throw e
-        }
-    }
 }

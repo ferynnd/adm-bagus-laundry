@@ -9,6 +9,8 @@ import dev.ferynnd.baguslaundry.data.api.LoginResponse
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.model.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 //private val authApiService: AuthApiService = RetrofitHelper(context).authApiService
@@ -21,11 +23,12 @@ class UserRepository(context: Context) {
     private val authApiService = retrofitHelper.authApiService
     private val userApiService = retrofitHelper.userApiService
 
-     private val role: String
+    private val role: String
         get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
 
     fun isLoggedIn(): Boolean {
-        val token = sharedPreferences.getString("PREF_USER_TOKEN", null)  // atau apapun key token kamu
+        val token =
+            sharedPreferences.getString("PREF_USER_TOKEN", null)  // atau apapun key token kamu
         return !token.isNullOrEmpty()
     }
 
@@ -67,7 +70,7 @@ class UserRepository(context: Context) {
 //            }
 //    }
 
-      suspend fun getUser(): ApiResponse<User> {
+    suspend fun getUser(): ApiResponse<User> {
         val response = userApiService.getUser(role)
         if (response.success) {
             return response

@@ -8,59 +8,57 @@
     android:background="@color/background">
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineLeft"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintGuide_percent="0.05"
         android:orientation="vertical"
-        android:id="@+id/guidelineLeft"/>
+        app:layout_constraintGuide_percent="0.05" />
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineRight"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintGuide_percent="0.95"
         android:orientation="vertical"
-        android:id="@+id/guidelineRight"/>
+        app:layout_constraintGuide_percent="0.95" />
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineTop"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintGuide_percent="0.07"
         android:orientation="horizontal"
-        android:id="@+id/guidelineTop"/>
+        app:layout_constraintGuide_percent="0.07" />
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineMid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintGuide_percent="0.5"
         android:orientation="vertical"
-        android:id="@+id/guidelineMid"/>
+        app:layout_constraintGuide_percent="0.5" />
 
 
     <TextView
         android:id="@+id/headerSelamat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Selamat"
         android:fontFamily="@font/inter_light"
+        android:text="Selamat"
         android:textColor="@color/blue900"
         android:textSize="22sp"
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-        app:layout_constraintTop_toTopOf="@id/guidelineTop"
-        />
+        app:layout_constraintTop_toTopOf="@id/guidelineTop" />
 
     <TextView
         android:id="@+id/headerDatang"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Datang,"
+        android:layout_marginStart="5dp"
         android:fontFamily="@font/inter_medium"
+        android:text="Datang,"
         android:textColor="@color/blue900"
         android:textSize="22sp"
-        android:layout_marginStart="5dp"
-        app:layout_constraintStart_toEndOf="@id/headerSelamat"
-        app:layout_constraintTop_toTopOf="@id/headerSelamat"
         app:layout_constraintBottom_toBottomOf="@id/headerSelamat"
-        />
+        app:layout_constraintStart_toEndOf="@id/headerSelamat"
+        app:layout_constraintTop_toTopOf="@id/headerSelamat" />
 
     <TextView
         android:id="@+id/headerName"
@@ -82,159 +80,176 @@
         android:layout_height="50dp"
         android:src="@drawable/menuicon"
         android:translationZ="10dp"
-        app:layout_constraintTop_toBottomOf="@id/guidelineTop"
         app:layout_constraintBottom_toBottomOf="@id/headerSelamat"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-        />
+        app:layout_constraintTop_toBottomOf="@id/guidelineTop" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/menuLaundry"
         android:layout_width="0dp"
         android:layout_height="180dp"
-        app:cardCornerRadius="15dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
+        app:cardCornerRadius="15dp"
         app:cardElevation="0dp"
-        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-        app:layout_constraintTop_toBottomOf="@id/headerName"
         app:layout_constraintEnd_toStartOf="@id/guidelineMid"
-        />
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/headerName" />
 
-    <ImageView
-        android:id="@+id/iconLaundry"
-        android:layout_width="90dp"
-        android:layout_height="80dp"
-        android:src="@drawable/laundry"
-        android:translationY="-15dp"
-        app:layout_constraintStart_toStartOf="@id/menuLaundry"
-        app:layout_constraintTop_toTopOf="@id/menuLaundry"
-        app:layout_constraintEnd_toEndOf="@id/menuLaundry"
-        app:layout_constraintBottom_toBottomOf="@id/menuLaundry"
-        />
-
-    <TextView
+    <LinearLayout
+        android:id="@+id/wadahButtonLaundry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="LAUNDRY"
-        android:textColor="@color/blue900"
-        app:layout_constraintStart_toStartOf="@id/menuLaundry"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/menuLaundry"
         app:layout_constraintEnd_toEndOf="@id/menuLaundry"
-        app:layout_constraintTop_toBottomOf="@id/iconLaundry"
-        android:textSize="15sp"
-        android:fontFamily="@font/inter_bold"
-        />
+        app:layout_constraintStart_toStartOf="@id/menuLaundry"
+        app:layout_constraintTop_toTopOf="@id/menuLaundry"
+        tools:ignore="MissingConstraints">
+
+        <ImageView
+            android:id="@+id/iconLaundry"
+            android:layout_width="90dp"
+            android:layout_height="80dp"
+            android:src="@drawable/laundry"
+            android:translationY="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/menuLaundry"
+            app:layout_constraintEnd_toEndOf="@id/menuLaundry"
+            app:layout_constraintStart_toStartOf="@id/menuLaundry"
+            app:layout_constraintTop_toTopOf="@id/menuLaundry" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="LAUNDRY"
+            android:textAlignment="center"
+            android:textColor="@color/blue900"
+            android:textSize="15sp" />
+    </LinearLayout>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/menuRental"
         android:layout_width="0dp"
         android:layout_height="180dp"
+        android:layout_marginStart="10dp"
         app:cardCornerRadius="15dp"
         app:cardElevation="0dp"
-        android:layout_marginStart="10dp"
-        app:layout_constraintStart_toEndOf="@id/guidelineMid"
-        app:layout_constraintTop_toTopOf="@id/menuLaundry"
         app:layout_constraintBottom_toBottomOf="@id/menuLaundry"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-        />
+        app:layout_constraintStart_toEndOf="@id/guidelineMid"
+        app:layout_constraintTop_toTopOf="@id/menuLaundry" />
 
-    <ImageView
-        android:id="@+id/iconRental"
-        android:layout_width="90dp"
-        android:layout_height="80dp"
-        android:src="@drawable/persewaan"
-        android:translationY="-15dp"
-        app:layout_constraintStart_toStartOf="@id/menuRental"
-        app:layout_constraintTop_toTopOf="@id/menuRental"
-        app:layout_constraintEnd_toEndOf="@id/menuRental"
-        app:layout_constraintBottom_toBottomOf="@id/menuRental"
-        />
-
-    <TextView
+    <LinearLayout
+        android:id="@+id/wadahButtonRental"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PESEWAAN"
-        android:textColor="@color/blue900"
-        app:layout_constraintStart_toStartOf="@id/iconRental"
-        app:layout_constraintEnd_toEndOf="@id/iconRental"
-        app:layout_constraintTop_toBottomOf="@id/iconRental"
-        android:textSize="15sp"
-        android:fontFamily="@font/inter_bold"
-        />
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/menuRental"
+        app:layout_constraintEnd_toEndOf="@id/menuRental"
+        app:layout_constraintStart_toStartOf="@id/menuRental"
+        app:layout_constraintTop_toTopOf="@id/menuRental"
+        tools:ignore="MissingConstraints">
+
+        <ImageView
+            android:id="@+id/iconRental"
+            android:layout_width="90dp"
+            android:layout_height="80dp"
+            android:src="@drawable/persewaan"
+            android:translationY="0dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="PESEWAAN"
+            android:textAlignment="center"
+            android:textColor="@color/blue900"
+            android:textSize="15sp" />
+    </LinearLayout>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/menuTransaksiRental"
         android:layout_width="0dp"
         android:layout_height="180dp"
-        app:cardCornerRadius="15dp"
-        android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
+        app:cardCornerRadius="15dp"
         app:cardElevation="0dp"
-        app:layout_constraintStart_toStartOf="@id/guidelineMid"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-        app:layout_constraintTop_toBottomOf="@id/menuLaundry"
-        />
+        app:layout_constraintStart_toStartOf="@id/guidelineMid"
+        app:layout_constraintTop_toTopOf="@+id/menuTransaksiLaundry" />
 
-    <ImageView
-        android:id="@+id/iconTransaksiRental"
-        android:layout_width="90dp"
-        android:layout_height="80dp"
-        android:src="@drawable/report"
-        android:translationY="-8dp"
+    <LinearLayout
+        android:id="@+id/wadahTransaksiRental"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/menuTransaksiRental"
+        app:layout_constraintEnd_toEndOf="@id/menuTransaksiRental"
         app:layout_constraintStart_toStartOf="@id/menuTransaksiRental"
         app:layout_constraintTop_toTopOf="@id/menuTransaksiRental"
-        app:layout_constraintEnd_toEndOf="@id/menuTransaksiRental"
-        app:layout_constraintBottom_toBottomOf="@id/menuTransaksiRental"
-        />
+        tools:ignore="MissingConstraints">
 
-    <TextView
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="TRANSAKSI PESEWAAN"
-        android:textColor="@color/blue900"
-        app:layout_constraintStart_toStartOf="@id/iconTransaksiRental"
-        app:layout_constraintEnd_toEndOf="@id/iconTransaksiRental"
-        app:layout_constraintTop_toBottomOf="@id/iconTransaksiRental"
-        android:textSize="15sp"
-        android:fontFamily="@font/inter_bold"
-        />
+        <ImageView
+            android:id="@+id/iconTransaksiRental"
+            android:layout_width="90dp"
+            android:layout_height="80dp"
+            android:src="@drawable/report" />
+
+        <TextView
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="TRANSAKSI PESEWAAN"
+            android:textAlignment="center"
+            android:textColor="@color/blue900"
+            android:textSize="15sp" />
+
+    </LinearLayout>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/menuTransaksiLaundry"
         android:layout_width="0dp"
         android:layout_height="180dp"
-        app:cardCornerRadius="15dp"
-        android:layout_marginTop="10dp"
-        app:cardElevation="0dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
-        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toStartOf="@id/guidelineMid"
-        app:layout_constraintTop_toBottomOf="@id/menuLaundry"
-        />
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/menuLaundry" />
 
-    <ImageView
-        android:id="@+id/iconTransaksiLaundry"
-        android:layout_width="90dp"
-        android:layout_height="80dp"
-        android:src="@drawable/report"
-        android:translationY="-8dp"
+    <LinearLayout
+        android:id="@+id/wadahTransaksiLaundry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/menuTransaksiLaundry"
+        app:layout_constraintEnd_toEndOf="@id/menuTransaksiLaundry"
         app:layout_constraintStart_toStartOf="@id/menuTransaksiLaundry"
         app:layout_constraintTop_toTopOf="@id/menuTransaksiLaundry"
-        app:layout_constraintEnd_toEndOf="@id/menuTransaksiLaundry"
-        app:layout_constraintBottom_toBottomOf="@id/menuTransaksiLaundry"
-        />
+        tools:ignore="MissingConstraints">
 
-    <TextView
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="TRANSAKSI LAUNDRY"
-        android:textAlignment="center"
-        android:textColor="@color/blue900"
-        app:layout_constraintStart_toStartOf="@id/iconTransaksiLaundry"
-        app:layout_constraintEnd_toEndOf="@id/iconTransaksiLaundry"
-        app:layout_constraintTop_toBottomOf="@id/iconTransaksiLaundry"
-        android:textSize="15sp"
-        android:fontFamily="@font/inter_bold"
-        />
+        <ImageView
+            android:id="@+id/iconTransaksiLaundry"
+            android:layout_width="90dp"
+            android:layout_height="80dp"
+            android:src="@drawable/report" />
+
+        <TextView
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="TRANSAKSI LAUNDRY"
+            android:textAlignment="center"
+            android:textColor="@color/blue900"
+            android:textSize="15sp" />
+
+    </LinearLayout>
 
     <!--    <TextView-->
     <!--        android:id="@+id/textTitle"-->

@@ -1,7 +1,6 @@
 package dev.ferynnd.baguslaundry.ui.user.product_laundry
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,18 +13,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.controller.user.LaundryProductAdapter
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
-import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_NAME
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
-import dev.ferynnd.baguslaundry.databinding.FragmentListProductLaundryBinding
+import dev.ferynnd.baguslaundry.databinding.KurirFragmentListProductLaundryBinding
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ListProductLaundryFragment : Fragment() {
-    private var _binding: FragmentListProductLaundryBinding? = null
+    private var _binding: KurirFragmentListProductLaundryBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var userViewModel: UserViewModel
@@ -49,7 +46,7 @@ class ListProductLaundryFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentListProductLaundryBinding.inflate(layoutInflater)
+        _binding = KurirFragmentListProductLaundryBinding.inflate(layoutInflater)
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()

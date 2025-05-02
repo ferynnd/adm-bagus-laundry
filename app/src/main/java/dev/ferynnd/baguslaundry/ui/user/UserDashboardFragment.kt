@@ -15,16 +15,18 @@ import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_NAME
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
-import dev.ferynnd.baguslaundry.databinding.FragmentUserDashboardBinding
+import dev.ferynnd.baguslaundry.databinding.KurirFragmentUserDashboardBinding
 import dev.ferynnd.baguslaundry.ui.LoginActivity
 import dev.ferynnd.baguslaundry.ui.user.product_laundry.ListProductLaundryFragment
 import dev.ferynnd.baguslaundry.ui.user.product_rental.ListProductRentalFragment
+import dev.ferynnd.baguslaundry.ui.user.transaksi_laundry.ListTransaksiLaundryFragment
+import dev.ferynnd.baguslaundry.ui.user.transaksi_rental.ListTransaksiRentalFragment
 import kotlinx.coroutines.launch
 
 
 class UserDashboardFragment : Fragment() {
 
-    private lateinit var binding: FragmentUserDashboardBinding
+    private lateinit var binding: KurirFragmentUserDashboardBinding
     private lateinit var sharePrefrences: SharePrefrenceHelper
     private lateinit var userViewModel: UserViewModel
 
@@ -36,7 +38,7 @@ class UserDashboardFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        binding = FragmentUserDashboardBinding.inflate(inflater, container, false)
+        binding = KurirFragmentUserDashboardBinding.inflate(inflater, container, false)
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
 
@@ -82,6 +84,20 @@ class UserDashboardFragment : Fragment() {
         binding.menuRental.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.host_fragment_user, ListProductRentalFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        binding.menuTransaksiLaundry.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.host_fragment_user, ListTransaksiLaundryFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        binding.menuTransaksiRental.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.host_fragment_user, ListTransaksiRentalFragment())
                 .addToBackStack(null)
                 .commit()
         }

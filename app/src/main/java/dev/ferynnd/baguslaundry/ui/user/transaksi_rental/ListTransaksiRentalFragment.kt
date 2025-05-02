@@ -1,4 +1,4 @@
-package dev.ferynnd.baguslaundry.ui.user.product_rental
+package dev.ferynnd.baguslaundry.ui.user.transaksi_rental
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,26 +11,29 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ferynnd.baguslaundry.R
-import dev.ferynnd.baguslaundry.controller.user.RentalProductAdapter
+import dev.ferynnd.baguslaundry.controller.user.RentalTransaksiAdapter
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
-import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
-import dev.ferynnd.baguslaundry.databinding.KurirFragmentListProductRentalBinding
-import dev.ferynnd.baguslaundry.model.ProductRental
+import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
+import dev.ferynnd.baguslaundry.databinding.KurirFragmentListTransaksiRentalBinding
+import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.launch
 
-class ListProductRentalFragment : Fragment() {
-    private var _binding: KurirFragmentListProductRentalBinding? = null
+class ListTransaksiRentalFragment : Fragment() {
+    private var _binding: KurirFragmentListTransaksiRentalBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var userViewModel: UserViewModel
-    private lateinit var rentalProductViewModel: RentalProductViewModel
-    private lateinit var rentalProductAdapter: RentalProductAdapter
+    private lateinit var transaksiRentalViewModel: RentalReportViewModel
+    private lateinit var clientViewModel: ClientViewModel
+    private lateinit var transaksiRentalAdapter: RentalTransaksiAdapter
+
     private lateinit var sharePrefrences: SharePrefrenceHelper
 
-    private var fullRentalList: List<ProductRental> = listOf()
+    private var fullTransaksiRentalList: List<ReportRental> = listOf()
 
     private var userId: Int = 0
     private var userIdBranch: Int = 0
@@ -39,24 +42,25 @@ class ListProductRentalFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-        rentalProductViewModel = ViewModelProvider(this)[RentalProductViewModel::class.java]
+        clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
+        transaksiRentalViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java]
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = KurirFragmentListProductRentalBinding.inflate(layoutInflater)
+        _binding = KurirFragmentListTransaksiRentalBinding.inflate(layoutInflater)
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
 
-        rentalProductAdapter = RentalProductAdapter { productRental: ProductRental ->
-            onDetailClick(productRental)
+        transaksiRentalAdapter = RentalTransaksiAdapter { transaksiRental: ReportRental ->
+            onDetailClick(transaksiRental)
         }
 
-        binding.recyclerViewProductLaundry.adapter = rentalProductAdapter
-        binding.recyclerViewProductLaundry.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerViewTransaksiRental.adapter = transaksiRentalAdapter
+        binding.recyclerViewTransaksiRental.layoutManager = LinearLayoutManager(requireContext())
 
         // Dapatkan user dan baru lanjut observe
         if (userId != 0) {
@@ -64,20 +68,28 @@ class ListProductRentalFragment : Fragment() {
                 val user = userViewModel.getUserById(userId)
                 userIdBranch = user.data.id_branch_user!!.toInt()
 
+                userViewModel.users.observe(viewLifecycleOwner) { kurirList ->
+                    transaksiRentalAdapter.setKurir(kurirList)
+                }
+
+                clientViewModel.clients.observe(viewLifecycleOwner) { ClientList ->
+                    transaksiRentalAdapter.setClient(ClientList)
+                }
+
                 // Setelah userIdBranch tersedia, baru observe
-                rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { productLaundry ->
+                transaksiRentalViewModel.rentalReports.observe(viewLifecycleOwner) { productLaundry ->
                     productLaundry?.let {
                         val filteredList = productLaundry.filter { item ->
-                            item.id_branch_rental_item == userIdBranch
+                            item.id_branch_transaction_rental == userIdBranch
                         }
 
                         // Simpan list untuk pencarian
-                        fullRentalList = filteredList
+                        fullTransaksiRentalList = filteredList
 
                         countProductLaundry = filteredList.size
                         binding.countData.text = countProductLaundry.toString()
 
-                        rentalProductAdapter.submitList(filteredList)
+                        transaksiRentalAdapter.submitList(filteredList)
                     }
                 }
             }
@@ -91,10 +103,10 @@ class ListProductRentalFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 val query = newText.orEmpty().lowercase()
-                val filtered = fullRentalList.filter {
-                    it.name_rental_item!!.lowercase().contains(query)
+                val filtered = fullTransaksiRentalList.filter {
+                    it.recipient_name_transaction_rental!!.lowercase().contains(query)
                 }
-                rentalProductAdapter.submitList(filtered)
+                transaksiRentalAdapter.submitList(filtered)
                 binding.searchView.setIconifiedByDefault(false)
                 binding.countData.text = filtered.size.toString()
                 return true
@@ -117,8 +129,8 @@ class ListProductRentalFragment : Fragment() {
         _binding = null
     }
 
-    private fun onDetailClick(rentalItem: ProductRental) {
-        Toast.makeText(context, "Detail ${rentalItem.id_rental_item} akan ditampilkan", Toast.LENGTH_SHORT).show()
+    private fun onDetailClick(transaksiLaundry: ReportRental) {
+        Toast.makeText(context, "Detail ${transaksiLaundry.id_transaction_rental} akan ditampilkan", Toast.LENGTH_SHORT).show()
 //        val bundle = Bundle().apply {
 //            putLong("supplierId", supplier.id_supplier)  // Mengirimkan ID supplier ke fragment berikutnya
 //        }

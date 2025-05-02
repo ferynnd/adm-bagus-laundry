@@ -1,8 +1,6 @@
 package dev.ferynnd.baguslaundry.data.viewmodel
 
 import android.app.Application
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -40,7 +38,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     private fun getAllUsers() {
         viewModelScope.launch {
             val userList = userRepository.getUser().data
-            val filteredUsers = userList.filter { it.role_user == UserRole.owner }
+//            val filteredUsers = userList.filter { it.role_user == UserRole.owner }
+            val filteredUsers = userList
             _users.postValue(filteredUsers)
         }
     }

@@ -9,19 +9,21 @@ import androidx.lifecycle.viewModelScope
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.repository.ClientRepository
 import dev.ferynnd.baguslaundry.model.Client
+import dev.ferynnd.baguslaundry.model.User
 import kotlinx.coroutines.launch
 
 
 class ClientViewModel (application: Application) : AndroidViewModel(application) {
 
-    private lateinit var clientRepository: ClientRepository
+    private var clientRepository = ClientRepository(application.applicationContext)
 
     private val _clients = MutableLiveData<List<Client>>()
     val clients: LiveData<List<Client>> get() = _clients
 
-    fun init(context: Context) {
-       clientRepository = ClientRepository(context)
-        getAllClient()
+    init {
+        if (clientRepository.isLoggedIn()) {   // <<< cek dulu
+            getAllClient()
+        }
     }
 
      private fun getAllClient() {

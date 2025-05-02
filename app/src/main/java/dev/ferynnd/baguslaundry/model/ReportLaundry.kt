@@ -9,7 +9,7 @@ data class ReportLaundry(
     val notes_transaction_laundry: String? = null,
     val total_weight_transaction_laundry: Double? = null,
     val total_price_transaction_laundry: Double? = null,
-    val total_laundry_transaction_laundry: Int? = null,
+    val count_item_laundry_transaction_laundry: Int? = null,
     val promo_transaction_laundry: Double? = null,
     val additional_cost_transaction_laundry: Double? = null,
     val total_transaction_laundry: Double? = null,

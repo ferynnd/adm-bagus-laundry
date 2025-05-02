@@ -13,14 +13,15 @@ import kotlinx.coroutines.launch
 
 class LaundryReportViewModel  (application: Application) : AndroidViewModel(application) {
 
-    private lateinit var laundryReportRepository: LaundryReportRepository
+    private var laundryReportRepository = LaundryReportRepository(application.applicationContext)
 
     private val _laundryReports = MutableLiveData<List<ReportLaundry>>()
     val laundryReports: LiveData<List<ReportLaundry>> get() = _laundryReports
 
-    fun init(context: Context) {
-        laundryReportRepository = LaundryReportRepository(context)
-        getAllReportLaundry()
+    init {
+        if (laundryReportRepository.isLoggedIn()) {
+            getAllReportLaundry()
+        }
     }
 
     private fun getAllReportLaundry() {
@@ -28,7 +29,6 @@ class LaundryReportViewModel  (application: Application) : AndroidViewModel(appl
             _laundryReports.postValue(laundryReportRepository.getReportLaundry().data)
         }
     }
-
 
     suspend fun getReportLaundry() {
         try {
@@ -59,5 +59,4 @@ class LaundryReportViewModel  (application: Application) : AndroidViewModel(appl
     suspend fun updateReportLaundry(client: ReportLaundry) {
         client.id_transaction_laundry?.let { laundryReportRepository.updateReportLaundry(it, client) }
     }
-
 }

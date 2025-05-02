@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import dev.ferynnd.baguslaundry.databinding.CardProductRentalBinding
+import dev.ferynnd.baguslaundry.databinding.KurirCardProductRentalBinding
 import dev.ferynnd.baguslaundry.model.ProductRental
 import java.text.NumberFormat
 import java.util.Locale
@@ -17,7 +17,7 @@ class RentalProductAdapter (
     private val onItemClick: (ProductRental) -> Unit
 ) : ListAdapter<ProductRental, RentalProductAdapter.ProductRentalViewHolder>(DiffCallback()) {
 
-    inner class ProductRentalViewHolder(val binding: CardProductRentalBinding) :
+    inner class ProductRentalViewHolder(val binding: KurirCardProductRentalBinding) :
         RecyclerView.ViewHolder(binding.root) {
         val id_nama_rental = binding.numberNamaProductRental
         val status = binding.statusProductRental
@@ -33,7 +33,7 @@ class RentalProductAdapter (
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductRentalViewHolder {
-        val binding = CardProductRentalBinding.inflate(
+        val binding = KurirCardProductRentalBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
         return ProductRentalViewHolder(binding)

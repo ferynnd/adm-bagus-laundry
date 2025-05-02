@@ -12,6 +12,7 @@ data class ReportRental(
     val type_rental_transaction : TypeTransactionRental,
     val status_transaction_rental:StatusTransactionRental,
     val total_pcs_transaction_rental: Int? = null,
+    val price_weight_transaction_rental: Int? = null,
     val total_weight_transaction_rental: Double? = null,
     val additional_cost_transaction_rental: Double? = null,
     val promo_transaction_rental: Double? = null,

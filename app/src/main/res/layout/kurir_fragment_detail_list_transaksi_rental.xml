@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detail_list_transaksi_rental"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".ui.user.transaksi_rental.DetailListTransaksiRentalFragment">
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:paddingTop="72dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineLeft"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.05" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineRight"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.95" />
+
+            <ImageView
+                android:id="@+id/arrowBack"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/back"
+                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textHeaderLight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:fontFamily="@font/inter_light"
+                android:padding="0dp"
+                android:paddingEnd="10dp"
+                android:text="@string/detail"
+                android:textColor="@color/blue900"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="@+id/arrowBack"
+                app:layout_constraintEnd_toStartOf="@+id/textHeaderBold"
+                app:layout_constraintTop_toTopOf="@+id/arrowBack"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/textHeaderBold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:fontFamily="@font/inter_bold"
+                android:padding="0dp"
+                android:text="@string/transaksi_rental"
+                android:textColor="@color/blue900"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="@+id/textHeaderLight"
+                app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+                app:layout_constraintTop_toTopOf="@+id/textHeaderLight" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTransaksiLaundry"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/gray900"
+                app:cardCornerRadius="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
+                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
+                app:layout_constraintTop_toBottomOf="@+id/textHeaderBold">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:id="@+id/no_resi_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="TRX2321"
+                        android:textColor="@color/orange600"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/tipe_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="Bath Towel"
+                        android:textAllCaps="true"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/wadah_status"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/wadah_status"
+                        tools:ignore="MissingConstraints" />
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/wadah_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/transaksiOut"
+                        app:cardCornerRadius="6dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="MissingConstraints">
+
+                        <TextView
+                            android:id="@+id/status_transaksi_rental"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter_semibold"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="4dp"
+                            android:text="Transaksi Keluar"
+                            android:textAllCaps="true"
+                            android:textColor="@color/white"
+                            android:textSize="12sp" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!--        title per kolom -->
+
+                    <TextView
+                        android:id="@+id/title_tanggal_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Tanggal: "
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/wadah_status"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_nama_client_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="Nama Client"
+                        android:textColor="@color/gray900"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_tanggal_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_nama_penerima_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Nama Penerima"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_nama_client_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_nama_kurir_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="Nama Kurir"
+                        android:textColor="@color/gray900"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_nama_penerima_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_jumlah_item_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Jumlah Item"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_nama_kurir_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_harga_per_kg_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Harga Per Kg"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_jumlah_item_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_total_berat_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Total Berat"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_harga_per_kg_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_promo_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Promo"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_total_berat_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_tambahan_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Tambahan"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_promo_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_total_harga_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Total Harga"
+                        android:textColor="@color/gray900"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_tambahan_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <!--        Data Output -->
+
+                    <TextView
+                        android:id="@+id/tanggal_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="2025-04-27 17:18:26"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/title_tanggal_transaksi_rental"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/title_tanggal_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/nama_client_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="Jukir"
+                        android:textColor="@color/gray900"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tanggal_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/nama_penerima_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Piky"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/nama_client_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/nama_kurir_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="Mamang"
+                        android:textColor="@color/gray900"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/nama_penerima_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/jumlah_item_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="10"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/nama_kurir_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/harga_per_kg_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Rp.5000,00"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/jumlah_item_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/total_berat_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="12,6"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/harga_per_kg_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/promo_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Rp.12.000,00"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/total_berat_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/tambahan_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Rp.1000,00"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/promo_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/total_harga_transaksi_rental"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="Rp.3000,00"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tambahan_transaksi_rental"
+                        tools:ignore="MissingConstraints" />
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/wadah_note"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:backgroundTint="@color/blueBase"
+                        app:cardCornerRadius="6dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/total_harga_transaksi_rental"
+                        tools:ignore="MissingConstraints">
+
+                        <TextView
+                            android:id="@+id/note_transaksi_rental"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/inter_medium"
+                            android:maxLines="3"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="4dp"
+                            android:singleLine="false"
+                            android:text="tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia"
+                            android:textColor="@color/gray900"
+                            android:textSize="12sp" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/label_list_transaksi_rental"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:fontFamily="@font/inter_semibold"
+                android:gravity="start"
+                android:paddingHorizontal="16dp"
+                android:text="List Transaksi Rental"
+                android:textColor="@color/black"
+                app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
+                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
+                app:layout_constraintTop_toBottomOf="@+id/cardTransaksiLaundry"
+                tools:ignore="MissingConstraints" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewTransaksiRental"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never"
+                android:layout_marginBottom="54dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+                app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+                app:layout_constraintTop_toBottomOf="@+id/label_list_transaksi_rental"
+                tools:listitem="@layout/kurir_card_list_transaksi_rental" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

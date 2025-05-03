@@ -12,14 +12,15 @@ import kotlinx.coroutines.launch
 
 class ListTransactionReportLaundryViewModel  (application: Application) : AndroidViewModel(application) {
 
-    private lateinit var listTransactionReportLaundryRepository: ListTransactionReportLaundryRepository
+    private var listTransactionReportLaundryRepository = ListTransactionReportLaundryRepository(application.applicationContext)
 
     private val _listTransactionLaundryReports = MutableLiveData<List<ListTransactionLaundry>>()
     val listTransactionLaundryReports: LiveData<List<ListTransactionLaundry>> get() = _listTransactionLaundryReports
 
-    fun init(context: Context) {
-        listTransactionReportLaundryRepository = ListTransactionReportLaundryRepository(context)
-        getAllListTransactionLaundry()
+    init {
+        if (listTransactionReportLaundryRepository.isLoggedIn()) {
+            getAllListTransactionLaundry()
+        }
     }
 
     private fun getAllListTransactionLaundry() {

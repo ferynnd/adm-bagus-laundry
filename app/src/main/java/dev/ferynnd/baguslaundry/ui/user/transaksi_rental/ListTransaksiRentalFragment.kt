@@ -129,17 +129,17 @@ class ListTransaksiRentalFragment : Fragment() {
         _binding = null
     }
 
-    private fun onDetailClick(transaksiLaundry: ReportRental) {
-        Toast.makeText(context, "Detail ${transaksiLaundry.id_transaction_rental} akan ditampilkan", Toast.LENGTH_SHORT).show()
-//        val bundle = Bundle().apply {
-//            putLong("supplierId", supplier.id_supplier)  // Mengirimkan ID supplier ke fragment berikutnya
-//        }
-//        val detailFragment = DetailSupplierFragment()
-//        detailFragment.arguments = bundle  // Menetapkan argumen untuk fragment detail
-//
-//        parentFragmentManager.beginTransaction()
-//            .replace(R.id.FragmentMenu, detailFragment)  // Mengganti fragment saat ini dengan DetailSupplierFragment
-//            .addToBackStack(null)  // Menambahkan transaksi ke back stack agar pengguna bisa kembali
-//            .commit()  // Menyelesaikan transaksi
+    private fun onDetailClick(transaksiRental: ReportRental) {
+        Toast.makeText(context, "Detail ${transaksiRental.id_transaction_rental} akan ditampilkan", Toast.LENGTH_SHORT).show()
+        val bundle = Bundle().apply {
+            putInt("TRANSAKSI_RENTAL_ID", transaksiRental.id_transaction_rental)  // Mengirimkan ID supplier ke fragment berikutnya
+        }
+        val detailFragment = DetailListTransaksiRentalFragment()
+        detailFragment.arguments = bundle  // Menetapkan argumen untuk fragment detail
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.host_fragment_user, detailFragment)  // Mengganti fragment saat ini dengan DetailSupplierFragment
+            .addToBackStack(null)  // Menambahkan transaksi ke back stack agar pengguna bisa kembali
+            .commit()  // Menyelesaikan transaksi
     }
 }

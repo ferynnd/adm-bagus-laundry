@@ -16,9 +16,9 @@ class LaundryProductAdapter(
 
     inner class ProductLaundryViewHolder(val binding: CardProductLaundryBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        val nama_laundry = binding.namaProductLaundry
-        val harga_waktu = binding.hargaWaktuProductLaundry
-        val deskripsi = binding.deskripsiProductLaundry
+        val nama_laundry = binding.inputName
+        val harga_waktu = binding.inputTime
+        val deskripsi = binding.inputDescription
 
         init {
             itemView.setOnClickListener {

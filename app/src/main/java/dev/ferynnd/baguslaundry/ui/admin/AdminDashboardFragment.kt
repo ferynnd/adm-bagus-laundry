@@ -66,7 +66,10 @@ class AdminDashboardFragment : Fragment() {
                     R.id.menu_setting -> {
                         // Aksi ke halaman setting
                         Toast.makeText(requireContext(), "Menu: Setting", Toast.LENGTH_SHORT).show()
-                        // startActivity(Intent(this, SettingActivity::class.java))
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.host_fragment_admin, AdminProfileFragment())
+                            .addToBackStack("setting")
+                            .commit()
                         true
                     }
 

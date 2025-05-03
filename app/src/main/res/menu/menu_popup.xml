@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_setting"
-        android:title="PENGATURAN" />
+        android:title="PROFILE" />
     <item
         android:id="@+id/menu_logout"
         android:title="KELUAR" />

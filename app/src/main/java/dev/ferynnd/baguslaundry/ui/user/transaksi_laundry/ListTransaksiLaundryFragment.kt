@@ -16,6 +16,7 @@ import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
+import dev.ferynnd.baguslaundry.databinding.KurirFragmentDetailListTransaksiLaundryBinding
 import dev.ferynnd.baguslaundry.databinding.KurirFragmentListTransaksiLaundryBinding
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
@@ -120,15 +121,15 @@ class ListTransaksiLaundryFragment : Fragment() {
 
     private fun onDetailClick(transaksiLaundry: ReportLaundry) {
         Toast.makeText(context, "Detail ${transaksiLaundry.id_transaction_laundry} akan ditampilkan", Toast.LENGTH_SHORT).show()
-//        val bundle = Bundle().apply {
-//            putLong("supplierId", supplier.id_supplier)  // Mengirimkan ID supplier ke fragment berikutnya
-//        }
-//        val detailFragment = DetailSupplierFragment()
-//        detailFragment.arguments = bundle  // Menetapkan argumen untuk fragment detail
-//
-//        parentFragmentManager.beginTransaction()
-//            .replace(R.id.FragmentMenu, detailFragment)  // Mengganti fragment saat ini dengan DetailSupplierFragment
-//            .addToBackStack(null)  // Menambahkan transaksi ke back stack agar pengguna bisa kembali
-//            .commit()  // Menyelesaikan transaksi
+        val bundle = Bundle().apply {
+            putInt("TRANSAKSI_ID", transaksiLaundry.id_transaction_laundry ?: 0)
+        }
+        val detailFragment = DetailListTransaksiLaundryFragment()
+        detailFragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.host_fragment_user, detailFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

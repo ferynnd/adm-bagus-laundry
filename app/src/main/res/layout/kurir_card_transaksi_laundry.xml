@@ -66,7 +66,7 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!--        title per kolom -->
+        <!-- title per kolom -->
 
         <TextView
             android:id="@+id/title_tanggal_masuk_transaksi_laundry"

@@ -17,6 +17,8 @@ import dev.ferynnd.baguslaundry.model.TypeTransactionRental
 import dev.ferynnd.baguslaundry.model.User
 import java.text.DecimalFormat
 import java.text.NumberFormat
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
@@ -41,6 +43,7 @@ class RentalTransaksiAdapter(
         RecyclerView.ViewHolder(binding.root) {
         val status = binding.statusTransaksiRental
         val tipe = binding.tipeTransaksiRental
+        val tanggal = binding.tanggalTransaksiRental
         val namaClient = binding.namaClientTransaksiRental
         val namaPenerima = binding.namaPenerimaTransaksiRental
         val namaKurir = binding.namaKurirTransaksiRental
@@ -97,7 +100,8 @@ class RentalTransaksiAdapter(
 
         holder.namaPenerima.text = report.recipient_name_transaction_rental ?: "-"
 
-        // Jumlah item dan berat
+        holder.tanggal.text = report.time_transaction_rental ?: "-"
+
         holder.jumlahItem.text = "${report.total_pcs_transaction_rental ?: 0} pcs"
         holder.totalBerat.text =
             "${decimalFormat.format(report.total_weight_transaction_rental ?: 0.0)} kg"

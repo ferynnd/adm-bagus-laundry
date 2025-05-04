@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter_light"
-            android:text="DETIL"
+            android:text="DETAIL"
             android:paddingEnd="10dp"
             app:layout_constraintTop_toTopOf="@id/textHeaderBold"
             app:layout_constraintEnd_toStartOf="@id/textHeaderBold"

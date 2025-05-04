@@ -31,14 +31,9 @@ class AdminListProductRentalFragment : Fragment() {
     private var productRentalList: List<ProductRental>? = null
     private var branchList: List<Branch>? = null
 
-
-   private val groupedData = mutableListOf<Any>()
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         rentalProductViewModel = ViewModelProvider(this).get(RentalProductViewModel::class.java)
-        rentalProductViewModel.init(requireContext())
         branchViewModel = ViewModelProvider(this).get(BranchViewModel::class.java)
         branchViewModel.init(requireContext())
     }

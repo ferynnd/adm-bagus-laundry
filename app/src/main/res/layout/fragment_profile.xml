@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:text="John Doe"
                 android:textSize="20sp"
-                android:textStyle="bold"
+                android:fontFamily="@font/inter_bold"
                 android:textColor="@color/primary"
                 android:textAllCaps="true" />
 
@@ -73,9 +73,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Admin"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textColor="@color/blue900"
-                android:fontFamily="@font/inter"
+                android:fontFamily="@font/inter_semibold"
                 android:layout_marginBottom="24dp" />
 
             <!-- Detail Card -->
@@ -95,13 +95,13 @@
                     <!-- Fullname -->
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="40dp"
                         android:orientation="horizontal"
-                        android:paddingBottom="12dp">
+                        android:gravity="center_vertical">
 
                         <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="25dp"
+                            android:layout_height="match_parent"
                             android:src="@drawable/name" />
 
                         <TextView
@@ -109,22 +109,23 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
+                            android:gravity="center"
                             android:text="johndoe"
                             android:textColor="@color/blue900"
                             android:fontFamily="@font/inter"
-                            android:textSize="14sp" />
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                     <!-- Gender -->
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:paddingBottom="12dp">
+                        android:gravity="center_vertical"
+                        android:layout_height="40dp">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="25dp"
+                            android:layout_height="match_parent"
                             android:src="@drawable/gender" />
 
                         <TextView
@@ -133,20 +134,21 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
                             android:text="Male"
+                            android:gravity="center"
                             android:textColor="@color/blue900"
                             android:fontFamily="@font/inter"
-                            android:textSize="14sp" />
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                     <!-- Phone -->
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingBottom="12dp">
+                        android:gravity="center_vertical"
+                        android:layout_height="40dp"
+                        android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="20dp"
+                            android:layout_width="25dp"
                             android:layout_height="20dp"
                             android:src="@drawable/phone" />
 
@@ -158,18 +160,18 @@
                             android:text="08123456789"
                             android:textColor="@color/blue900"
                             android:fontFamily="@font/inter"
-                            android:textSize="14sp" />
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                     <!-- Address -->
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingBottom="12dp">
+                        android:gravity="center_vertical"
+                        android:layout_height="40dp"
+                        android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="20dp"
+                            android:layout_width="25dp"
                             android:layout_height="20dp"
                             android:src="@drawable/maps" />
 
@@ -180,17 +182,18 @@
                             android:layout_marginStart="12dp"
                             android:text="Jl. Merdeka No. 1"
                             android:textColor="@color/blue900"
-                            android:textSize="14sp" />
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                     <!-- Status -->
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_height="40dp"
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="20dp"
+                            android:layout_width="25dp"
                             android:layout_height="20dp"
                             android:src="@drawable/active" />
 
@@ -200,7 +203,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
                             android:text="Active"
-                            android:textColor="@color/success"
+                            android:textAllCaps="true"
+                            android:textColor="@color/blue900"
                             android:textSize="16sp"
                             android:fontFamily="@font/inter_bold" />
                     </LinearLayout>

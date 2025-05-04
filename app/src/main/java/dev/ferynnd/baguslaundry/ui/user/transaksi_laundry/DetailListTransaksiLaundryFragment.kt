@@ -10,24 +10,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ferynnd.baguslaundry.R
-import dev.ferynnd.baguslaundry.controller.user.LaundryTransaksiAdapter
 import dev.ferynnd.baguslaundry.controller.user.ListLaundryTransaksiAdapter
-import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.ListTransactionReportLaundryViewModel
 import dev.ferynnd.baguslaundry.databinding.KurirFragmentDetailListTransaksiLaundryBinding
-import dev.ferynnd.baguslaundry.databinding.KurirFragmentListTransaksiLaundryBinding
-import dev.ferynnd.baguslaundry.model.ReportLaundry
-import dev.ferynnd.baguslaundry.model.StatusReportaundry
-import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
+import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.collections.filter
 
 class DetailListTransaksiLaundryFragment : Fragment() {
     private var _binding: KurirFragmentDetailListTransaksiLaundryBinding? = null
@@ -70,10 +61,10 @@ class DetailListTransaksiLaundryFragment : Fragment() {
                     binding.apply {
 
                         statusTransaksiLaundry.text = when (dataTransaskiLaundry.status_transaction_laundry) {
-                            StatusReportaundry.pending -> "MENUNGGU"
-                            StatusReportaundry.in_progress -> "SEDANG DIPROSES"
-                            StatusReportaundry.completed -> "SELESAI"
-                            StatusReportaundry.cancelled -> "DIBATALKAN"
+                            StatusReportLaundry.pending -> "MENUNGGU"
+                            StatusReportLaundry.in_progress -> "SEDANG DIPROSES"
+                            StatusReportLaundry.completed -> "SELESAI"
+                            StatusReportLaundry.cancelled -> "DIBATALKAN"
                         }
 
                         val localeID = Locale("in", "ID")

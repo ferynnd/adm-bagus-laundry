@@ -25,7 +25,7 @@ class BranchAdapter  : ListAdapter<Branch, BranchAdapter.BranchViewHolder>(Branc
             inputName.text = branch.name_branch
             inputCity.text = branch.city_branch
             inputStatus.text = branch.is_active_branch.toString()
-            inputAddress.text = branch.address_branch
+            inputTextAddress.text = branch.address_branch
 
         }
 

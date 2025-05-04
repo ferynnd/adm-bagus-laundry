@@ -17,6 +17,12 @@ class RentalReportRepository  (context: Context) {
         get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
 
 
+    fun isLoggedIn(): Boolean {
+        val token =
+            sharedPreferences.getString("PREF_USER_TOKEN", null)  // atau apapun key token kamu
+        return !token.isNullOrEmpty()
+    }
+
     suspend fun getReportRental(): ApiResponse<ReportRental> {
         try {
             val response = rentalReportApiService.getReportRental(role)

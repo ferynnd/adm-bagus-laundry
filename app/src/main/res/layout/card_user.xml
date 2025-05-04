@@ -8,8 +8,8 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
-        app:cardBackgroundColor="@color/greenBase"
+        android:layout_height="410dp"
+        app:cardBackgroundColor="@color/orage"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,7 +21,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardForeground"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="360dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -31,12 +31,12 @@
         />
 
     <TextView
-        android:id="@+id/inputTextUsername"
+        android:id="@+id/inputUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NAMA"
+        android:text="USERNAME"
         android:fontFamily="@font/inter_medium"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textColor="@color/gray900"
         android:layout_marginStart="15dp"
         app:layout_constraintBottom_toTopOf="@id/cardForeground"
@@ -45,21 +45,21 @@
         android:translationZ="2dp"
         />
 
-    <TableLayout
+     <TableLayout
         android:id="@+id/tableLayout"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content"
+         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="@id/cardForeground"
         app:layout_constraintEnd_toEndOf="@id/cardForeground"
         app:layout_constraintTop_toTopOf="@id/cardForeground"
-        app:layout_constraintBottom_toBottomOf="@id/cardForeground"
         >
+
 
         <TableRow>
 
             <TextView
-                android:text="NAMA PANJANG"
+                android:text="NAMA"
                 android:padding="10dp"
                 android:textSize="12sp"
                 android:layout_marginStart="10dp"
@@ -72,8 +72,8 @@
                 /> <!-- kasih lebar minimum -->
 
              <TextView
-                 android:id="@+id/inputFullname"
-                android:text="Ferry Fernandp"
+                 android:id="@+id/inputName"
+                android:text="KOTA"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -112,20 +112,21 @@
                 android:padding="10dp">
 
                 <TextView
-                    android:id="@+id/inputTextRole"
+                    android:id="@+id/inputRole"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:fontFamily="@font/inter_medium"
                     android:textSize="14sp"
                     android:gravity="center"
                     android:textColor="@color/blue900"
-                    android:text="ACTIVE"
+                    android:text="ADMIN"
                     />
 
             </androidx.cardview.widget.CardView>
 
         </TableRow>
-        <TableRow>
+
+         <TableRow>
             <TextView
                 android:text="STATUS"
                 android:padding="10dp"
@@ -164,14 +165,13 @@
             </androidx.cardview.widget.CardView>
 
         </TableRow>
-
-        <TableRow>
-            <TextView
+         <TableRow>
+          <TextView
                 android:text="JENIS KELAMIN"
                 android:padding="10dp"
                 android:textSize="12sp"
-                android:fontFamily="@font/inter"
                 android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
                 android:textColor="@color/blue900"
                 android:textAlignment="textStart"
                 android:layout_width="wrap_content"
@@ -179,9 +179,9 @@
                 android:layout_weight="1"
                 /> <!-- kasih lebar minimum -->
 
-            <TextView
+             <TextView
                  android:id="@+id/inputGender"
-                android:text="LAKI - LAKI"
+                android:text="COWO"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -194,13 +194,13 @@
                 />
         </TableRow>
 
-        <TableRow>
-            <TextView
+          <TableRow>
+          <TextView
                 android:text="CABANG"
                 android:padding="10dp"
                 android:textSize="12sp"
-                android:fontFamily="@font/inter"
                 android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
                 android:textColor="@color/blue900"
                 android:textAlignment="textStart"
                 android:layout_width="wrap_content"
@@ -208,9 +208,9 @@
                 android:layout_weight="1"
                 /> <!-- kasih lebar minimum -->
 
-            <TextView
+             <TextView
                  android:id="@+id/inputBranch"
-                android:text="Surbaya"
+                android:text="JOGJA"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -223,13 +223,13 @@
                 />
         </TableRow>
 
-        <TableRow>
-            <TextView
+          <TableRow>
+          <TextView
                 android:text="KONTAK"
                 android:padding="10dp"
                 android:textSize="12sp"
-                android:fontFamily="@font/inter"
                 android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
                 android:textColor="@color/blue900"
                 android:textAlignment="textStart"
                 android:layout_width="wrap_content"
@@ -237,9 +237,9 @@
                 android:layout_weight="1"
                 /> <!-- kasih lebar minimum -->
 
-            <TextView
-                 android:id="@+id/inputTelephon"
-                android:text="08978678898798"
+             <TextView
+                 android:id="@+id/inputContact"
+                android:text="KOTA"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -251,6 +251,7 @@
                 android:layout_weight="1"
                 />
         </TableRow>
+
 
         <TableRow>
             <TextView
@@ -258,33 +259,46 @@
                 android:padding="10dp"
                 android:textSize="12sp"
                 android:fontFamily="@font/inter"
-                android:layout_marginStart="10dp"
+                android:layout_marginHorizontal="10dp"
                 android:textColor="@color/blue900"
-                android:textAlignment="textStart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 /> <!-- kasih lebar minimum -->
-
-            <TextView
-                 android:id="@+id/inputAddress"
-                android:text="Adress"
-                android:padding="10dp"
-                 android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:singleLine="false"
-                android:ellipsize="end"
-                android:maxLines="3"
-                android:scrollHorizontally="false"
-                android:translationZ="5dp"
-                />
         </TableRow>
     </TableLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardNotes"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginHorizontal="15dp"
+        android:maxLines="3"
+        app:cardBackgroundColor="@color/blueBase"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="@id/cardForeground"
+        app:layout_constraintStart_toStartOf="@id/cardForeground"
+        app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
+
+    <TextView
+        android:id="@+id/inputTextAddress"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fontFamily="@font/inter"
+        android:layout_margin="10dp"
+        android:text="Jawa"
+        android:textAlignment="textStart"
+        android:textColor="@color/blue900"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/cardBackground"
+        app:layout_constraintEnd_toEndOf="@+id/cardNotes"
+        app:layout_constraintStart_toStartOf="@+id/cardNotes"
+        app:layout_constraintTop_toTopOf="@+id/cardNotes" />
+
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

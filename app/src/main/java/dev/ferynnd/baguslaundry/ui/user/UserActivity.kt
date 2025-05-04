@@ -23,8 +23,6 @@ class UserActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-        // Inisialisasi binding
         binding = ActivityUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
         networkViewModel = ViewModelProvider(this)[NetworkViewModel::class.java]

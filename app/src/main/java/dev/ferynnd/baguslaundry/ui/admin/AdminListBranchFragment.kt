@@ -37,46 +37,6 @@ class AdminListBranchFragment : Fragment() {
         branchAdapter = BranchAdapter()
 
 
-//        val searchView = binding.searchView
-//        val listView = binding.listView
-//
-////        val searchText = searchView.findViewById<android.widget.EditText>(search_src_text)
-//        val searchText = searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
-//        val searchIcon = searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
-//
-////         Ubah warna teks yang diinput dan warna hint
-//        searchText.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue900))      // Warna teks input
-//        searchText.setHintTextColor(ContextCompat.getColor(requireContext(), R.color.gray900))   // Warna hint
-//
-//        searchIcon.visibility = View.GONE
-//
-//        val listName = arrayOf("Arman", "Ansar", "Akash", "Sudish", "nando")
-//
-//        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, listName)
-//        listView.adapter = arrayAdapter
-//
-//        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-//
-//            override fun onQueryTextChange(newText: String?): Boolean {
-//
-//                arrayAdapter.filter.filter(newText) { count ->
-//                    listView.isVisible = count > 0
-//                }
-//
-//                if (newText.isNullOrEmpty()) {
-//                    listView.isGone = true
-//                } else {
-//                    listView.isVisible = true
-//                }
-//                return true
-//            }
-//
-//            override fun onQueryTextSubmit(query: String?): Boolean {
-//                return false
-//            }
-//        })
-
-
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = branchAdapter

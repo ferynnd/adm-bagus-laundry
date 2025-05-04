@@ -31,10 +31,10 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun login(username: String, password: String) {
-            viewModelScope.launch {
-                val result = userRepository.login(username, password)
-                _loginResult.value = result
-            }
+        viewModelScope.launch {
+            val result = userRepository.login(username, password)
+            _loginResult.value = result
+        }
     }
 
     private fun getAllUsers() {

@@ -41,7 +41,6 @@ class AdminDetailListReportRentalFragment : Fragment() {
         super.onCreate(savedInstanceState)
         listTransactionReportLaundryViewModel =
             ViewModelProvider(this).get(ListTransactionReportLaundryViewModel::class.java)
-        listTransactionReportLaundryViewModel.init(requireContext())
         reportLaundryViewModel = ViewModelProvider(this).get(LaundryReportViewModel::class.java)
         reportLaundryViewModel.init(requireContext())
         laundryProductViewModel = ViewModelProvider(this).get(LaundryProductViewModel::class.java)

@@ -17,6 +17,12 @@ class RentalProductRepository (context: Context) {
     private val role: String
         get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
 
+    fun isLoggedIn(): Boolean {
+        val token =
+            sharedPreferences.getString("PREF_USER_TOKEN", null)  // atau apapun key token kamu
+        return !token.isNullOrEmpty()
+    }
+
     suspend fun getProductRental(): ApiResponse<ProductRental> {
         try {
             val response = rentalProductApiService.getProductRental(role, )

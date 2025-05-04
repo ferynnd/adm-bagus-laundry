@@ -27,7 +27,6 @@ class AdminListClientFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         clientViewModel = ViewModelProvider(this).get(ClientViewModel::class.java)
-        clientViewModel.init(requireContext())
         branchViewModel = ViewModelProvider(this).get(BranchViewModel::class.java)
         branchViewModel.init(requireContext())
     }

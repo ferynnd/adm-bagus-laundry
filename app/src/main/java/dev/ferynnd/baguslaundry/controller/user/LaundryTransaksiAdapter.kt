@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dev.ferynnd.baguslaundry.databinding.KurirCardTransaksiLaundryBinding
 import dev.ferynnd.baguslaundry.model.ReportLaundry
-import dev.ferynnd.baguslaundry.model.StatusReportaundry
+import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -50,10 +50,10 @@ class LaundryTransaksiAdapter(
 
         // Status Enum
         holder.status.text = when (report.status_transaction_laundry) {
-            StatusReportaundry.pending -> "MENUNGGU"
-            StatusReportaundry.in_progress -> "SEDANG DIPROSES"
-            StatusReportaundry.completed -> "SELESAI"
-            StatusReportaundry.cancelled -> "DIBATALKAN"
+            StatusReportLaundry.pending -> "MENUNGGU"
+            StatusReportLaundry.in_progress -> "SEDANG DIPROSES"
+            StatusReportLaundry.completed -> "SELESAI"
+            StatusReportLaundry.cancelled -> "DIBATALKAN"
         }
 
         // Menampilkan data lainnya

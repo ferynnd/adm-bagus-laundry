@@ -48,20 +48,9 @@ class LaundryProductViewModel (application: Application) : AndroidViewModel(appl
         }
     }
 
-    suspend fun createProductLaundry(productLaundry: ProductLaundry) {
-        laundryProductRepository.createProductLaundry(productLaundry)
-    }
 
     suspend fun getProductLaundryById(id: Int): DefaultRequest<ProductLaundry> {
         return laundryProductRepository.getProductLaundryById(id)
-    }
-
-    suspend fun deleteProductLaundry(productLaundry: ProductLaundry) {
-        productLaundry.id_laundry_item?.let { laundryProductRepository.deleteProductLaundry(it) }
-    }
-
-    suspend fun updateProductLaundry(productLaundry: ProductLaundry) {
-        productLaundry.id_laundry_item?.let { laundryProductRepository.updateProductLaundry(it,productLaundry) }
     }
 
 }

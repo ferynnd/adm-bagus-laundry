@@ -1,13 +1,12 @@
-package dev.ferynnd.baguslaundry.ui.admin
+package dev.ferynnd.baguslaundry.ui.user
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
@@ -15,7 +14,7 @@ import dev.ferynnd.baguslaundry.databinding.FragmentProfileBinding
 import dev.ferynnd.baguslaundry.model.UserGender
 import kotlinx.coroutines.launch
 
-class AdminProfileFragment : Fragment() {
+class UserProfileFragment : Fragment() {
 
     private lateinit var binding: FragmentProfileBinding
     private lateinit var userViewModel: UserViewModel

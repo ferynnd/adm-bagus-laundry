@@ -2,9 +2,11 @@ package dev.ferynnd.baguslaundry.controller
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.databinding.CardHeaderBinding
 import dev.ferynnd.baguslaundry.databinding.CardProductLaundryBinding
 import dev.ferynnd.baguslaundry.model.Branch
@@ -80,6 +82,10 @@ class LaundryProductAdapter: ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
             is HeaderLaundryViewHolder -> {
                 val header = item as Branch
                 holder.binding.inputNameBranch.text = header.name_branch
+                holder.binding.inputNameBranch.text = header.name_branch
+                val context = holder.binding.root.context
+                val color = ContextCompat.getColor(context, R.color.orage) // pastikan 'orange' benar ada di colors.xml
+                holder.binding.root.setCardBackgroundColor(color)
             }
 
         }

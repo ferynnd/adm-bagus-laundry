@@ -88,12 +88,12 @@
         />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/menuLaundry"
+        android:id="@+id/menuProduct"
         android:layout_width="0dp"
         android:layout_height="180dp"
         app:cardCornerRadius="15dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="7dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
         app:layout_constraintTop_toBottomOf="@id/headerName"
@@ -101,39 +101,39 @@
         />
 
     <ImageView
-        android:id="@+id/iconLaundry"
+        android:id="@+id/iconProduct"
         android:layout_width="90dp"
         android:layout_height="80dp"
-        android:src="@drawable/laundry"
+        android:src="@drawable/product"
         android:translationY="-15dp"
-        app:layout_constraintStart_toStartOf="@id/menuLaundry"
-        app:layout_constraintTop_toTopOf="@id/menuLaundry"
-        app:layout_constraintEnd_toEndOf="@id/menuLaundry"
-        app:layout_constraintBottom_toBottomOf="@id/menuLaundry"
+        app:layout_constraintStart_toStartOf="@id/menuProduct"
+        app:layout_constraintTop_toTopOf="@id/menuProduct"
+        app:layout_constraintEnd_toEndOf="@id/menuProduct"
+        app:layout_constraintBottom_toBottomOf="@id/menuProduct"
         />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="LAUNDRY"
+        android:text="BARANG"
         android:textColor="@color/blue900"
-        app:layout_constraintStart_toStartOf="@id/menuLaundry"
-        app:layout_constraintEnd_toEndOf="@id/menuLaundry"
-        app:layout_constraintTop_toBottomOf="@id/iconLaundry"
+        app:layout_constraintStart_toStartOf="@id/menuProduct"
+        app:layout_constraintEnd_toEndOf="@id/menuProduct"
+        app:layout_constraintTop_toBottomOf="@id/iconProduct"
         android:textSize="15sp"
         android:fontFamily="@font/inter_bold"
         />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/menuRental"
+        android:id="@+id/menuReport"
         android:layout_width="0dp"
         android:layout_height="180dp"
         app:cardCornerRadius="15dp"
         app:cardElevation="0dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="7dp"
         app:layout_constraintStart_toEndOf="@id/guidelineMid"
-        app:layout_constraintTop_toTopOf="@id/menuLaundry"
-        app:layout_constraintBottom_toBottomOf="@id/menuLaundry"
+        app:layout_constraintTop_toTopOf="@id/menuProduct"
+        app:layout_constraintBottom_toBottomOf="@id/menuProduct"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
         />
 
@@ -141,18 +141,18 @@
         android:id="@+id/iconRental"
         android:layout_width="90dp"
         android:layout_height="80dp"
-        android:src="@drawable/persewaan"
+        android:src="@drawable/report"
         android:translationY="-15dp"
-        app:layout_constraintStart_toStartOf="@id/menuRental"
-        app:layout_constraintTop_toTopOf="@id/menuRental"
-        app:layout_constraintEnd_toEndOf="@id/menuRental"
-        app:layout_constraintBottom_toBottomOf="@id/menuRental"
+        app:layout_constraintStart_toStartOf="@id/menuReport"
+        app:layout_constraintTop_toTopOf="@id/menuReport"
+        app:layout_constraintEnd_toEndOf="@id/menuReport"
+        app:layout_constraintBottom_toBottomOf="@id/menuReport"
         />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PESEWAAN"
+        android:text="LAPORAN"
         android:textColor="@color/blue900"
         app:layout_constraintStart_toStartOf="@id/iconRental"
         app:layout_constraintEnd_toEndOf="@id/iconRental"
@@ -167,19 +167,20 @@
         android:layout_height="180dp"
         app:cardCornerRadius="15dp"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="7dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="@id/guidelineMid"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-        app:layout_constraintTop_toBottomOf="@id/menuLaundry"
+        app:layout_constraintTop_toBottomOf="@id/menuProduct"
         />
 
     <ImageView
         android:id="@+id/iconTransaksiRental"
         android:layout_width="90dp"
-        android:layout_height="80dp"
-        android:src="@drawable/report"
-        android:translationY="-8dp"
+        android:layout_height="70dp"
+        android:src="@drawable/sewa"
+        android:translationY="-15dp"
+        android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="@id/menuTransaksiRental"
         app:layout_constraintTop_toTopOf="@id/menuTransaksiRental"
         app:layout_constraintEnd_toEndOf="@id/menuTransaksiRental"
@@ -191,10 +192,12 @@
         android:layout_height="wrap_content"
         android:text="TRANSAKSI PESEWAAN"
         android:textColor="@color/blue900"
+        android:textAlignment="center"
+        android:translationY="-10dp"
         app:layout_constraintStart_toStartOf="@id/iconTransaksiRental"
         app:layout_constraintEnd_toEndOf="@id/iconTransaksiRental"
         app:layout_constraintTop_toBottomOf="@id/iconTransaksiRental"
-        android:textSize="15sp"
+        android:textSize="13sp"
         android:fontFamily="@font/inter_bold"
         />
 
@@ -205,18 +208,18 @@
         app:cardCornerRadius="15dp"
         android:layout_marginTop="10dp"
         app:cardElevation="0dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="7dp"
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
         app:layout_constraintEnd_toStartOf="@id/guidelineMid"
-        app:layout_constraintTop_toBottomOf="@id/menuLaundry"
+        app:layout_constraintTop_toBottomOf="@id/menuProduct"
         />
 
     <ImageView
-        android:id="@+id/iconTransaksiLaundry"
+        android:id="@+id/iconLaundry"
         android:layout_width="90dp"
         android:layout_height="80dp"
-        android:src="@drawable/report"
-        android:translationY="-8dp"
+        android:src="@drawable/laundry"
+        android:translationY="-15dp"
         app:layout_constraintStart_toStartOf="@id/menuTransaksiLaundry"
         app:layout_constraintTop_toTopOf="@id/menuTransaksiLaundry"
         app:layout_constraintEnd_toEndOf="@id/menuTransaksiLaundry"
@@ -229,10 +232,11 @@
         android:text="TRANSAKSI LAUNDRY"
         android:textAlignment="center"
         android:textColor="@color/blue900"
-        app:layout_constraintStart_toStartOf="@id/iconTransaksiLaundry"
-        app:layout_constraintEnd_toEndOf="@id/iconTransaksiLaundry"
-        app:layout_constraintTop_toBottomOf="@id/iconTransaksiLaundry"
-        android:textSize="15sp"
+        android:translationY="-10dp"
+        app:layout_constraintStart_toStartOf="@id/iconLaundry"
+        app:layout_constraintEnd_toEndOf="@id/iconLaundry"
+        app:layout_constraintTop_toBottomOf="@id/iconLaundry"
+        android:textSize="13sp"
         android:fontFamily="@font/inter_bold"
         />
 

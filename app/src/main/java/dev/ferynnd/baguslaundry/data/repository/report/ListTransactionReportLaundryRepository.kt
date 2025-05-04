@@ -20,12 +20,6 @@ class ListTransactionReportLaundryRepository  (context: Context) {
     private val listTransactionLaundryReportApiService =
         retrofitHelper.listTransactionLaundryReportApiService
 
-    private val sharedPreferences = SharePrefrenceHelper(context)
-
-    private val role: String
-        get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
-
-
     suspend fun getListTransactionReportLaundry(): ApiResponse<ListTransactionLaundry> {
         try {
             val response = listTransactionLaundryReportApiService.getListTrListTransactionLaundry(role)

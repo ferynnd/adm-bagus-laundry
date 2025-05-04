@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ferynnd.baguslaundry.databinding.CardListDetailReportLaundryBinding
 import dev.ferynnd.baguslaundry.model.ListTransactionLaundry
 import dev.ferynnd.baguslaundry.model.ProductLaundry
+import dev.ferynnd.baguslaundry.model.StatusListTransactionLaundry
 
 class DetailLaundryReportAdapter : ListAdapter<ListTransactionLaundry, DetailLaundryReportAdapter.DetailLaundryReportViewHolder>(DiffCallback()) {
 
@@ -32,13 +33,17 @@ class DetailLaundryReportAdapter : ListAdapter<ListTransactionLaundry, DetailLau
 
         holder.binding.apply {
             inputNameItem.text = productLaundryName
-            inputStatus.text = detailReportLaundry.status_list_transaction_laundry.toString()
+            val dataStatus = when(detailReportLaundry.status_list_transaction_laundry) {
+                StatusListTransactionLaundry.pending -> "Menunggu Konfirmasi"
+                StatusListTransactionLaundry.completed -> "Selesai"
+                StatusListTransactionLaundry.cancelled -> "Dibatalkan"
+            }
+            inputStatus.text = dataStatus
             inputPrice.text = detailReportLaundry.price_list_transaction_laundry.toString()
             inputWeight.text = detailReportLaundry.weight_list_transaction_laundry.toString()
             inputNotes.text = detailReportLaundry.note_list_transaction_laundry
             inputJumlah.text = detailReportLaundry.pcs_list_transaction_laundry.toString()
             numberItem.text = detailReportLaundry.id_transaction_laundry.toString()
-//            inputCondition.text = detailReportLaundry.condition_list_transaction_laundry?.toString() ?: "Unknown condition"
         }
     }
 

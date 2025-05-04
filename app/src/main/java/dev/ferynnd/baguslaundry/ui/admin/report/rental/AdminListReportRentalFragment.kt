@@ -30,7 +30,6 @@ class AdminListReportRentalFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java]
-        rentalReportViewModel.init(requireContext())
         branchViewModel = ViewModelProvider(this).get(BranchViewModel::class.java)
         branchViewModel.init(requireContext())
     }

@@ -35,7 +35,7 @@ enum class IsActiveListTransactionRental {
 enum class ConditionListTransactionRental {
     clean,
     dirty,
-    demaged
+    damaged
 }
 
 enum class StatusListTransactionRental {

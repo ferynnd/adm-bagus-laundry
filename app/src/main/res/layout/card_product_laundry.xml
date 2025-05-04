@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginVertical="5dp"
+    android:id="@+id/cardProductLaundry"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="290dp"
-        app:cardBackgroundColor="@color/greenBase"
+        android:layout_height="330dp"
+        app:cardBackgroundColor="@color/orage"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,7 +22,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardForeground"
         android:layout_width="match_parent"
-        android:layout_height="245dp"
+        android:layout_height="285dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -34,7 +35,7 @@
         android:id="@+id/inputName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NAMA"
+        android:text="CAB001234"
         android:fontFamily="@font/inter_medium"
         android:textSize="18sp"
         android:textColor="@color/gray900"
@@ -44,6 +45,7 @@
         app:layout_constraintTop_toTopOf="@id/cardBackground"
         android:translationZ="2dp"
         />
+
 
     <TableLayout
         android:id="@+id/tableLayout"
@@ -58,7 +60,7 @@
         <TableRow>
 
             <TextView
-                android:text="CABANG"
+                android:text="HARGA"
                 android:padding="10dp"
                 android:textSize="12sp"
                 android:layout_marginStart="10dp"
@@ -71,8 +73,37 @@
                 /> <!-- kasih lebar minimum -->
 
              <TextView
-                 android:id="@+id/inputBranch"
-                android:text="CABANG"
+                 android:id="@+id/inputPrice"
+                android:text="HARGA"
+                android:padding="10dp"
+                 android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                 android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+        </TableRow>
+
+          <TableRow>
+            <TextView
+                android:text="WAKTU"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:fontFamily="@font/inter"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/blue900"
+                android:textAlignment="textStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
+
+            <TextView
+                 android:id="@+id/inputTime"
+                android:text="1/2H"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -86,6 +117,36 @@
         </TableRow>
 
         <TableRow>
+            <TextView
+                android:text="CABANG"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:fontFamily="@font/inter"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/blue900"
+                android:textAlignment="textStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
+
+               <TextView
+                 android:id="@+id/inputBranch"
+                android:text="BRANCH"
+                android:padding="10dp"
+                 android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                 android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+
+        </TableRow>
+
+              <TableRow>
             <TextView
                 android:text="STATUS"
                 android:padding="10dp"
@@ -125,42 +186,14 @@
 
         </TableRow>
 
+
         <TableRow>
             <TextView
-                android:text="TELEPHON"
+                android:text="DESKRIPSI"
                 android:padding="10dp"
                 android:textSize="12sp"
                 android:fontFamily="@font/inter"
                 android:layout_marginStart="10dp"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
-
-            <TextView
-                 android:id="@+id/inputTelephon"
-                android:text="08987689345"
-                android:padding="10dp"
-                 android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
-
-        <TableRow>
-            <TextView
-                android:text="ALAMAT"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:fontFamily="@font/inter"
-                android:layout_marginHorizontal="10dp"
                 android:textColor="@color/blue900"
                 android:textAlignment="textStart"
                 android:layout_width="wrap_content"
@@ -185,7 +218,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
 
     <TextView
-        android:id="@+id/inputAddress"
+        android:id="@+id/inputDescription"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fontFamily="@font/inter"

@@ -5,7 +5,7 @@ data class ReportLaundry(
     val id_branch_transaction_laundry: Int? = null,
     val id_user_transaction_laundry: Int? = null,
     val name_client_transaction_laundry: String? = null,
-    val status_transaction_laundry: StatusReportaundry,
+    val status_transaction_laundry: StatusReportLaundry,
     val notes_transaction_laundry: String? = null,
     val total_weight_transaction_laundry: Double? = null,
     val total_price_transaction_laundry: Double? = null,
@@ -21,7 +21,7 @@ data class ReportLaundry(
     val deleted_at: String?,
 )
 
-enum class StatusReportaundry {
+enum class StatusReportLaundry {
     pending,
     in_progress,
     completed,

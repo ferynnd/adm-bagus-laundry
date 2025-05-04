@@ -23,8 +23,6 @@ class AdminActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-        // Inisialisasi binding
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
         networkViewModel = ViewModelProvider(this)[NetworkViewModel::class.java]

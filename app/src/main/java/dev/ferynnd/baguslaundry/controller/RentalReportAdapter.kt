@@ -4,13 +4,18 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.databinding.CardHeaderBinding
 import dev.ferynnd.baguslaundry.databinding.CardReportRentalBinding
 import dev.ferynnd.baguslaundry.model.Branch
+import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.StatusTransactionRental
+import dev.ferynnd.baguslaundry.model.User
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -22,11 +27,22 @@ class RentalReportAdapter ( private val onDetail : (ReportRental) -> Unit) : Lis
 
 
     private var branches: List<Branch> = emptyList()
+    private var sender : List<User> = emptyList()
+    private var client : List<Client> = emptyList()
 
     fun setBranches(branchList: List<Branch>) {
         branches = branchList
         notifyDataSetChanged()
     }
+        fun setSender(senderList: List<User>) {
+        sender = senderList
+        notifyDataSetChanged()
+    }
+    fun setClient(clientList: List<Client>) {
+        client = clientList
+        notifyDataSetChanged()
+    }
+
 
     inner class ReportRentalViewHolder( val binding: CardReportRentalBinding) : RecyclerView.ViewHolder(binding.root)
     inner class HeaderViewHolder( val binding: CardHeaderBinding) : RecyclerView.ViewHolder(binding.root)
@@ -74,13 +90,22 @@ class RentalReportAdapter ( private val onDetail : (ReportRental) -> Unit) : Lis
             when (holder) {
                 is ReportRentalViewHolder -> {
                     val transactionReportRental = item as ReportRental
-                     val branchName = branches.find { it.id_branch == transactionReportRental.id_branch_transaction_rental }?.name_branch ?: "Unknown"
+                    val branchName = branches.find { it.id_branch == transactionReportRental.id_branch_transaction_rental }?.name_branch ?: "Unknown"
+                    val senderName = sender.find { it.id_user == transactionReportRental.id_kurir_transaction_rental }?.fullname_user ?: "Unknown"
+                    val clientName = client.find { it.id_client == transactionReportRental.id_client_transaction_rental }?.name_client ?: "Unknown"
                     holder.binding.apply {
                         inputBranch.text = branchName
-                        inputCLient.text = transactionReportRental.id_client_transaction_rental.toString()
+                        inputCLient.text = clientName
+                        inputSender.text = senderName
+                        val dataStatus = when(transactionReportRental.status_transaction_rental){
+                            StatusTransactionRental.WAITING_FOR_APPROVAL -> "Menunggu Persetujuan"
+                            StatusTransactionRental.APPROVED -> "Disetujui"
+                            StatusTransactionRental.OUT -> "Keluar"
+                            StatusTransactionRental.IN -> "Masuk"
+                            StatusTransactionRental.CANCELLED -> "Dibatalkan"
+                        }
+                        inputStatus.text = dataStatus
                         inputRecipient.text = transactionReportRental.recipient_name_transaction_rental
-                        inputSender.text = transactionReportRental.id_kurir_transaction_rental.toString()
-                        inputStatus.text = transactionReportRental.status_transaction_rental.toString()
                         inputWeight.text = transactionReportRental.total_weight_transaction_rental.toString()
                         inputPcs.text = transactionReportRental.total_pcs_transaction_rental.toString()
                         inputAditionalCost.text = transactionReportRental.additional_cost_transaction_rental.toString()
@@ -122,6 +147,9 @@ class RentalReportAdapter ( private val onDetail : (ReportRental) -> Unit) : Lis
                 is HeaderViewHolder -> {
                     val header = item as String
                     holder.binding.inputNameBranch.text = header
+                    val context = holder.binding.root.context
+                    val color = ContextCompat.getColor(context, R.color.greenBase) // pastikan 'orange' benar ada di colors.xml
+                    holder.binding.root.setCardBackgroundColor(color)
                 }
             }
         }

@@ -2,22 +2,31 @@ package dev.ferynnd.baguslaundry.controller
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.databinding.CardHeaderBinding
 import dev.ferynnd.baguslaundry.databinding.CardReportLaundryBinding
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ReportLaundry
+import dev.ferynnd.baguslaundry.model.StatusReportLaundry
+import dev.ferynnd.baguslaundry.model.User
 
 class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
-//ReportLaundryReportAdapter (private val onEdit : (ReportLaundry) -> Unit, private val onDelete : (ReportLaundry) -> Unit ) : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
 
     private var branches: List<Branch> = emptyList()
+       private var users : List<User> = emptyList()
+
 
     fun setBranches(branchList: List<Branch>) {
         branches = branchList
         notifyDataSetChanged()
+    }
+
+    fun setUsers(userList: List<User>) {
+        users = userList
     }
 
     inner class ReportLaundryViewHolder( val binding: CardReportLaundryBinding) : RecyclerView.ViewHolder(binding.root)
@@ -66,12 +75,19 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
                     val transactionReportLaundry = item as ReportLaundry
 
                     val branchName = branches.find { it.id_branch == transactionReportLaundry.id_branch_transaction_laundry }?.name_branch ?: "Unknown"
+                     val userName = users.find { it.id_user == transactionReportLaundry.id_user_transaction_laundry }?.fullname_user ?: "Unknown"
 
                     holder.binding.apply {
                         inputBranch.text = branchName
+                        val dataStatus = when(transactionReportLaundry.status_transaction_laundry){
+                            StatusReportLaundry.pending -> "Tertunda"
+                            StatusReportLaundry.in_progress -> "Sedang Dikerjakan"
+                            StatusReportLaundry.completed -> "Selesai"
+                            StatusReportLaundry.cancelled -> "DiBatalkan"
+                        }
+                        inputStatus.text = dataStatus
+                        inputEmployment.text = userName
                         inputCustommer.text = transactionReportLaundry.name_client_transaction_laundry.toString()
-                        inputEmployment.text = transactionReportLaundry.id_user_transaction_laundry.toString()
-                        inputStatus.text = transactionReportLaundry.status_transaction_laundry.toString()
                         inputWeight.text = transactionReportLaundry.total_weight_transaction_laundry.toString()
                         inputTotalPrice.text = transactionReportLaundry.total_price_transaction_laundry.toString()
                         inputCash.text = transactionReportLaundry.cash_transaction_laundry.toString()
@@ -86,6 +102,9 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
                 is HeaderViewHolder -> {
                     val header = item as String
                     holder.binding.inputNameBranch.text = header
+                    val context = holder.binding.root.context
+                    val color = ContextCompat.getColor(context, R.color.blueBase) // pastikan 'orange' benar ada di colors.xml
+                    holder.binding.root.setCardBackgroundColor(color)
                 }
             }
         }

@@ -21,10 +21,6 @@ class ListTransactionReportRentalRepository  (context: Context) {
     private val listTransactionRentalReportApiService =
         retrofitHelper.listTransactionRentalReportApiService
 
-    private val sharedPreferences = SharePrefrenceHelper(context)
-
-    private val role: String
-        get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
 
     suspend fun getListTransactionReportRental(): ApiResponse<ListTransactionRental> {
         try {

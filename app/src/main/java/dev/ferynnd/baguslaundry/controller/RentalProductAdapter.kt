@@ -2,13 +2,17 @@ package dev.ferynnd.baguslaundry.controller
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.databinding.CardHeaderBinding
 import dev.ferynnd.baguslaundry.databinding.CardProductRentalBinding
 import dev.ferynnd.baguslaundry.model.Branch
+import dev.ferynnd.baguslaundry.model.ConditionRental
 import dev.ferynnd.baguslaundry.model.ProductRental
+import dev.ferynnd.baguslaundry.model.StatusRental
 
 class RentalProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
 
@@ -67,15 +71,28 @@ class RentalProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
                 holder.binding.apply {
                     inputName.text = laundryItem.name_rental_item
                     inputBranch.text = branchName
+                    val dataStatus = when(laundryItem.status_rental_item) {
+                        StatusRental.available -> "Tersedia"
+                        StatusRental.rented -> "Di Pinjam"
+                        StatusRental.maintenance -> "Perawatan"
+                    }
+                    inputStatus.text = dataStatus
+                    val dataCondition = when(laundryItem.condition_rental_item) {
+                        ConditionRental.clean -> "Bersih"
+                        ConditionRental.dirty -> "Kotor"
+                        ConditionRental.damaged -> "Rusak"
+                    }
+                    inputCondition.text = dataCondition
                     inputDescription.text = laundryItem.description_rental_item
-                    inputStatus.text = laundryItem.status_rental_item.toString()
-                    inputCondition.text = laundryItem.condition_rental_item.toString()
                     inputIsActive.text = laundryItem.is_active_rental_item.toString()
                 }
             }
             is HeaderLaundryViewHolder -> {
                 val header = item as Branch
                 holder.binding.inputNameBranch.text = header.name_branch
+                val context = holder.binding.root.context
+                val color = ContextCompat.getColor(context, R.color.baseRed) // pastikan 'orange' benar ada di colors.xml
+                holder.binding.root.setCardBackgroundColor(color)
             }
 
         }

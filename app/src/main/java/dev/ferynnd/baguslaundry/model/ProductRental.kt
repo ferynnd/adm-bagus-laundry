@@ -21,7 +21,7 @@ enum class IsActiveRental {
 enum class ConditionRental {
     clean,
     dirty,
-    demaged
+    damaged
 }
 
 enum class StatusRental {

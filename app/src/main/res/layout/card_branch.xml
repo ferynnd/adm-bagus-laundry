@@ -8,8 +8,8 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        app:cardBackgroundColor="#FFF7E3"
+        android:layout_height="245dp"
+        app:cardBackgroundColor="@color/blueBase"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +34,7 @@
         android:id="@+id/inputName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CAB001234"
+        android:text="NAMA"
         android:fontFamily="@font/inter_medium"
         android:textSize="18sp"
         android:textColor="@color/gray900"
@@ -45,16 +45,17 @@
         android:translationZ="2dp"
         />
 
+
     <TableLayout
         android:id="@+id/tableLayout"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="@id/cardForeground"
         app:layout_constraintEnd_toEndOf="@id/cardForeground"
         app:layout_constraintTop_toTopOf="@id/cardForeground"
-        app:layout_constraintBottom_toBottomOf="@id/cardForeground"
         >
+
 
         <TableRow>
 
@@ -73,7 +74,7 @@
 
              <TextView
                  android:id="@+id/inputCity"
-                android:text="CITY"
+                android:text="KOTA"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -102,9 +103,9 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/layoutStatus"
-                android:layout_width="60dp"
+                android:layout_width="100dp"
                 android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/blueBase"
+                app:cardBackgroundColor="@color/success"
                 android:layout_marginVertical="5dp"
                 android:layout_marginEnd="10dp"
                 app:cardCornerRadius="5dp"
@@ -118,7 +119,7 @@
                     android:fontFamily="@font/inter_medium"
                     android:textSize="14sp"
                     android:gravity="center"
-                    android:textColor="@color/blue900"
+                    android:textColor="@color/white"
                     android:text="ACTIVE"
                     />
 
@@ -128,61 +129,47 @@
 
         <TableRow>
             <TextView
-                android:text="TELEPHON"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:fontFamily="@font/inter"
-                android:layout_marginStart="10dp"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
-
-            <TextView
-                 android:id="@+id/inputTelephon"
-                android:text="08987689345"
-                android:padding="10dp"
-                 android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
-
-        <TableRow>
-            <TextView
                 android:text="ALAMAT"
                 android:padding="10dp"
                 android:textSize="12sp"
                 android:fontFamily="@font/inter"
-                android:layout_marginStart="10dp"
+                android:layout_marginHorizontal="10dp"
                 android:textColor="@color/blue900"
                 android:textAlignment="textStart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 /> <!-- kasih lebar minimum -->
-
-            <TextView
-                 android:id="@+id/inputAddress"
-                android:text="Adress"
-                android:padding="10dp"
-                 android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
         </TableRow>
     </TableLayout>
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardNotes"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginHorizontal="15dp"
+        android:maxLines="3"
+        app:cardBackgroundColor="@color/blueBase"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="@id/cardForeground"
+        app:layout_constraintStart_toStartOf="@id/cardForeground"
+        app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
+
+    <TextView
+        android:id="@+id/inputTextAddress"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fontFamily="@font/inter"
+        android:layout_margin="10dp"
+        android:text="Jawa"
+        android:textAlignment="textStart"
+        android:textColor="@color/blue900"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/cardBackground"
+        app:layout_constraintEnd_toEndOf="@+id/cardNotes"
+        app:layout_constraintStart_toStartOf="@+id/cardNotes"
+        app:layout_constraintTop_toTopOf="@+id/cardNotes" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

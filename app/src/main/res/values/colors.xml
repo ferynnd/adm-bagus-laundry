@@ -11,9 +11,15 @@
     <color name="gray900">#535353</color>
     <color name="success">#00A600</color>
     <color name="blue500">#5596FB</color>
+    <color name="blue600">#4472FF</color>
     <color name="pink500">#CC75D3</color>
     <color name="buttonBack">#F1F3F4</color>
     <color name="greenBase">#DFF5B2</color>
     <color name="orage">#FFDA77</color>
+    <color name="orange600">#FE4A12</color>
     <color name="baseRed">#FFE7DF</color>
+    <color name="transaksiOut">#FE1212</color>
+    <color name="transaksiIn">#00A600</color>
+    <color name="transaksiCancelled">#02081A</color>
+    <color name="transaksiOuther">#4472FF</color>
 </resources>

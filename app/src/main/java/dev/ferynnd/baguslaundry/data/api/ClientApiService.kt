@@ -11,20 +11,20 @@ import retrofit2.http.Path
 
 interface ClientApiService {
 
-    @GET("api/{role}/clients")
-    suspend fun getClient(@Path("role") role: String): ApiResponse<Client>
+    @GET("api/clients")
+    suspend fun getClient(): ApiResponse<Client>
 
-    @POST("api/{role}/create_clients")
-    suspend fun createClient(@Path("role") role: String, @Body client: Client): DefaultRequest<Client>
+    @POST("api/create_clients")
+    suspend fun createClient( @Body client: Client): DefaultRequest<Client>
 
-    @GET("api/{role}/clients/{id}")
-    suspend fun getClientById(@Path("role") role: String,@Path("id") id: Int): DefaultRequest<Client>
+    @GET("api/clients/{id}")
+    suspend fun getClientById(@Path("id") id: Int): DefaultRequest<Client>
 
-    @DELETE("api/{role}/delete_clients/{id}")
-    suspend fun deleteClient(@Path("role") role: String,@Path("id") id: Int): DefaultRequest<Client>
+    @DELETE("api/delete_clients/{id}")
+    suspend fun deleteClient(@Path("id") id: Int): DefaultRequest<Client>
 
-    @PUT("api/{role}/edit_clients/{id}")
-    suspend fun updateClient(@Path("role") role: String,@Path("id") id: Int, @Body client: Client): DefaultRequest<Client>
+    @PUT("api/edit_clients/{id}")
+    suspend fun updateClient(@Path("id") id: Int, @Body client: Client): DefaultRequest<Client>
 
 
 }

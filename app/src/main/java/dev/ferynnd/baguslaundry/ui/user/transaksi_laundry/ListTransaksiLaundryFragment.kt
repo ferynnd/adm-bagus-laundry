@@ -1,4 +1,4 @@
-package dev.ferynnd.baguslaundry.ui.user.product_laundry
+package dev.ferynnd.baguslaundry.ui.user.transaksi_laundry
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,26 +11,28 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ferynnd.baguslaundry.R
-import dev.ferynnd.baguslaundry.controller.user.LaundryProductAdapter
+import dev.ferynnd.baguslaundry.controller.user.LaundryTransaksiAdapter
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
-import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
-import dev.ferynnd.baguslaundry.databinding.KurirFragmentListProductLaundryBinding
-import dev.ferynnd.baguslaundry.model.ProductLaundry
+import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
+import dev.ferynnd.baguslaundry.databinding.KurirFragmentDetailListTransaksiLaundryBinding
+import dev.ferynnd.baguslaundry.databinding.KurirFragmentListTransaksiLaundryBinding
+import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.launch
 
-class ListProductLaundryFragment : Fragment() {
-    private var _binding: KurirFragmentListProductLaundryBinding? = null
+class ListTransaksiLaundryFragment : Fragment() {
+    private var _binding: KurirFragmentListTransaksiLaundryBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var userViewModel: UserViewModel
-    private lateinit var laundryProductViewModel: LaundryProductViewModel
-    private lateinit var laundryProductAdapter: LaundryProductAdapter
+    private lateinit var transaksiLaundryViewModel: LaundryReportViewModel
+    private lateinit var transaksiLaundryAdapter: LaundryTransaksiAdapter
+
     private lateinit var sharePrefrences: SharePrefrenceHelper
 
-    private var fullLaundryList: List<ProductLaundry> = listOf()
+    private var fullTransaksiLaundryList: List<ReportLaundry> = listOf()
 
     private var userId: Int = 0
     private var userIdBranch: Int = 0
@@ -38,25 +40,25 @@ class ListProductLaundryFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
-        laundryProductViewModel = ViewModelProvider(this)[LaundryProductViewModel::class.java]
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        transaksiLaundryViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java]
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = KurirFragmentListProductLaundryBinding.inflate(layoutInflater)
+        _binding = KurirFragmentListTransaksiLaundryBinding.inflate(layoutInflater)
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
 
-        laundryProductAdapter = LaundryProductAdapter { productLaundry: ProductLaundry ->
-            onDetailClick(productLaundry)
+        transaksiLaundryAdapter = LaundryTransaksiAdapter { transaksiLaundry: ReportLaundry ->
+            onDetailClick(transaksiLaundry)
         }
 
-        binding.recyclerViewProductLaundry.adapter = laundryProductAdapter
-        binding.recyclerViewProductLaundry.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerViewTransaksiLaundry.adapter = transaksiLaundryAdapter
+        binding.recyclerViewTransaksiLaundry.layoutManager = LinearLayoutManager(requireContext())
 
         // Dapatkan user dan baru lanjut observe
         if (userId != 0) {
@@ -65,19 +67,19 @@ class ListProductLaundryFragment : Fragment() {
                 userIdBranch = user.data.id_branch_user!!.toInt()
 
                 // Setelah userIdBranch tersedia, baru observe
-                laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { productLaundry ->
+                transaksiLaundryViewModel.laundryReports.observe(viewLifecycleOwner) { productLaundry ->
                     productLaundry?.let {
                         val filteredList = productLaundry.filter { item ->
-                            item.id_branch_laundry_item == userIdBranch
+                            item.id_branch_transaction_laundry == userIdBranch
                         }
 
                         // Simpan list untuk pencarian
-                        fullLaundryList = filteredList
+                        fullTransaksiLaundryList = filteredList
 
                         countProductLaundry = filteredList.size
                         binding.countData.text = countProductLaundry.toString()
 
-                        laundryProductAdapter.submitList(filteredList)
+                        transaksiLaundryAdapter.submitList(filteredList)
                     }
                 }
             }
@@ -91,10 +93,10 @@ class ListProductLaundryFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 val query = newText.orEmpty().lowercase()
-                val filtered = fullLaundryList.filter {
-                    it.name_laundry_item!!.lowercase().contains(query)
+                val filtered = fullTransaksiLaundryList.filter {
+                    it.name_client_transaction_laundry!!.lowercase().contains(query)
                 }
-                laundryProductAdapter.submitList(filtered)
+                transaksiLaundryAdapter.submitList(filtered)
                 binding.searchView.setIconifiedByDefault(false)
                 binding.countData.text = filtered.size.toString()
                 return true
@@ -117,17 +119,17 @@ class ListProductLaundryFragment : Fragment() {
         _binding = null
     }
 
-    private fun onDetailClick(itemLaundry: ProductLaundry) {
-        Toast.makeText(context, "Detail ${itemLaundry.id_laundry_item} akan ditampilkan", Toast.LENGTH_SHORT).show()
-//        val bundle = Bundle().apply {
-//            putLong("supplierId", supplier.id_supplier)  // Mengirimkan ID supplier ke fragment berikutnya
-//        }
-//        val detailFragment = DetailSupplierFragment()
-//        detailFragment.arguments = bundle  // Menetapkan argumen untuk fragment detail
-//
-//        parentFragmentManager.beginTransaction()
-//            .replace(R.id.FragmentMenu, detailFragment)  // Mengganti fragment saat ini dengan DetailSupplierFragment
-//            .addToBackStack(null)  // Menambahkan transaksi ke back stack agar pengguna bisa kembali
-//            .commit()  // Menyelesaikan transaksi
+    private fun onDetailClick(transaksiLaundry: ReportLaundry) {
+        Toast.makeText(context, "Detail ${transaksiLaundry.id_transaction_laundry} akan ditampilkan", Toast.LENGTH_SHORT).show()
+        val bundle = Bundle().apply {
+            putInt("TRANSAKSI_ID", transaksiLaundry.id_transaction_laundry ?: 0)
+        }
+        val detailFragment = DetailListTransaksiLaundryFragment()
+        detailFragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.host_fragment_user, detailFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

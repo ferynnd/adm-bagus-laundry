@@ -1,4 +1,4 @@
-package dev.ferynnd.baguslaundry.ui.user.product_laundry
+package dev.ferynnd.baguslaundry.ui.user.product_rental
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,26 +11,26 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ferynnd.baguslaundry.R
-import dev.ferynnd.baguslaundry.controller.user.LaundryProductAdapter
+import dev.ferynnd.baguslaundry.controller.user.RentalProductAdapter
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
-import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
-import dev.ferynnd.baguslaundry.databinding.KurirFragmentListProductLaundryBinding
-import dev.ferynnd.baguslaundry.model.ProductLaundry
+import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
+import dev.ferynnd.baguslaundry.databinding.KurirFragmentListProductRentalBinding
+import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.launch
 
-class ListProductLaundryFragment : Fragment() {
-    private var _binding: KurirFragmentListProductLaundryBinding? = null
+class ListProductRentalFragment : Fragment() {
+    private var _binding: KurirFragmentListProductRentalBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var userViewModel: UserViewModel
-    private lateinit var laundryProductViewModel: LaundryProductViewModel
-    private lateinit var laundryProductAdapter: LaundryProductAdapter
+    private lateinit var rentalProductViewModel: RentalProductViewModel
+    private lateinit var rentalProductAdapter: RentalProductAdapter
     private lateinit var sharePrefrences: SharePrefrenceHelper
 
-    private var fullLaundryList: List<ProductLaundry> = listOf()
+    private var fullRentalList: List<ProductRental> = listOf()
 
     private var userId: Int = 0
     private var userIdBranch: Int = 0
@@ -38,24 +38,24 @@ class ListProductLaundryFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
-        laundryProductViewModel = ViewModelProvider(this)[LaundryProductViewModel::class.java]
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        rentalProductViewModel = ViewModelProvider(this)[RentalProductViewModel::class.java]
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = KurirFragmentListProductLaundryBinding.inflate(layoutInflater)
+        _binding = KurirFragmentListProductRentalBinding.inflate(layoutInflater)
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
 
-        laundryProductAdapter = LaundryProductAdapter { productLaundry: ProductLaundry ->
-            onDetailClick(productLaundry)
+        rentalProductAdapter = RentalProductAdapter { productRental: ProductRental ->
+            onDetailClick(productRental)
         }
 
-        binding.recyclerViewProductLaundry.adapter = laundryProductAdapter
+        binding.recyclerViewProductLaundry.adapter = rentalProductAdapter
         binding.recyclerViewProductLaundry.layoutManager = LinearLayoutManager(requireContext())
 
         // Dapatkan user dan baru lanjut observe
@@ -65,19 +65,19 @@ class ListProductLaundryFragment : Fragment() {
                 userIdBranch = user.data.id_branch_user!!.toInt()
 
                 // Setelah userIdBranch tersedia, baru observe
-                laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { productLaundry ->
+                rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { productLaundry ->
                     productLaundry?.let {
                         val filteredList = productLaundry.filter { item ->
-                            item.id_branch_laundry_item == userIdBranch
+                            item.id_branch_rental_item == userIdBranch
                         }
 
                         // Simpan list untuk pencarian
-                        fullLaundryList = filteredList
+                        fullRentalList = filteredList
 
                         countProductLaundry = filteredList.size
                         binding.countData.text = countProductLaundry.toString()
 
-                        laundryProductAdapter.submitList(filteredList)
+                        rentalProductAdapter.submitList(filteredList)
                     }
                 }
             }
@@ -91,10 +91,10 @@ class ListProductLaundryFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 val query = newText.orEmpty().lowercase()
-                val filtered = fullLaundryList.filter {
-                    it.name_laundry_item!!.lowercase().contains(query)
+                val filtered = fullRentalList.filter {
+                    it.name_rental_item!!.lowercase().contains(query)
                 }
-                laundryProductAdapter.submitList(filtered)
+                rentalProductAdapter.submitList(filtered)
                 binding.searchView.setIconifiedByDefault(false)
                 binding.countData.text = filtered.size.toString()
                 return true
@@ -117,8 +117,8 @@ class ListProductLaundryFragment : Fragment() {
         _binding = null
     }
 
-    private fun onDetailClick(itemLaundry: ProductLaundry) {
-        Toast.makeText(context, "Detail ${itemLaundry.id_laundry_item} akan ditampilkan", Toast.LENGTH_SHORT).show()
+    private fun onDetailClick(rentalItem: ProductRental) {
+        Toast.makeText(context, "Detail ${rentalItem.id_rental_item} akan ditampilkan", Toast.LENGTH_SHORT).show()
 //        val bundle = Bundle().apply {
 //            putLong("supplierId", supplier.id_supplier)  // Mengirimkan ID supplier ke fragment berikutnya
 //        }

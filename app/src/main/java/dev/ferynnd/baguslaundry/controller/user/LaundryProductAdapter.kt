@@ -7,14 +7,14 @@ import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import dev.ferynnd.baguslaundry.databinding.CardProductLaundryBinding
+import dev.ferynnd.baguslaundry.databinding.KurirCardProductLaundryBinding
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 
 class LaundryProductAdapter(
     private val onItemClick: (ProductLaundry) -> Unit
 ) : ListAdapter<ProductLaundry, LaundryProductAdapter.ProductLaundryViewHolder>(DiffCallback()) {
 
-    inner class ProductLaundryViewHolder(val binding: CardProductLaundryBinding) :
+    inner class ProductLaundryViewHolder(val binding: KurirCardProductLaundryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         val nama_laundry = binding.inputName
         val harga_waktu = binding.inputTime
@@ -28,7 +28,7 @@ class LaundryProductAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductLaundryViewHolder {
-        val binding = CardProductLaundryBinding.inflate(
+        val binding = KurirCardProductLaundryBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
         return ProductLaundryViewHolder(binding)

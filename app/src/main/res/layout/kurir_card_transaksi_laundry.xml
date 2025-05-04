@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardTransaksiLaundry"
+    app:cardCornerRadius="8dp"
+    android:backgroundTint="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="5dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="14dp">
+
+        <TextView
+            android:id="@+id/no_resi_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="TRX2321"
+            android:textColor="@color/orange600"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/harga_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Rp. 100.000"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/wadah_status"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/wadah_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:backgroundTint="@color/blue500"
+            app:cardCornerRadius="6dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/no_resi_transaksi_laundry"
+            tools:ignore="MissingConstraints">
+
+            <TextView
+                android:id="@+id/status_transaksi_laundry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_semibold"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="4dp"
+                android:text="tersedia"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="10sp" />
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- title per kolom -->
+
+        <TextView
+            android:id="@+id/title_tanggal_masuk_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Tanggal Masuk: "
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wadah_status"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_tanggal_keluar_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Tanggal Keluar: "
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_tanggal_masuk_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_nama_pelanggan_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/inter_bold"
+            android:text="Nama Pelanggan"
+            android:textColor="@color/gray900"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_tanggal_keluar_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_berat_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Berat"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_nama_pelanggan_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_berat_satuan_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:fontFamily="@font/inter_medium"
+            android:text="Kg"
+            android:textColor="@color/blue600"
+            android:textSize="8sp"
+            app:layout_constraintBottom_toBottomOf="@+id/title_berat_transaksi_laundry"
+            app:layout_constraintStart_toEndOf="@+id/title_berat_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_cash_harga_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Harga"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_berat_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_satuan_cash_harga_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:fontFamily="@font/inter_medium"
+            android:text="Rp"
+            android:textColor="@color/blue600"
+            android:textSize="8sp"
+            app:layout_constraintBottom_toBottomOf="@+id/title_cash_harga_transaksi_laundry"
+            app:layout_constraintStart_toEndOf="@+id/title_cash_harga_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_tunai_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Pembayaran"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_cash_harga_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_satuan_tunai_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:fontFamily="@font/inter_medium"
+            android:text="Rp"
+            android:textColor="@color/blue600"
+            android:textSize="8sp"
+            app:layout_constraintBottom_toBottomOf="@+id/title_tunai_transaksi_laundry"
+            app:layout_constraintStart_toEndOf="@+id/title_tunai_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_kembalian_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Kembalian"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_tunai_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_satuan_kembalian_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:fontFamily="@font/inter_medium"
+            android:text="Rp"
+            android:textColor="@color/blue600"
+            android:textSize="8sp"
+            app:layout_constraintBottom_toBottomOf="@+id/title_kembalian_transaksi_laundry"
+            app:layout_constraintStart_toEndOf="@+id/title_kembalian_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/title_note_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Note:"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_kembalian_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <!--        Data Output -->
+
+        <TextView
+            android:id="@+id/tanggal_masuk_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Feb 06,  2025 - 19 : 00"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title_tanggal_masuk_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/tanggal_keluar_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Feb 06,  2025 - 19 : 00"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tanggal_masuk_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/nama_pelanggan_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="MAMAD"
+            android:textColor="@color/gray900"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/title_nama_pelanggan_transaksi_laundry"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title_nama_pelanggan_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/berat_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="10,7"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title_berat_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/total_harga_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_bold"
+            android:text="100000"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/berat_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/tunai_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_bold"
+            android:text="200000"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/total_harga_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/kembalian_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/inter_bold"
+            android:text="100000"
+            android:textColor="@color/gray900"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tunai_transaksi_laundry"
+            tools:ignore="MissingConstraints" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/wadah_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:backgroundTint="@color/blueBase"
+            app:cardCornerRadius="6dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_note_transaksi_laundry"
+            tools:ignore="MissingConstraints">
+
+            <TextView
+                android:id="@+id/note_transaksi_laundry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/inter_medium"
+                android:maxLines="3"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="4dp"
+                android:singleLine="false"
+                android:text="tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia tersedia"
+                android:textColor="@color/gray900"
+                android:textSize="10sp" />
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

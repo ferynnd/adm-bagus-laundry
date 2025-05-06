@@ -92,17 +92,17 @@ class UserDashboardFragment : Fragment() {
         }
 
         binding.menuTransaksiLaundry.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, ListTransaksiLaundryFragment())
-                .addToBackStack(null)
-                .commit()
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.host_fragment_user, ListTransaksiLaundryFragment())
+//                .addToBackStack(null)
+//                .commit()
         }
 
         binding.menuTransaksiRental.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, ListTransaksiRentalFragment())
-                .addToBackStack(null)
-                .commit()
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.host_fragment_user, ListTransaksiRentalFragment())
+//                .addToBackStack(null)
+//                .commit()
         }
 
         return binding.root
@@ -139,7 +139,7 @@ class UserDashboardFragment : Fragment() {
                 btnRental.setOnClickListener {
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.host_fragment_user, ListTransaksiRentalFragment())
-                        .addToBackStack("rental")
+                        .addToBackStack(null)
                         .commit()
                     dialog.dismiss()
                 }
@@ -148,7 +148,7 @@ class UserDashboardFragment : Fragment() {
                 btnLaundry.setOnClickListener {
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.host_fragment_user, ListTransaksiLaundryFragment())
-                        .addToBackStack("laundry")
+                        .addToBackStack(null)
                         .commit()
                     dialog.dismiss()
                 }
@@ -159,7 +159,7 @@ class UserDashboardFragment : Fragment() {
                     btnRental.setOnClickListener {
                         parentFragmentManager.beginTransaction()
                             .replace(R.id.host_fragment_user, ListProductRentalFragment())
-                            .addToBackStack("rental")
+                            .addToBackStack(null)
                             .commit()
                         dialog.dismiss()
                     }
@@ -168,7 +168,7 @@ class UserDashboardFragment : Fragment() {
                     btnLaundry.setOnClickListener {
                         parentFragmentManager.beginTransaction()
                             .replace(R.id.host_fragment_user, ListProductLaundryFragment())
-                            .addToBackStack("laundry")
+                            .addToBackStack(null)
                             .commit()
                         dialog.dismiss()
                     }

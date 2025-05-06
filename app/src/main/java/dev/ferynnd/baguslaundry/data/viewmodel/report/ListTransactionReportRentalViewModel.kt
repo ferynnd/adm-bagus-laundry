@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class ListTransactionReportRentalViewModel  (application: Application) : AndroidViewModel(application) {
 
-    private var listTransactionReportRentalRepository = ListTransactionReportRentalRepository(application.applicationContext)
+    private lateinit var listTransactionReportRentalRepository: ListTransactionReportRentalRepository
 
     private val _listTransactionRentalReports = MutableLiveData<List<ListTransactionRental>>()
     val listTransactionRentalReports: LiveData<List<ListTransactionRental>> get() = _listTransactionRentalReports
@@ -20,12 +20,6 @@ class ListTransactionReportRentalViewModel  (application: Application) : Android
     fun init(context: Context) {
         listTransactionReportRentalRepository = ListTransactionReportRentalRepository(context)
         getAllListTransactionRental()
-    }
-
-    init {
-        if (listTransactionReportRentalRepository.isLoggedIn()) {
-            getAllListTransactionRental()
-        }
     }
 
     private fun getAllListTransactionRental() {

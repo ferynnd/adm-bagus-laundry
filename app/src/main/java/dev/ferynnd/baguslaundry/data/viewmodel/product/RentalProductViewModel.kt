@@ -7,21 +7,21 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
+import dev.ferynnd.baguslaundry.data.repository.product.LaundryProductRepository
 import dev.ferynnd.baguslaundry.data.repository.product.RentalProductRepository
 import dev.ferynnd.baguslaundry.model.ProductRental
 import kotlinx.coroutines.launch
 
 class RentalProductViewModel(application: Application) : AndroidViewModel(application) {
 
-    private var rentalProductRepository = RentalProductRepository(application.applicationContext)
+    private lateinit var rentalProductRepository: RentalProductRepository
 
     private val _rentalProducts = MutableLiveData<List<ProductRental>>()
     val rentalProducts: LiveData<List<ProductRental>> get() = _rentalProducts
 
-    init {
-        if (rentalProductRepository.isLoggedIn()) {
-            getAllProductRental()
-        }
+    fun init(context: Context) {
+        rentalProductRepository = RentalProductRepository(context)
+        getAllProductRental()
     }
 
      private fun getAllProductRental() {

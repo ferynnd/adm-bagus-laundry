@@ -43,7 +43,9 @@ class ListTransaksiRentalFragment : Fragment() {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
+        clientViewModel.init(requireContext())
         transaksiRentalViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java]
+        transaksiRentalViewModel.init(requireContext())
     }
 
     override fun onCreateView(

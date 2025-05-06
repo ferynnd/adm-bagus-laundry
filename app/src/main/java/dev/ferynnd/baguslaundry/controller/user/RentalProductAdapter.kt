@@ -13,9 +13,7 @@ import dev.ferynnd.baguslaundry.model.ProductRental
 import java.text.NumberFormat
 import java.util.Locale
 
-class RentalProductAdapter (
-    private val onItemClick: (ProductRental) -> Unit
-) : ListAdapter<ProductRental, RentalProductAdapter.ProductRentalViewHolder>(DiffCallback()) {
+class RentalProductAdapter () : ListAdapter<ProductRental, RentalProductAdapter.ProductRentalViewHolder>(DiffCallback()) {
 
     inner class ProductRentalViewHolder(val binding: KurirCardProductRentalBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -24,12 +22,6 @@ class RentalProductAdapter (
         val condition = binding.conditionProductRental
         val deskripsi = binding.deskirpiProductLaundry
         val price = binding.priceProductLaundry
-
-        init {
-            itemView.setOnClickListener {
-                onItemClick(getItem(adapterPosition))
-            }
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductRentalViewHolder {
@@ -77,10 +69,6 @@ class RentalProductAdapter (
         }
 
         holder.deskripsi.text = laundryItem.description_rental_item.toString()
-
-        holder.itemView.setOnClickListener {
-            onItemClick(laundryItem)
-        }
     }
 
     class DiffCallback : DiffUtil.ItemCallback<ProductRental>() {

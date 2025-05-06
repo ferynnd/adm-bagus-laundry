@@ -74,13 +74,12 @@ class ListRentalTransaksiAdapter :
             TypeListTransactionRental.KESET -> "Keset"
         }
 
-
         val nomor_rental = rentalItem.find { it.id_rental_item == report.id_item_rental }?.number_rental_item ?: "-"
 
         holder.nomor_type.text = "${nomor_rental} - ${type}"
 
         // Menampilkan data lainnya
-        holder.harga.text = numberFormat.format(report.price_list_transaction_rental ?: 0)
+        holder.harga.text =  "${numberFormat.format(report.price_list_transaction_rental ?: 0)}/Kg"
         holder.berat.text = (report.weight_list_transaction_rental ?: 0.0).toString() + " Kg"
 
         val totalHarga = report.price_list_transaction_rental?.let { price ->

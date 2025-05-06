@@ -42,6 +42,7 @@ class ListTransaksiLaundryFragment : Fragment() {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         transaksiLaundryViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java]
+        transaksiLaundryViewModel.init(requireContext())
     }
 
     override fun onCreateView(
@@ -122,7 +123,7 @@ class ListTransaksiLaundryFragment : Fragment() {
     private fun onDetailClick(transaksiLaundry: ReportLaundry) {
         Toast.makeText(context, "Detail ${transaksiLaundry.id_transaction_laundry} akan ditampilkan", Toast.LENGTH_SHORT).show()
         val bundle = Bundle().apply {
-            putInt("TRANSAKSI_ID", transaksiLaundry.id_transaction_laundry ?: 0)
+            putInt("TRANSAKSI_LAUNDRY_ID", transaksiLaundry.id_transaction_laundry ?: 0)
         }
         val detailFragment = DetailListTransaksiLaundryFragment()
         detailFragment.arguments = bundle

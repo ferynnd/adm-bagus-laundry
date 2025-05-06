@@ -23,14 +23,26 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5" />
 
+        <TextView
+            android:id="@+id/nama_transaksi_laundry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="RTL 22839 - Bath Towel"
+            android:textColor="@color/black"
+            android:fontFamily="@font/inter_bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
+
         <androidx.cardview.widget.CardView
             android:id="@+id/wadah_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/blue500"
+            app:cardBackgroundColor="@color/blue500"
             app:cardCornerRadius="6dp"
+            android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/nama_transaksi_laundry"
             tools:ignore="MissingConstraints">
 
             <TextView
@@ -52,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter_bold"
-            android:text="Nama Barang laundry"
+            android:text="Rp.5000,00/Kg"
             android:textColor="@color/black"
             android:textSize="12sp"
             android:layout_marginTop="6dp"

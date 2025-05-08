@@ -37,7 +37,7 @@ class ListTransaksiRentalFragment : Fragment() {
 
     private var userId: Int = 0
     private var userIdBranch: Int = 0
-    private var countProductLaundry: Int = 0
+    private var countListTransaksiRental: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,10 +88,18 @@ class ListTransaksiRentalFragment : Fragment() {
                         // Simpan list untuk pencarian
                         fullTransaksiRentalList = filteredList
 
-                        countProductLaundry = filteredList.size
-                        binding.countData.text = countProductLaundry.toString()
+                        countListTransaksiRental = filteredList.size
+                        binding.countData.text = countListTransaksiRental.toString()
 
-                        transaksiRentalAdapter.submitList(filteredList)
+                        if (fullTransaksiRentalList.isNotEmpty()) {
+                            binding.recyclerViewTransaksiRental.visibility = View.VISIBLE
+                            binding.containerDataNotFound.visibility = View.GONE
+
+                            transaksiRentalAdapter.submitList(filteredList)
+                        }else {
+                            binding.recyclerViewTransaksiRental.visibility = View.GONE
+                            binding.containerDataNotFound.visibility = View.VISIBLE
+                        }
                     }
                 }
             }

@@ -27,6 +27,7 @@ class LaundryTransaksiAdapter(
         val tanggalMasuk = binding.tanggalMasukTransaksiLaundry
         val tanggalKeluar = binding.tanggalKeluarTransaksiLaundry
         val namaPelanggan = binding.namaPelangganTransaksiLaundry
+        val pcs = binding.pcsTransaksiLaundry
         val berat = binding.beratTransaksiLaundry
         val total = binding.totalHargaTransaksiLaundry
         val tunai = binding.tunaiTransaksiLaundry
@@ -76,6 +77,7 @@ class LaundryTransaksiAdapter(
         }
 
         // Menampilkan data lainnya
+        holder.pcs.text = report.count_item_laundry_transaction_laundry.toString()
         holder.harga.text = numberFormat.format(report.total_transaction_laundry ?: 0.0)
         holder.total.text = numberFormat.format(report.total_transaction_laundry ?: 0.0)
         holder.tunai.text = numberFormat.format(report.cash_transaction_laundry ?: 0.0)

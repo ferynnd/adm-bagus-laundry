@@ -26,6 +26,7 @@ import dev.ferynnd.baguslaundry.databinding.KurirFragmentUserDashboardBinding
 import dev.ferynnd.baguslaundry.ui.LoginActivity
 import dev.ferynnd.baguslaundry.ui.user.product_laundry.ListProductLaundryFragment
 import dev.ferynnd.baguslaundry.ui.user.product_rental.ListProductRentalFragment
+import dev.ferynnd.baguslaundry.ui.user.transaksi_laundry.CreateListTransaksiLaundryFragment
 import dev.ferynnd.baguslaundry.ui.user.transaksi_laundry.ListTransaksiLaundryFragment
 import dev.ferynnd.baguslaundry.ui.user.transaksi_rental.ListTransaksiRentalFragment
 import kotlinx.coroutines.launch
@@ -92,10 +93,10 @@ class UserDashboardFragment : Fragment() {
         }
 
         binding.menuTransaksiLaundry.setOnClickListener {
-//            parentFragmentManager.beginTransaction()
-//                .replace(R.id.host_fragment_user, ListTransaksiLaundryFragment())
-//                .addToBackStack(null)
-//                .commit()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.host_fragment_user, CreateListTransaksiLaundryFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         binding.menuTransaksiRental.setOnClickListener {

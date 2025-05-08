@@ -1,5 +1,6 @@
 package dev.ferynnd.baguslaundry.ui.user.product_rental
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +25,10 @@ import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.launch
 import androidx.core.view.isVisible
+import com.google.android.flexbox.FlexboxLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
 class ListProductRentalFragment : Fragment() {
@@ -38,18 +44,36 @@ class ListProductRentalFragment : Fragment() {
 
     private var userId: Int = 0
     private var userIdBranch: Int = 0
-    private var countProductLaundry: Int = 0
+    private var countProductRental: Int = 0
 
-    private var selectedStatus: String? = null
-    private var selectedCondition: String? = null
+    // Maps to track filter selections
+    private val selectedFilters = mutableMapOf<String, MutableSet<String>>().apply {
+        this["condition"] = mutableSetOf()
+        this["status"] = mutableSetOf()
+    }
 
-    private val selectedConditions = mutableSetOf<String>()
-    private val selectedStatuses = mutableSetOf<String>()
+    // Map to track filter buttons (for styling)
+    private val filterButtons = mutableMapOf<String, MutableList<Pair<MaterialCardView, TextView>>>()
 
-    // Untuk menyimpan referensi kartu yang aktif, supaya bisa reset style
-    private val selectedConditionCards = mutableListOf<Pair<MaterialCardView, TextView>>()
-    private val selectedStatusCards = mutableListOf<Pair<MaterialCardView, TextView>>()
+    // Filter data definitions
+    private val filterOptions = mapOf(
+        "condition" to listOf(
+            FilterOption("clean", "Bersih"),
+            FilterOption("dirty", "Kotor"),
+            FilterOption("damaged", "Rusak")
+        ),
+        "status" to listOf(
+            FilterOption("available", "Tersedia"),
+            FilterOption("rented", "Disewa"),
+            FilterOption("maintenance", "Pemeliharaan")
+        )
+    )
 
+    data class FilterOption(val value: String, val displayName: String)
+
+    // BottomSheet for filters
+    private lateinit var filterBottomSheetDialog: BottomSheetDialog
+    private lateinit var filterBottomSheetView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,10 +93,17 @@ class ListProductRentalFragment : Fragment() {
 
         rentalProductAdapter = RentalProductAdapter()
 
-        binding.recyclerViewProductLaundry.apply {
+        binding.recyclerViewProductRental.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rentalProductAdapter
         }
+
+        // Initialize filter category containers
+        filterButtons["condition"] = mutableListOf()
+        filterButtons["status"] = mutableListOf()
+
+        // Initialize bottom sheet filter
+        initializeFilterBottomSheet()
 
         // Dapatkan user dan baru lanjut observe
         if (userId != 0) {
@@ -91,10 +122,18 @@ class ListProductRentalFragment : Fragment() {
                             // Simpan list untuk pencarian
                             fullRentalList = filteredList
 
-                            countProductLaundry = filteredList.size
-                            binding.countData.text = countProductLaundry.toString()
+                            countProductRental = filteredList.size
+                            binding.countData.text = countProductRental.toString()
 
-                            applyFilters()
+                            if (filteredList.isNotEmpty()) {
+                                binding.recyclerViewProductRental.visibility = View.VISIBLE
+                                binding.containerDataNotFound.visibility = View.GONE
+
+                                applyFilters()
+                            }else {
+                                binding.recyclerViewProductRental.visibility = View.GONE
+                                binding.containerDataNotFound.visibility = View.VISIBLE
+                            }
                         }
                     }
                 } catch (e: Exception) {
@@ -110,61 +149,6 @@ class ListProductRentalFragment : Fragment() {
             Toast.makeText(context, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
 
-        binding.kondisiBersih.setOnClickListener {
-            toggleFilterCard(binding.kondisiBersih, binding.titleKondisiBersih, "clean", selectedConditions, selectedConditionCards)
-        }
-        binding.kondisiKotor.setOnClickListener {
-            toggleFilterCard(binding.kondisiKotor, binding.titleKondisiKotor, "dirty", selectedConditions, selectedConditionCards)
-        }
-        binding.kondisiRusak.setOnClickListener {
-            toggleFilterCard(binding.kondisiRusak, binding.titleKondisiRusak, "damaged", selectedConditions, selectedConditionCards)
-        }
-
-        binding.statusTersedia.setOnClickListener {
-            toggleFilterCard(binding.statusTersedia, binding.titleStatusTersedia, "available", selectedStatuses, selectedStatusCards)
-        }
-        binding.statusDisewa.setOnClickListener {
-            toggleFilterCard(binding.statusDisewa, binding.titleStatusDisewa, "rented", selectedStatuses, selectedStatusCards)
-        }
-        binding.statusPemeliharaan.setOnClickListener {
-            toggleFilterCard(binding.statusPemeliharaan, binding.titleStatusPemeliharaan, "maintenance", selectedStatuses, selectedStatusCards)
-        }
-
-        binding.terapkanFilter.setOnClickListener {
-            val filtered = fullRentalList.filter { item ->
-                (selectedConditions.isEmpty() || selectedConditions.contains(item.condition_rental_item.name.lowercase())) &&
-                        (selectedStatuses.isEmpty() || selectedStatuses.contains(item.status_rental_item.name.lowercase()))
-            }
-            rentalProductAdapter.submitList(filtered)
-            binding.countData.text = filtered.size.toString()
-
-            binding.wadahFilter.visibility = View.GONE
-        }
-
-        binding.resetFilter.setOnClickListener {
-            selectedConditions.clear()
-            selectedStatuses.clear()
-
-            // Reset semua style kartu
-            selectedConditionCards.forEach { (card, text) ->
-                card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
-                text.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue500))
-            }
-            selectedStatusCards.forEach { (card, text) ->
-                card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
-                text.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue500))
-            }
-
-            selectedConditionCards.clear()
-            selectedStatusCards.clear()
-
-            // Tampilkan ulang semua data
-            rentalProductAdapter.submitList(fullRentalList)
-            binding.countData.text = fullRentalList.size.toString()
-
-            binding.wadahFilter.visibility = View.GONE
-        }
-
         // Fungsi pencarian
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -176,7 +160,17 @@ class ListProductRentalFragment : Fragment() {
                 val filtered = fullRentalList.filter {
                     it.name_rental_item!!.lowercase().contains(query) || it.number_rental_item!!.lowercase().contains(query)
                 }
-                rentalProductAdapter.submitList(filtered)
+
+                if (filtered.isNotEmpty()) {
+                    binding.recyclerViewProductRental.visibility = View.VISIBLE
+                    binding.containerDataNotFound.visibility = View.GONE
+
+                    rentalProductAdapter.submitList(filtered)
+                }else {
+                    binding.recyclerViewProductRental.visibility = View.GONE
+                    binding.containerDataNotFound.visibility = View.VISIBLE
+                }
+
                 binding.searchView.setIconifiedByDefault(false)
                 binding.countData.text = filtered.size.toString()
                 return true
@@ -191,11 +185,7 @@ class ListProductRentalFragment : Fragment() {
         }
 
         binding.imageFilter.setOnClickListener {
-            if (binding.wadahFilter.isVisible) {
-                binding.wadahFilter.visibility = View.GONE
-            } else {
-                binding.wadahFilter.visibility = View.VISIBLE
-            }
+            showFilterBottomSheet()
         }
 
         return binding.root
@@ -207,43 +197,168 @@ class ListProductRentalFragment : Fragment() {
         _binding = null
     }
 
-    private fun applyFilters() {
-        val filteredList = fullRentalList.filter { item ->
-            val statusMatches =
-                selectedStatus?.let { item.status_rental_item.name.equals(it, ignoreCase = true) }
-                    ?: true
-            val conditionMatches = selectedCondition?.let {
-                item.condition_rental_item.name.equals(
-                    it,
-                    ignoreCase = true
-                )
-            } ?: true
-            statusMatches && conditionMatches
+    // Initialize bottom sheet filter
+    private fun initializeFilterBottomSheet() {
+        // Inflate layout for bottom sheet
+        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        filterBottomSheetView = inflater.inflate(R.layout.kurir_layout_filter_product_rental, null)
+
+        // Create BottomSheetDialog
+        filterBottomSheetDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
+        filterBottomSheetDialog.setContentView(filterBottomSheetView)
+
+        // Get filter container views
+        val conditionContainer = filterBottomSheetView.findViewById<FlexboxLayout>(R.id.wadah_button_filter_kondisi)
+        val statusContainer = filterBottomSheetView.findViewById<FlexboxLayout>(R.id.wadah_button_filter_status)
+
+        // Create filter buttons dynamically
+        createFilterButtons("condition", conditionContainer)
+        createFilterButtons("status", statusContainer)
+
+        // Setup apply and reset buttons
+        val terapkanFilter = filterBottomSheetView.findViewById<MaterialButton>(R.id.terapkan_filter)
+        val resetFilter = filterBottomSheetView.findViewById<MaterialButton>(R.id.reset_filter)
+
+        terapkanFilter.setOnClickListener {
+            applyFilters()
+            filterBottomSheetDialog.dismiss()
         }
 
-        rentalProductAdapter.submitList(filteredList)
-        binding.countData.text = filteredList.size.toString()
+        resetFilter.setOnClickListener {
+            resetAllFilters()
+            filterBottomSheetDialog.dismiss()
+        }
+
+        // Optional: Add behavior to make dialog more responsive
+        val behavior = filterBottomSheetDialog.behavior
+        behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        behavior.isDraggable = true
+        behavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
     }
 
-    private fun toggleFilterCard(
-        card: MaterialCardView,
-        textView: TextView,
-        value: String,
-        targetSet: MutableSet<String>,
-        trackingList: MutableList<Pair<MaterialCardView, TextView>>
-    ) {
-        if (targetSet.contains(value)) {
+    // Create filter buttons dynamically
+    private fun createFilterButtons(filterType: String, container: FlexboxLayout) {
+        filterOptions[filterType]?.forEach { option ->
+            // Create card and text view
+            val card = MaterialCardView(requireContext()).apply {
+                id = View.generateViewId()
+                layoutParams = FlexboxLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    setMargins(6, 6, 6, 6)
+                }
+                cardElevation = 0f
+                radius = resources.getDimension(R.dimen.card_corner_radius)
+                strokeWidth = 2
+                strokeColor = ContextCompat.getColor(requireContext(), R.color.blue500)
+                setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+            }
+
+            val textView = TextView(requireContext()).apply {
+                id = View.generateViewId()
+                text = option.displayName
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.blue500))
+                textSize = 14f
+                setPadding(
+                    18.dpToPx(requireContext()),
+                    8.dpToPx(requireContext()),
+                    18.dpToPx(requireContext()),
+                    8.dpToPx(requireContext())
+                )
+                setTypeface(ResourcesCompat.getFont(requireContext(), R.font.inter_semibold))
+            }
+
+            // Add text view to card
+            card.addView(textView)
+
+            // Set click listener
+            card.setOnClickListener {
+                toggleFilterOption(filterType, option.value, card, textView)
+            }
+
+            // Add card to container
+            container.addView(card)
+        }
+    }
+
+    // Helper function to convert dp to pixels
+    private fun Int.dpToPx(context: Context): Int {
+        return (this * context.resources.displayMetrics.density).toInt()
+    }
+
+    // Toggle filter option selection
+    private fun toggleFilterOption(filterType: String, value: String, card: MaterialCardView, textView: TextView) {
+        val currentSelections = selectedFilters[filterType] ?: return
+        val buttonPair = Pair(card, textView)
+
+        if (currentSelections.contains(value)) {
             // Unselect
-            targetSet.remove(value)
+            currentSelections.remove(value)
             card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue500))
-            trackingList.removeIf { it.first == card }
+            filterButtons[filterType]?.remove(buttonPair)
         } else {
             // Select
-            targetSet.add(value)
+            currentSelections.add(value)
             card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.blue500))
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-            trackingList.add(card to textView)
+            filterButtons[filterType]?.add(buttonPair)
         }
+    }
+
+    // Reset all filters
+    private fun resetAllFilters() {
+        // Clear all selections
+        selectedFilters.forEach { (_, selections) -> selections.clear() }
+
+        // Reset UI for all buttons
+        filterButtons.forEach { (_, buttons) ->
+            buttons.forEach { (card, textView) ->
+                card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+                textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue500))
+            }
+            buttons.clear()
+        }
+
+        if (fullRentalList.isNotEmpty()) {
+            binding.recyclerViewProductRental.visibility = View.VISIBLE
+            binding.containerDataNotFound.visibility = View.GONE
+
+            rentalProductAdapter.submitList(fullRentalList)
+        }else {
+            binding.recyclerViewProductRental.visibility = View.GONE
+            binding.containerDataNotFound.visibility = View.VISIBLE
+        }
+
+        binding.countData.text = fullRentalList.size.toString()
+    }
+
+    // Show bottom sheet filter
+    private fun showFilterBottomSheet() {
+        filterBottomSheetDialog.show()
+    }
+
+    // Apply current filters to the list
+    private fun applyFilters() {
+        val conditionFilters = selectedFilters["condition"] ?: emptySet()
+        val statusFilters = selectedFilters["status"] ?: emptySet()
+
+        val filteredList = fullRentalList.filter { item ->
+            (conditionFilters.isEmpty() || conditionFilters.contains(item.condition_rental_item.name.lowercase())) &&
+                    (statusFilters.isEmpty() || statusFilters.contains(item.status_rental_item.name.lowercase()))
+        }
+
+        if (filteredList.isNotEmpty()) {
+            binding.recyclerViewProductRental.visibility = View.VISIBLE
+            binding.containerDataNotFound.visibility = View.GONE
+
+            rentalProductAdapter.submitList(filteredList)
+        }else {
+            binding.recyclerViewProductRental.visibility = View.GONE
+            binding.containerDataNotFound.visibility = View.VISIBLE
+        }
+
+        binding.countData.text = filteredList.size.toString()
     }
 }

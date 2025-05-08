@@ -116,6 +116,7 @@ class DetailListTransaksiLaundryFragment : Fragment() {
                         beratTransaksiLaundry.text =
                             (dataTransaskiLaundry.total_weight_transaction_laundry
                                 ?: 0.0).toString()
+                        pcsTransaksiLaundry.text = dataTransaskiLaundry.count_item_laundry_transaction_laundry.toString()
                         noteTransaksiLaundry.text =
                             dataTransaskiLaundry.notes_transaction_laundry ?: "-"
 
@@ -125,7 +126,11 @@ class DetailListTransaksiLaundryFragment : Fragment() {
                         viewLifecycleOwner
                     ) { listTransactionItem ->
                         listTransactionItem?.let {
-                            listTransaksiLaundryAdapter.submitList(listTransactionItem)
+                            val filteredList = listTransactionItem.filter { item ->
+                                item.id_transaction_laundry == listTransactionLaundryID
+                            }
+
+                            listTransaksiLaundryAdapter.submitList(filteredList)
                         }
                     }
                 }

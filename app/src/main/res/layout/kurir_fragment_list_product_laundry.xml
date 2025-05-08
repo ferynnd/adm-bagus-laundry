@@ -29,13 +29,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.07" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineMid"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.35" />
-
     <ImageView
         android:id="@+id/arrowBack"
         android:layout_width="20dp"
@@ -99,20 +92,8 @@
                 android:queryHint="Cari layanan..."
                 android:theme="@style/CustomSearchView"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageFilter"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="MissingConstraints" />
-
-            <ImageView
-                android:id="@+id/imageFilter"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_weight="1"
-                android:src="@drawable/filter"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="MissingConstraints" />
 
@@ -163,301 +144,46 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
         app:layout_constraintTop_toBottomOf="@id/layoutSearch"
         tools:listitem="@layout/kurir_card_product_laundry" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/wadah_filter"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_data_not_found"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="10dp"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-        app:layout_constraintStart_toStartOf="@+id/guidelineMid"
-        app:layout_constraintTop_toBottomOf="@+id/layoutSearch"
-        app:strokeColor="@color/blue500"
-        app:strokeWidth="2dp">
+        android:visibility="visible"
+        android:layout_marginTop="140dp"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/layoutSearch">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="10dp">
+        <ImageView
+            android:id="@+id/image_data_not_found"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:src="@drawable/laundry"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="MissingConstraints" />
 
-            <TextView
-                android:id="@+id/label_fitur_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_bold"
-                android:padding="0dp"
-                android:text="Filter Kondisi"
-                android:textColor="@color/black"
-                android:textSize="12sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="MissingConstraints" />
+        <TextView
+            android:id="@+id/text_data_not_found"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Data Produk Laundry tidak ditemukan"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/image_data_not_found"
+            app:layout_constraintStart_toStartOf="@+id/image_data_not_found"
+            app:layout_constraintTop_toBottomOf="@+id/image_data_not_found"
+            tools:ignore="MissingConstraints" />
 
-            <com.google.android.flexbox.FlexboxLayout
-                android:id="@+id/wadah_button_filter_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:flexWrap="wrap"
-                android:layout_marginTop="6dp"
-                app:justifyContent="flex_start"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/label_fitur_type"
-                tools:ignore="MissingConstraints">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/type_cs"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="6dp"
-                    app:strokeWidth="1dp"
-                    android:layout_margin="3dp"
-                    app:strokeColor="@color/blue500"
-                    tools:ignore="MissingConstraints">
-
-                    <TextView
-                        android:id="@+id/title_type_cs"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_semibold"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="4dp"
-                        android:text="Cuci Setrika"
-                        android:textColor="@color/blue600"
-                        android:textSize="12sp" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/type_ck"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="6dp"
-                    app:strokeWidth="1dp"
-                    android:layout_margin="3dp"
-                    app:strokeColor="@color/blue500"
-                    tools:ignore="MissingConstraints">
-
-                    <TextView
-                        android:id="@+id/title_type_ck"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_semibold"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="4dp"
-                        android:text="Cuci Kering"
-                        android:textColor="@color/blue600"
-                        android:textSize="12sp" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/type_s"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="6dp"
-                    app:strokeWidth="1dp"
-                    android:layout_margin="3dp"
-                    app:strokeColor="@color/blue500"
-                    tools:ignore="MissingConstraints">
-
-                    <TextView
-                        android:id="@+id/title_type_s"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_semibold"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="4dp"
-                        android:text="Setrika"
-                        android:textColor="@color/blue600"
-                        android:textSize="12sp" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/type_selimut"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="6dp"
-                    app:strokeWidth="1dp"
-                    android:layout_margin="3dp"
-                    app:strokeColor="@color/blue500"
-                    tools:ignore="MissingConstraints">
-
-                    <TextView
-                        android:id="@+id/title_type_selimut"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_semibold"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="4dp"
-                        android:text="Setrika"
-                        android:textColor="@color/blue600"
-                        android:textSize="12sp" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/type_bc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="6dp"
-                    app:strokeWidth="1dp"
-                    android:layout_margin="3dp"
-                    app:strokeColor="@color/blue500"
-                    tools:ignore="MissingConstraints">
-
-                    <TextView
-                        android:id="@+id/title_type_bc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_semibold"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="4dp"
-                        android:text="Bed Cover"
-                        android:textColor="@color/blue600"
-                        android:textSize="12sp" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/type_karpet"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="6dp"
-                    app:strokeWidth="1dp"
-                    android:layout_margin="3dp"
-                    app:strokeColor="@color/blue500"
-                    tools:ignore="MissingConstraints">
-
-                    <TextView
-                        android:id="@+id/title_type_karpet"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_semibold"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="4dp"
-                        android:text="Karpet"
-                        android:textColor="@color/blue600"
-                        android:textSize="12sp" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/type_korden"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="6dp"
-                    app:strokeWidth="1dp"
-                    android:layout_margin="3dp"
-                    app:strokeColor="@color/blue500"
-                    tools:ignore="MissingConstraints">
-
-                    <TextView
-                        android:id="@+id/title_type_korden"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_semibold"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="4dp"
-                        android:text="Korden"
-                        android:textColor="@color/blue600"
-                        android:textSize="12sp" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/type_other"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="6dp"
-                    app:strokeWidth="1dp"
-                    android:layout_margin="3dp"
-                    app:strokeColor="@color/blue500"
-                    tools:ignore="MissingConstraints">
-
-                    <TextView
-                        android:id="@+id/title_type_other"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_semibold"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="4dp"
-                        android:text="Other"
-                        android:textColor="@color/blue600"
-                        android:textSize="12sp" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-            </com.google.android.flexbox.FlexboxLayout>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/terapkan_filter"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@color/blue500"
-                app:cardCornerRadius="6dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/wadah_button_filter_type"
-                tools:ignore="MissingConstraints">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_semibold"
-                    android:paddingVertical="6dp"
-                    android:paddingHorizontal="8dp"
-                    android:text="Terapkan Filter"
-                    android:textAlignment="center"
-                    android:textColor="@color/white"
-                    android:textSize="10sp" />
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/reset_filter"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/transaksiOut"
-                app:cardCornerRadius="6dp"
-                android:layout_marginTop="6dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/terapkan_filter"
-                tools:ignore="MissingConstraints">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_semibold"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="6dp"
-                    android:text="Bersihkan Filter"
-                    android:textAlignment="center"
-                    android:textColor="@color/white"
-                    android:textSize="10sp" />
-
-            </androidx.cardview.widget.CardView>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

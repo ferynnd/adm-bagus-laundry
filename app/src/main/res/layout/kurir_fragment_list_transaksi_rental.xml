@@ -135,10 +135,46 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
         app:layout_constraintTop_toBottomOf="@id/layoutSearch"
         tools:listitem="@layout/kurir_card_product_laundry" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_data_not_found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="140dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/layoutSearch">
+
+        <ImageView
+            android:id="@+id/image_data_not_found"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:src="@drawable/report"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:id="@+id/text_data_not_found"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Data Transaksi Laundry tidak ditemukan"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/image_data_not_found"
+            app:layout_constraintStart_toStartOf="@+id/image_data_not_found"
+            app:layout_constraintTop_toBottomOf="@+id/image_data_not_found"
+            tools:ignore="MissingConstraints" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

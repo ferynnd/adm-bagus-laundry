@@ -204,16 +204,29 @@
                         tools:ignore="MissingConstraints" />
 
                     <TextView
-                        android:id="@+id/title_berat_transaksi_laundry"
+                        android:id="@+id/title_pcs_transaksi_laundry"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Jumlah Pcs"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/title_nama_pelanggan_transaksi_laundry"
+                        tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/title_berat_transaksi_laundry"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:fontFamily="@font/inter_semibold"
                         android:text="Berat"
                         android:textColor="@color/gray900"
                         android:textSize="12sp"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/title_nama_pelanggan_transaksi_laundry"
+                        app:layout_constraintTop_toBottomOf="@+id/title_pcs_transaksi_laundry"
                         tools:ignore="MissingConstraints" />
 
                     <TextView
@@ -360,6 +373,20 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/title_nama_pelanggan_transaksi_laundry"
                         tools:ignore="MissingConstraints" />
+
+                    <TextView
+                        android:id="@+id/pcs_transaksi_laundry"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="-"
+                        android:textColor="@color/gray900"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/title_pcs_transaksi_laundry"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/title_pcs_transaksi_laundry"
+                        tools:ignore="MissingConstraints" />
+
 
                     <TextView
                         android:id="@+id/berat_transaksi_laundry"

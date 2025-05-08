@@ -166,7 +166,11 @@ class DetailListTransaksiRentalFragment : Fragment() {
                         viewLifecycleOwner
                     ) { listTransactionItem ->
                         listTransactionItem?.let {
-                            listTransaksiRentalAdapter.submitList(listTransactionItem)
+                            val filteredList = listTransactionItem.filter { item ->
+                                item.id_rental_transaction == listTransactionRentalID
+                            }
+
+                            listTransaksiRentalAdapter.submitList(filteredList)
                         }
                     }
                 }

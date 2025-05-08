@@ -6,21 +6,21 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import dev.ferynnd.baguslaundry.data.repository.product.RentalProductRepository
 import dev.ferynnd.baguslaundry.data.repository.report.ListTransactionReportLaundryRepository
 import dev.ferynnd.baguslaundry.model.ListTransactionLaundry
 import kotlinx.coroutines.launch
 
 class ListTransactionReportLaundryViewModel  (application: Application) : AndroidViewModel(application) {
 
-    private var listTransactionReportLaundryRepository = ListTransactionReportLaundryRepository(application.applicationContext)
+    private lateinit var listTransactionReportLaundryRepository: ListTransactionReportLaundryRepository
 
     private val _listTransactionLaundryReports = MutableLiveData<List<ListTransactionLaundry>>()
     val listTransactionLaundryReports: LiveData<List<ListTransactionLaundry>> get() = _listTransactionLaundryReports
 
-    init {
-        if (listTransactionReportLaundryRepository.isLoggedIn()) {
-            getAllListTransactionLaundry()
-        }
+    fun init(context: Context) {
+        listTransactionReportLaundryRepository = ListTransactionReportLaundryRepository(context)
+        getAllListTransactionLaundry()
     }
 
     private fun getAllListTransactionLaundry() {

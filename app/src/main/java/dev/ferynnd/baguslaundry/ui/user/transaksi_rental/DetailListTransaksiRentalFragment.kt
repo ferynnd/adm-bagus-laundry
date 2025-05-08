@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,10 +42,14 @@ class DetailListTransaksiRentalFragment : Fragment() {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         transaksiRentalViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java]
+        transaksiRentalViewModel.init(requireContext())
         listTransactionRentalViewModel =
             ViewModelProvider(this)[ListTransactionReportRentalViewModel::class.java]
+        listTransactionRentalViewModel.init(requireContext())
         clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
+        clientViewModel.init(requireContext())
         rentalProductViewModel = ViewModelProvider(this)[RentalProductViewModel::class.java]
+        rentalProductViewModel.init(requireContext())
     }
 
     override fun onCreateView(
@@ -60,8 +65,8 @@ class DetailListTransaksiRentalFragment : Fragment() {
         binding.recyclerViewTransaksiRental.adapter = listTransaksiRentalAdapter
         binding.recyclerViewTransaksiRental.layoutManager = LinearLayoutManager(requireContext())
 
-        try {
-            if (listTransactionRentalID != 0) {
+        if (listTransactionRentalID != 0) {
+            try {
                 viewLifecycleOwner.lifecycleScope.launch {
                     val dataTransaskiLaundry =
                         transaksiRentalViewModel.getReportRentalById(listTransactionRentalID).data
@@ -77,42 +82,79 @@ class DetailListTransaksiRentalFragment : Fragment() {
 
                     binding.apply {
 
-                        statusTransaksiRental.text = when (dataTransaskiLaundry.status_transaction_rental) {
-                            StatusTransactionRental.WAITING_FOR_APPROVAL -> "MENUNGGU"
-                            StatusTransactionRental.APPROVED -> "DISETUJUI"
-                            StatusTransactionRental.OUT -> "KELUAR"
-                            StatusTransactionRental.IN -> "MASUK"
-                            StatusTransactionRental.CANCELLED -> "DIBATALKAN"
+                         val status =
+                            when (dataTransaskiLaundry.status_transaction_rental) {
+                                StatusTransactionRental.WAITING_FOR_APPROVAL -> "MENUNGGU"
+                                StatusTransactionRental.APPROVED -> "DISETUJUI"
+                                StatusTransactionRental.OUT -> "KELUAR"
+                                StatusTransactionRental.IN -> "MASUK"
+                                StatusTransactionRental.CANCELLED -> "DIBATALKAN"
+                            }
+                        statusTransaksiRental.text = status
+                        when (dataTransaskiLaundry.status_transaction_rental) {
+                            StatusTransactionRental.WAITING_FOR_APPROVAL ->
+                                wadahStatus.setCardBackgroundColor(
+                                    ContextCompat.getColor(requireContext(), R.color.transaksiOuther)
+                            )
+                            StatusTransactionRental.APPROVED ->
+                                wadahStatus.setCardBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.transaksiOuther)
+                            )
+                            StatusTransactionRental.OUT ->
+                                wadahStatus.setCardBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.transaksiOut)
+                            )
+                            StatusTransactionRental.IN ->
+                                wadahStatus.setCardBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.transaksiIn)
+                            )
+                            StatusTransactionRental.CANCELLED ->
+                                wadahStatus.setCardBackgroundColor(
+                                ContextCompat.getColor(requireContext(), R.color.transaksiCancelled)
+                            )
                         }
 
-                        tipeTransaksiRental.text = when (dataTransaskiLaundry.type_rental_transaction) {
-                            TypeTransactionRental.BATH_TOWEL -> "Bath Towel"
-                            TypeTransactionRental.HAND_TOWEL -> "Hand Towel"
-                            TypeTransactionRental.GORDEN -> "Gorden"
-                            TypeTransactionRental.KESET -> "Keset"
-                        }
+                        val tipe =
+                            when (dataTransaskiLaundry.type_rental_transaction) {
+                                TypeTransactionRental.BATH_TOWEL -> "Bath Towel"
+                                TypeTransactionRental.HAND_TOWEL -> "Hand Towel"
+                                TypeTransactionRental.GORDEN -> "Gorden"
+                                TypeTransactionRental.KESET -> "Keset"
+                            }
+                        tipeTransaksiRental.text = tipe
 
                         val localeID = Locale("in", "ID")
                         val numberFormat = NumberFormat.getCurrencyInstance(localeID)
                         val decimalFormat = DecimalFormat("#,##0.##")
 
-                        tanggalTransaksiRental.text = dataTransaskiLaundry.time_transaction_rental ?: "-"
+                        tanggalTransaksiRental.text =
+                            dataTransaskiLaundry.time_transaction_rental ?: "-"
                         namaClientTransaksiRental.text = dataClient.name_client ?: "-"
                         namaKurirTransaksiRental.text = dataUser.fullname_user ?: "-"
 
-                        namaPenerimaTransaksiRental.text = dataTransaskiLaundry.recipient_name_transaction_rental ?: "-"
+                        namaPenerimaTransaksiRental.text =
+                            dataTransaskiLaundry.recipient_name_transaction_rental ?: "-"
 
                         // Jumlah item dan berat
-                        jumlahItemTransaksiRental.text = "${dataTransaskiLaundry.total_pcs_transaction_rental ?: 0} pcs"
+                        jumlahItemTransaksiRental.text =
+                            "${dataTransaskiLaundry.total_pcs_transaction_rental ?: 0} pcs"
                         totalBeratTransaksiRental.text =
                             "${decimalFormat.format(dataTransaskiLaundry.total_weight_transaction_rental ?: 0.0)} kg"
 
                         // Harga dan biaya lainnya
-                        totalHargaTransaksiRental.text = numberFormat.format(dataTransaskiLaundry.total_price_transaction_rental ?: 0.0)
-                        promoTransaksiRental.text = numberFormat.format(dataTransaskiLaundry.promo_transaction_rental ?: 0.0)
-                        tambahanTransaksiRental.text = numberFormat.format(dataTransaskiLaundry.additional_cost_transaction_rental ?: 0.0)
-                        hargaPerKgTransaksiRental.text = "${numberFormat.format(dataTransaskiLaundry.price_weight_transaction_rental)}/kg"
-                        noteTransaksiRental.text = dataTransaskiLaundry.notes_transaction_rental ?: "-"
+                        totalHargaTransaksiRental.text = numberFormat.format(
+                            dataTransaskiLaundry.total_price_transaction_rental ?: 0.0
+                        )
+                        promoTransaksiRental.text = numberFormat.format(
+                            dataTransaskiLaundry.promo_transaction_rental ?: 0.0
+                        )
+                        tambahanTransaksiRental.text = numberFormat.format(
+                            dataTransaskiLaundry.additional_cost_transaction_rental ?: 0.0
+                        )
+                        hargaPerKgTransaksiRental.text =
+                            "${numberFormat.format(dataTransaskiLaundry.price_weight_transaction_rental)}/kg"
+                        noteTransaksiRental.text =
+                            dataTransaskiLaundry.notes_transaction_rental ?: "-"
 
                     }
 
@@ -124,16 +166,25 @@ class DetailListTransaksiRentalFragment : Fragment() {
                         viewLifecycleOwner
                     ) { listTransactionItem ->
                         listTransactionItem?.let {
-                            listTransaksiRentalAdapter.submitList(listTransactionItem)
+                            val filteredList = listTransactionItem.filter { item ->
+                                item.id_rental_transaction == listTransactionRentalID
+                            }
+
+                            listTransaksiRentalAdapter.submitList(filteredList)
                         }
                     }
                 }
-            } else {
-                Toast.makeText(requireContext(), "Detail Tidak Bisa Dimuat", Toast.LENGTH_SHORT)
+            } catch (e: Exception) {
+                Toast.makeText(
+                    requireContext(),
+                    "Detail Tidak Bisa Dimuat: ${e}",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
-        } catch (e: Exception) {
-            throw e
+        } else {
+            Toast.makeText(requireContext(), "Detail Tidak Bisa Dimuat", Toast.LENGTH_SHORT)
+                .show()
         }
 
         binding.arrowBack.setOnClickListener {

@@ -10,21 +10,13 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.ferynnd.baguslaundry.databinding.KurirCardProductLaundryBinding
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 
-class LaundryProductAdapter(
-    private val onItemClick: (ProductLaundry) -> Unit
-) : ListAdapter<ProductLaundry, LaundryProductAdapter.ProductLaundryViewHolder>(DiffCallback()) {
+class LaundryProductAdapter() : ListAdapter<ProductLaundry, LaundryProductAdapter.ProductLaundryViewHolder>(DiffCallback()) {
 
     inner class ProductLaundryViewHolder(val binding: KurirCardProductLaundryBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        val nama_laundry = binding.inputName
-        val harga_waktu = binding.inputTime
-        val deskripsi = binding.inputDescription
-
-        init {
-            itemView.setOnClickListener {
-                onItemClick(getItem(adapterPosition))
-            }
-        }
+        val nama_laundry = binding.namaProductLaundry
+        val harga_waktu = binding.hargaWaktuProductLaundry
+        val deskripsi = binding.deskripsiProductLaundry
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductLaundryViewHolder {
@@ -42,10 +34,6 @@ class LaundryProductAdapter(
         holder.nama_laundry.text = laundryItem.name_laundry_item.toString()
         holder.harga_waktu.text = "$harga_laundry - $waktu_laundry"
         holder.deskripsi.text = laundryItem.description_laundry_item.toString()
-
-        holder.itemView.setOnClickListener {
-            onItemClick(laundryItem)
-        }
     }
 
     class DiffCallback : DiffUtil.ItemCallback<ProductLaundry>() {

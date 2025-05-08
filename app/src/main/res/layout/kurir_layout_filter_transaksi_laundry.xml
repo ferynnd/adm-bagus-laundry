@@ -2,7 +2,7 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/wadah_filter_product_rental"
+    android:id="@+id/wadah_filter_transaksi_laundry"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardBackgroundColor="@color/white"
@@ -32,7 +32,7 @@
             android:layout_marginTop="16dp"
             android:fontFamily="@font/inter_bold"
             android:padding="0dp"
-            android:text="Filter Produk Rental"
+            android:text="Filter Transaksi Laundry"
             android:textColor="@color/blue900"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -46,45 +46,20 @@
             app:layout_constraintGuide_percent="0.5" />
 
         <TextView
-            android:id="@+id/label_fitur_kondisi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/inter_bold"
-            android:padding="0dp"
-            android:text="Filter Kondisi"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title_filter" />
-
-        <!-- Container for condition filter buttons (will be populated dynamically) -->
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/wadah_button_filter_kondisi"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:flexWrap="wrap"
-            app:justifyContent="flex_start"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/label_fitur_kondisi" />
-
-        <TextView
             android:id="@+id/label_fitur_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:fontFamily="@font/inter_bold"
             android:padding="0dp"
             android:text="Filter Status"
             android:textColor="@color/black"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/wadah_button_filter_kondisi" />
+            app:layout_constraintTop_toBottomOf="@id/title_filter" />
 
-        <!-- Container for status filter buttons (will be populated dynamically) -->
         <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/wadah_button_filter_status"
+            android:id="@+id/wadah_button_filter_status_transaksi_laundry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -107,7 +82,7 @@
             app:cornerRadius="8dp"
             app:layout_constraintEnd_toStartOf="@+id/guidelineMid"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/wadah_button_filter_status" />
+            app:layout_constraintTop_toBottomOf="@+id/wadah_button_filter_status_transaksi_laundry" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/reset_filter"

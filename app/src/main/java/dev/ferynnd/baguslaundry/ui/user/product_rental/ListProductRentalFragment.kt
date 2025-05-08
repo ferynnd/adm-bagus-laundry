@@ -30,6 +30,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import dev.ferynnd.baguslaundry.model.ConditionRental
+import dev.ferynnd.baguslaundry.model.StatusRental
+import dev.ferynnd.baguslaundry.model.StatusTransactionRental
+import dev.ferynnd.baguslaundry.model.TypeTransactionRental
 
 class ListProductRentalFragment : Fragment() {
     private var _binding: KurirFragmentListProductRentalBinding? = null
@@ -345,8 +349,29 @@ class ListProductRentalFragment : Fragment() {
         val statusFilters = selectedFilters["status"] ?: emptySet()
 
         val filteredList = fullRentalList.filter { item ->
-            (conditionFilters.isEmpty() || conditionFilters.contains(item.condition_rental_item.name.lowercase())) &&
-                    (statusFilters.isEmpty() || statusFilters.contains(item.status_rental_item.name.lowercase()))
+            val conditionMatches = if (conditionFilters.isEmpty()) {
+                true
+            } else {
+                val conditionName = when (item.condition_rental_item) {
+                    ConditionRental.clean -> "clean"
+                    ConditionRental.dirty -> "dirty"
+                    ConditionRental.damaged -> "damaged"
+                }
+                conditionFilters.contains(conditionName)
+            }
+
+            val statusMatches = if (statusFilters.isEmpty()) {
+                true
+            } else {
+                val statusName = when (item.status_rental_item) {
+                    StatusRental.available -> "available"
+                    StatusRental.rented -> "rented"
+                    StatusRental.maintenance -> "maintenance"
+                }
+                statusFilters.contains(statusName)
+            }
+
+            conditionMatches && statusMatches
         }
 
         if (filteredList.isNotEmpty()) {

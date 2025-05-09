@@ -5,6 +5,8 @@ import dev.ferynnd.baguslaundry.data.api.ApiResponse
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
+import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 
 class LaundryReportRepository (context: Context) {
@@ -30,7 +32,6 @@ class LaundryReportRepository (context: Context) {
         }
     }
 
-
     suspend fun getReportLaundryById(id: Int): DefaultRequest<ReportLaundry> {
         try {
             val response = laundryReportApiService.getReportLaundryById(role, id)
@@ -45,5 +46,12 @@ class LaundryReportRepository (context: Context) {
         }
     }
 
-
+    suspend fun createReportLaundry(laundryTransactionRequest: LaundryTransactionRequest): DefaultRequest<LaundryTransactionResponse> {
+        try {
+            val response = laundryReportApiService.createReportLaundry(role, laundryTransactionRequest)
+            return response
+        } catch (e: Exception) {
+            throw e
+        }
+    }
 }

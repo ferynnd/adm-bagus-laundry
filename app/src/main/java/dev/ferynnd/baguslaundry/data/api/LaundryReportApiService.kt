@@ -1,9 +1,12 @@
 package dev.ferynnd.baguslaundry.data.api
 
+import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
+import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
@@ -14,14 +17,17 @@ interface LaundryReportApiService {
         @Path("role") role: String,
     ): ApiResponse<ReportLaundry>
 
-//    @POST("api/{role}/create_transaction_laundries")
-//    suspend fun createReportLaundry(@Path("role") role: String, @Body reportLaundry: ReportLaundry): DefaultRequest<ReportLaundry>
-
     @GET("api/{role}/transaction_laundries/{id}")
     suspend fun getReportLaundryById(
         @Path("role") role: String,
         @Path("id") id: Int
     ): DefaultRequest<ReportLaundry>
+
+    @POST("api/{role}/create_transaction_laundries")
+    suspend fun createReportLaundry(
+        @Path("role") role: String,
+        @Body laundryTransactionRequest: LaundryTransactionRequest
+    ): DefaultRequest<LaundryTransactionResponse>
 
     @DELETE("api/{role}/delete_transaction_laundries/{id}")
     suspend fun deleteReportLaundry(

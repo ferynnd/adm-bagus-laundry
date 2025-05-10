@@ -32,3 +32,18 @@ enum class IsActiveReportLaundry {
     inactive
 }
 
+
+data class ExportReportLaundry(
+    val month: String,
+    val location: Int,
+    val notes: List<String>
+)
+
+data class ReportLaundryResponse(
+    val download_url: String,
+    val filename: String,
+    val path: String
+)
+
+
+

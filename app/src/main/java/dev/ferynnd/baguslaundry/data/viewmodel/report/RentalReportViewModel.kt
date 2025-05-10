@@ -7,7 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.repository.report.RentalReportRepository
+import dev.ferynnd.baguslaundry.model.ExportReportRental
+import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
+import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
 import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.ReportRentalResponse
 import kotlinx.coroutines.launch
 
 class RentalReportViewModel   (application: Application) : AndroidViewModel(application) {
@@ -44,13 +48,18 @@ class RentalReportViewModel   (application: Application) : AndroidViewModel(appl
         }
     }
 
-//    suspend fun createReportRental(client: ReportRental) {
-//        rentalReportRepository.createReportRental(client)
-//    }
-
     suspend fun getReportRentalById(id: Int): DefaultRequest<ReportRental> {
         return rentalReportRepository.getReportRentalById(id)
     }
+
+    suspend fun exportRentalMonthly(exportReport: ExportReportRental): DefaultRequest<ReportRentalResponse> {
+        return rentalReportRepository.exportRentalMonthly(exportReport)
+    }
+
+    suspend fun createInvoiceRental(postInvoiceReportRental: PostInvoiceRentalRequest): DefaultRequest<InvoiceRentalResponse> {
+        return rentalReportRepository.createInvoiceRental(postInvoiceReportRental)
+    }
+
 
 
 }

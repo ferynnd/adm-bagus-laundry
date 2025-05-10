@@ -36,7 +36,7 @@
         android:id="@+id/idUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CAB001234"
+        tools:text="CAB001234"
         android:fontFamily="@font/inter_medium"
         android:textSize="18sp"
         android:textColor="@color/gray900"
@@ -85,7 +85,7 @@
 
              <TextView
                  android:id="@+id/inputCustommer"
-                android:text="NamaKu"
+                tools:text="NamaKu"
                 android:padding="10dp"
                  android:textSize="14sp"
                  android:layout_marginEnd="10dp"
@@ -113,7 +113,7 @@
 
              <TextView
                  android:id="@+id/inputEmployment"
-                android:text="CABANG"
+                tools:text="CABANG"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -142,7 +142,7 @@
 
              <TextView
                  android:id="@+id/inputBranch"
-                android:text="CABANG"
+                tools:text="CABANG"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -173,7 +173,7 @@
                 android:id="@+id/layoutStatus"
                 android:layout_width="80dp"
                 android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/success"
+                app:cardBackgroundColor="@color/baseActive"
                 android:layout_marginVertical="5dp"
                 android:layout_marginEnd="10dp"
                 app:cardCornerRadius="5dp"
@@ -186,9 +186,10 @@
                     android:layout_height="match_parent"
                     android:fontFamily="@font/inter_medium"
                     android:textSize="14sp"
+                    android:textAllCaps="true"
                     android:gravity="center"
                     android:textColor="@color/white"
-                    android:text="ACTIVE"
+                    tools:text="ACTIVE"
                     />
 
             </androidx.cardview.widget.CardView>
@@ -227,7 +228,7 @@
 
              <TextView
                 android:id="@+id/inputWeight"
-                android:text="10,15"
+                tools:text="10,15"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -273,7 +274,7 @@
 
             <TextView
                  android:id="@+id/inputTotalPrice"
-                android:text="10"
+                tools:text="10"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -317,7 +318,7 @@
 
             <TextView
                  android:id="@+id/inputCash"
-                android:text="10.000"
+                tools:text="10.000"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -361,7 +362,7 @@
 
             <TextView
                 android:id="@+id/inputChangeMoney"
-                android:text="10.000"
+                tools:text="10.000"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -392,7 +393,7 @@
 
     <TextView
         android:id="@+id/inputNotes"
-        android:text=" Ini catatan Ku "
+        tools:text=" Ini catatan Ku "
         android:padding="10dp"
         android:textSize="12sp"
         android:translationZ="20dp"

@@ -50,15 +50,15 @@ class AdminListUserFragment : Fragment() {
             branchViewModel.branches.observe(viewLifecycleOwner) { branchList ->
                 userAdapter.setBranches(branchList)
             }
+            userViewModel.getUser()
             userViewModel.users.observe(viewLifecycleOwner) { user ->
                 user?.let {
                     lifecycleScope.launch(Dispatchers.Main) {
                         if (user.isNotEmpty()) {
                             userAdapter.submitList(user)
-//                              setProduct(products)
                         } else {
                             userAdapter.submitList(emptyList())
-//                              productAdapter.notifyDataSetChanged()
+                            userAdapter.notifyDataSetChanged()
                         }
                     }
                 }

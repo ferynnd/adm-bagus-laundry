@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".ui.admin.report.rental.AdminInvoiceRentalFragment">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.07" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8" />
+
+    <TextView
+        android:id="@+id/textHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_semibold"
+        android:text="CETAK INVOICE"
+        android:textSize="22sp"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/guidelineTop" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/outlinedTextCalender"
+        android:layout_width="0dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="15dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/textHeader"
+        app:strokeWidth="0dp" />
+
+    <Spinner
+        android:id="@+id/selectBranch"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="5dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="0dp"
+        android:pointerIcon="arrow"
+        app:layout_constraintBottom_toBottomOf="@id/outlinedTextCalender"
+        app:layout_constraintEnd_toEndOf="@id/outlinedTextCalender"
+        app:layout_constraintStart_toEndOf="@id/iconBranch"
+        app:layout_constraintTop_toTopOf="@id/outlinedTextCalender" />
+
+    <ImageView
+        android:id="@+id/iconBranch"
+        android:layout_width="25dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/home"
+        app:layout_constraintBottom_toBottomOf="@id/outlinedTextCalender"
+        app:layout_constraintStart_toStartOf="@id/outlinedTextCalender"
+        app:layout_constraintTop_toTopOf="@id/outlinedTextCalender"
+        app:tint="@color/blue900" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/outlinedTextNotes"
+        style="@style/CustomTextInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="5dp"
+        android:hint="CATATAN"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@+id/outlinedTextCalender">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputTextNotes"
+            style="@style/CustomTextInputEditText"
+            android:fontFamily="@font/inter"
+            android:textSize="12sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listItemTrasaksi"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        tools:listitem="@layout/card_list_rental_invoice"
+        android:layout_marginTop="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/guidelineBottom"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/outlinedTextNotes" />
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/layoutButtonBack"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        app:cardCornerRadius="10dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toTopOf="@+id/guidelineBottom"
+        app:strokeWidth="0dp">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonBack"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:fontFamily="@font/inter_medium"
+            android:text="@string/back"
+            android:textColor="@color/blue900"
+            android:textSize="14sp" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/layoutButton"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        app:cardBackgroundColor="@color/blue900"
+        app:cardCornerRadius="10dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintTop_toTopOf="@+id/guidelineBottom">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonCetak"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/blue900"
+            android:fontFamily="@font/inter_medium"
+            android:text="CETAK"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

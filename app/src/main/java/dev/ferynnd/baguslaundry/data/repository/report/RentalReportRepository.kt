@@ -4,7 +4,11 @@ import dev.ferynnd.baguslaundry.data.api.ApiResponse
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.model.ExportReportRental
+import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
+import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
 import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.ReportRentalResponse
 
 class RentalReportRepository  (context: Context) {
 
@@ -49,6 +53,34 @@ class RentalReportRepository  (context: Context) {
             throw e
 
         }
+    }
+
+
+    suspend fun exportRentalMonthly(exportReport: ExportReportRental): DefaultRequest<ReportRentalResponse> {
+         try {
+            val response = rentalReportApiService.exportRentalMonthly(exportReport)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+
+        }
+    }
+
+    suspend fun createInvoiceRental(postInvoiceReportRental: PostInvoiceRentalRequest): DefaultRequest<InvoiceRentalResponse> {
+        try {
+            val response = rentalReportApiService.createInvoiceRental(postInvoiceReportRental)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+            }
     }
 
 

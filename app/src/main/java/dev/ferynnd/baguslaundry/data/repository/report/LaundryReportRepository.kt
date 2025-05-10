@@ -5,7 +5,9 @@ import dev.ferynnd.baguslaundry.data.api.ApiResponse
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.model.ExportReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportLaundry
+import dev.ferynnd.baguslaundry.model.ReportLaundryResponse
 
 class LaundryReportRepository (context: Context) {
 
@@ -34,6 +36,21 @@ class LaundryReportRepository (context: Context) {
     suspend fun getReportLaundryById(id: Int): DefaultRequest<ReportLaundry> {
         try {
             val response = laundryReportApiService.getReportLaundryById(role, id)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+
+        }
+    }
+
+
+    suspend fun exportLaundryMonthly(exportReport: ExportReportLaundry): DefaultRequest<ReportLaundryResponse> {
+         try {
+            val response = laundryReportApiService.exportLaundryMonthly(exportReport)
             if (response.success) {
                 return response
             } else {

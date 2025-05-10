@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="560dp"
+    android:layout_margin="10dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="10dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.9" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.1" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.07" />
+
+        <TextView
+            android:id="@+id/textHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_semibold"
+            android:text="CETAK LAPORAN"
+            android:textSize="22sp"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/guidelineTop" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/outlinedTextCalender"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="15dp"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="5dp"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/textHeader"
+            app:strokeWidth="0dp" />
+
+        <Spinner
+            android:id="@+id/selectCalender"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp"
+            android:pointerIcon="arrow"
+            app:layout_constraintBottom_toBottomOf="@id/outlinedTextCalender"
+            app:layout_constraintEnd_toEndOf="@id/outlinedTextCalender"
+            app:layout_constraintStart_toEndOf="@id/iconCalender"
+            app:layout_constraintTop_toTopOf="@id/outlinedTextCalender" />
+
+        <ImageView
+            android:id="@+id/iconCalender"
+            android:layout_width="25dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/calender"
+            app:layout_constraintBottom_toBottomOf="@id/outlinedTextCalender"
+            app:layout_constraintStart_toStartOf="@id/outlinedTextCalender"
+            app:layout_constraintTop_toTopOf="@id/outlinedTextCalender" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/outlinedTextBranch"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="5dp"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="5dp"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/outlinedTextCalender"
+            app:strokeWidth="0dp" />
+
+        <Spinner
+            android:id="@+id/selectBranch"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp"
+            android:pointerIcon="arrow"
+            app:layout_constraintBottom_toBottomOf="@id/outlinedTextBranch"
+            app:layout_constraintEnd_toEndOf="@id/outlinedTextBranch"
+            app:layout_constraintStart_toEndOf="@id/iconBranch"
+            app:layout_constraintTop_toTopOf="@id/outlinedTextBranch" />
+
+        <ImageView
+            android:id="@+id/iconBranch"
+            android:layout_width="25dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/home"
+            app:layout_constraintBottom_toBottomOf="@id/outlinedTextBranch"
+            app:layout_constraintStart_toStartOf="@id/outlinedTextBranch"
+            app:layout_constraintTop_toTopOf="@id/outlinedTextBranch"
+            app:tint="@color/blue900" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/outlinedTextDescription"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="5dp"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="5dp"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/outlinedTextBranch"
+            app:strokeWidth="0dp" />
+
+        <Spinner
+            android:id="@+id/selectDescription"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp"
+            android:pointerIcon="arrow"
+            app:layout_constraintBottom_toBottomOf="@id/outlinedTextDescription"
+            app:layout_constraintEnd_toEndOf="@id/outlinedTextDescription"
+            app:layout_constraintStart_toEndOf="@id/iconDescription"
+            app:layout_constraintTop_toTopOf="@id/outlinedTextDescription" />
+
+        <ImageView
+            android:id="@+id/iconDescription"
+            android:layout_width="25dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/sewa"
+            app:layout_constraintBottom_toBottomOf="@id/outlinedTextDescription"
+            app:layout_constraintStart_toStartOf="@id/outlinedTextDescription"
+            app:layout_constraintTop_toTopOf="@id/outlinedTextDescription"
+            app:tint="@color/blue900" />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/outlinedTextStock"
+            style="@style/CustomTextInputLayout"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:hint="STOK AWAL"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/outlinedTextDescription">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputTextStock"
+                style="@style/CustomTextInputEditText"
+                android:inputType="number"
+                android:fontFamily="@font/inter"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <ImageView
+            android:id="@+id/buttonAdd"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/adding"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintTop_toBottomOf="@id/outlinedTextStock"
+            app:tint="@color/blue900" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/outlinedText"
+            style="@style/CustomTextInputLayout"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginEnd="5dp"
+            android:hint="CATATAN"
+            app:layout_constraintBottom_toBottomOf="@id/buttonAdd"
+            app:layout_constraintEnd_toStartOf="@id/buttonAdd"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toTopOf="@id/buttonAdd">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputTex"
+                style="@style/CustomTextInputEditText"
+                android:fontFamily="@font/inter"
+                android:textSize="12sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardArray"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="10dp"
+            android:maxLines="3"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/buttonAdd" />
+
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="5dp"
+            app:layout_constraintBottom_toBottomOf="@id/cardArray"
+            app:layout_constraintEnd_toEndOf="@+id/cardArray"
+            app:layout_constraintStart_toStartOf="@+id/cardArray"
+            app:layout_constraintTop_toTopOf="@+id/cardArray">
+
+            <TextView
+                android:id="@+id/inputDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:fontFamily="@font/inter"
+                android:textAlignment="textStart"
+                android:textColor="@color/blue900"
+                android:textSize="12sp"
+                tools:text="Jawa" />
+        </ScrollView>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/layoutButtonBack"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            app:cardCornerRadius="10dp"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/cardArray"
+            app:strokeWidth="0dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/buttonBack"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/background"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/back"
+                android:textColor="@color/blue900"
+                android:textSize="14sp" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/layoutButton"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            app:cardBackgroundColor="@color/blue900"
+            app:cardCornerRadius="10dp"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintTop_toBottomOf="@id/cardArray">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/buttonCetak"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/blue900"
+                android:fontFamily="@font/inter_medium"
+                android:text="CETAK"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+        </androidx.cardview.widget.CardView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

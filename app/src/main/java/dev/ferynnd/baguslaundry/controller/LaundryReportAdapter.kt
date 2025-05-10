@@ -75,9 +75,10 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
                     val transactionReportLaundry = item as ReportLaundry
 
                     val branchName = branches.find { it.id_branch == transactionReportLaundry.id_branch_transaction_laundry }?.name_branch ?: "Unknown"
-                     val userName = users.find { it.id_user == transactionReportLaundry.id_user_transaction_laundry }?.fullname_user ?: "Unknown"
+                    val userName = users.find { it.id_user == transactionReportLaundry.id_user_transaction_laundry }?.fullname_user ?: "Unknown"
 
                     holder.binding.apply {
+                        idUser.text = transactionReportLaundry.id_transaction_laundry.toString()
                         inputBranch.text = branchName
                         val dataStatus = when(transactionReportLaundry.status_transaction_laundry){
                             StatusReportLaundry.pending -> "Tertunda"

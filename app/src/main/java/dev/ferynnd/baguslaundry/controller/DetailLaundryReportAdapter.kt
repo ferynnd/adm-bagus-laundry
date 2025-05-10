@@ -42,7 +42,6 @@ class DetailLaundryReportAdapter : ListAdapter<ListTransactionLaundry, DetailLau
             inputPrice.text = detailReportLaundry.price_list_transaction_laundry.toString()
             inputWeight.text = detailReportLaundry.weight_list_transaction_laundry.toString()
             inputNotes.text = detailReportLaundry.note_list_transaction_laundry
-            inputJumlah.text = detailReportLaundry.pcs_list_transaction_laundry.toString()
             numberItem.text = detailReportLaundry.id_transaction_laundry.toString()
         }
     }

@@ -57,3 +57,59 @@ enum class StatusTransactionRental {
     @SerializedName("cancelled")
     CANCELLED
 }
+
+
+data class ExportReportRental(
+    val month: String,
+    val location: Int,
+    val description: String,
+    val initial_stock: Int,
+    val notes: List<String>
+)
+
+data class ReportRentalResponse(
+    val download_url: String,
+    val filename: String,
+    val path: String
+)
+
+data class InvoiceRental(
+    val id_branch_invoice: Int,
+    val id_client_invoice: Int,
+    val notes_invoice_rental: String? = null,
+    val total_weight_invoice_rental: Double? = null,
+    val price_invoice_rental: Int? = null,
+    val promo_invoice_rental: Int? = null,
+    val additional_cost_invoice_rental: Int? = null,
+    val list_invoice_rentals: List<InvoiceRentalItem>? = null
+)
+
+data class InvoiceRentalItem(
+    val id_rental_transaction: Int,
+    val status_list_invoice_rental: StatusInvoiceRental,
+    val note_list_invoice_rental: String? = null
+)
+
+enum class StatusInvoiceRental(val value: String) {
+    UNPAID("unpaid"),
+    PAID("paid"),
+    CANCELLED("cancelled");
+
+    fun displayName(): String {
+        return when (this) {
+            UNPAID -> "Belum Dibayar"
+            PAID -> "Sudah Dibayar"
+            CANCELLED -> "Dibatalkan"
+        }
+    }
+
+    companion object {
+        fun fromValue(value: String): StatusInvoiceRental? {
+            return entries.find { it.value == value }
+        }
+
+        fun fromDisplayName(name: String): StatusInvoiceRental? {
+            return entries.find { it.displayName() == name }
+        }
+    }
+}

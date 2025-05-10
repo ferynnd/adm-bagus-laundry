@@ -94,6 +94,7 @@ class RentalReportAdapter ( private val onDetail : (ReportRental) -> Unit) : Lis
                     val senderName = sender.find { it.id_user == transactionReportRental.id_kurir_transaction_rental }?.fullname_user ?: "Unknown"
                     val clientName = client.find { it.id_client == transactionReportRental.id_client_transaction_rental }?.name_client ?: "Unknown"
                     holder.binding.apply {
+                        idUser.text = transactionReportRental.id_transaction_rental.toString()
                         inputBranch.text = branchName
                         inputCLient.text = clientName
                         inputSender.text = senderName

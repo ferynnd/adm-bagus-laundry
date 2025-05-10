@@ -25,7 +25,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     val loginResult: LiveData<Result<LoginResponse>> get() = _loginResult
 
     init {
-         if (userRepository.isLoggedIn()) {   // <<< cek dulu
+         if (userRepository.isLoggedIn()) {
             getAllUsers()
         }
     }

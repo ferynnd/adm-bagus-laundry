@@ -8,7 +8,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.repository.report.LaundryReportRepository
+import dev.ferynnd.baguslaundry.model.ExportReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportLaundry
+import dev.ferynnd.baguslaundry.model.ReportLaundryResponse
 import kotlinx.coroutines.launch
 
 class LaundryReportViewModel  (application: Application) : AndroidViewModel(application) {
@@ -50,6 +52,10 @@ class LaundryReportViewModel  (application: Application) : AndroidViewModel(appl
 
     suspend fun getReportLaundryById(id: Int): DefaultRequest<ReportLaundry> {
         return laundryReportRepository.getReportLaundryById(id)
+    }
+
+    suspend fun exportLaundryMonthly(exportReportLaundry: ExportReportLaundry) : DefaultRequest<ReportLaundryResponse> {
+        return laundryReportRepository.exportLaundryMonthly(exportReportLaundry)
     }
 
 

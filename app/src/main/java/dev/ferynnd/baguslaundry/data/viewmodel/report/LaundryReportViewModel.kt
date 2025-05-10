@@ -16,8 +16,10 @@ import kotlinx.coroutines.launch
 class LaundryReportViewModel (application: Application) : AndroidViewModel(application) {
 
     private lateinit var laundryReportRepository: LaundryReportRepository
+
     private val _laundryReports = MutableLiveData<List<ReportLaundry>>()
     val laundryReports: LiveData<List<ReportLaundry>> get() = _laundryReports
+
     private val _createTransactionResponse = MutableLiveData<DefaultRequest<LaundryTransactionResponse>?>()
     val createTransactionResponse: LiveData<DefaultRequest<LaundryTransactionResponse>?> get() = _createTransactionResponse
 

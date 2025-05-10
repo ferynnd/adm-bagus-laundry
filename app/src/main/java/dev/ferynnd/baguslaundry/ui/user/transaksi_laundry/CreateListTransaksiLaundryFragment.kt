@@ -87,6 +87,8 @@ class CreateListTransaksiLaundryFragment : Fragment() {
                     if (userResponse.success && userResponse.data != null) {
                         userIdBranch = userResponse.data.id_branch_user!!.toInt()
 
+                        binding.yangMenangani.text = userResponse.data.fullname_user
+
                         laundryProductViewModel.getProductLaundry()
                     } else {
                         Toast.makeText(requireContext(), "Gagal memuat data pengguna", Toast.LENGTH_LONG).show()
@@ -190,10 +192,6 @@ class CreateListTransaksiLaundryFragment : Fragment() {
     }
 
     private fun addLaundryItemInput(index: Int = 0) {
-        if (fullLaundryList.isEmpty()) {
-            Toast.makeText(requireContext(), "Tidak ada data laundry untuk cabang ini", Toast.LENGTH_SHORT).show()
-            return
-        }
 
         val itemView = layoutInflater.inflate(
             R.layout.kurir_list_item_transaksi_laundry_input,
@@ -309,6 +307,7 @@ class CreateListTransaksiLaundryFragment : Fragment() {
             totalPrice += berat * hargaItem
         }
 
+        binding.totalItem.text = binding.containerLaundry.childCount.toString()
         binding.totalBerat.text = String.format("%.2f Kg", totalBerat)
         binding.totalPrice.text = formatToRupiah(totalPrice)
 

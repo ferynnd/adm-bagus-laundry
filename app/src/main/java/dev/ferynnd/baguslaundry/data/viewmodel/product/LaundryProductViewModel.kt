@@ -20,18 +20,17 @@ class LaundryProductViewModel (application: Application) : AndroidViewModel(appl
     val laundryProducts: LiveData<List<ProductLaundry>> get() = _laundryProducts
 
     fun init(context: Context) {
-       laundryProductRepository = LaundryProductRepository(context)
+        laundryProductRepository = LaundryProductRepository(context)
         getAllProductLaundry()
     }
 
 
     private fun getAllProductLaundry() {
-    viewModelScope.launch {
-        val result = laundryProductRepository.getProductLaundry().data
-        _laundryProducts.postValue(result)
+        viewModelScope.launch {
+            val result = laundryProductRepository.getProductLaundry().data
+            _laundryProducts.postValue(result)
+        }
     }
-}
-
 
 
     suspend fun getProductLaundry() {

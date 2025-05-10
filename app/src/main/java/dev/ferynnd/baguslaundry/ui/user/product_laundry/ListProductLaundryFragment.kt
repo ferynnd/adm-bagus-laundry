@@ -1,12 +1,15 @@
 package dev.ferynnd.baguslaundry.ui.user.product_laundry
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +23,9 @@ import dev.ferynnd.baguslaundry.databinding.KurirFragmentListProductLaundryBindi
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.launch
+import androidx.core.view.isVisible
+import com.google.android.material.card.MaterialCardView
+import kotlin.collections.isNotEmpty
 
 class ListProductLaundryFragment : Fragment() {
     private var _binding: KurirFragmentListProductLaundryBinding? = null
@@ -38,8 +44,9 @@ class ListProductLaundryFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         laundryProductViewModel = ViewModelProvider(this)[LaundryProductViewModel::class.java]
+        laundryProductViewModel.init(requireContext())
     }
 
     override fun onCreateView(
@@ -51,42 +58,58 @@ class ListProductLaundryFragment : Fragment() {
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
 
-        laundryProductAdapter = LaundryProductAdapter { productLaundry: ProductLaundry ->
-            onDetailClick(productLaundry)
-        }
+        laundryProductAdapter = LaundryProductAdapter()
 
-        binding.recyclerViewProductLaundry.adapter = laundryProductAdapter
-        binding.recyclerViewProductLaundry.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerViewProductLaundry.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = laundryProductAdapter
+        }
 
         // Dapatkan user dan baru lanjut observe
         if (userId != 0) {
             viewLifecycleOwner.lifecycleScope.launch {
-                val user = userViewModel.getUserById(userId)
-                userIdBranch = user.data.id_branch_user!!.toInt()
+                try {
+                    val user = userViewModel.getUserById(userId)
+                    userIdBranch = user.data.id_branch_user!!.toInt()
 
-                // Setelah userIdBranch tersedia, baru observe
-                laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { productLaundry ->
-                    productLaundry?.let {
+
+                    laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { productLaundry ->
                         val filteredList = productLaundry.filter { item ->
                             item.id_branch_laundry_item == userIdBranch
                         }
 
-                        // Simpan list untuk pencarian
                         fullLaundryList = filteredList
-
+//
                         countProductLaundry = filteredList.size
                         binding.countData.text = countProductLaundry.toString()
 
-                        laundryProductAdapter.submitList(filteredList)
+                        if (filteredList.isNotEmpty()) {
+                            binding.recyclerViewProductLaundry.visibility = View.VISIBLE
+                            binding.containerDataNotFound.visibility = View.GONE
+
+                            laundryProductAdapter.submitList(filteredList)
+                        } else {
+                            binding.recyclerViewProductLaundry.visibility = View.GONE
+                            binding.containerDataNotFound.visibility = View.VISIBLE
+                        }
                     }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(
+                        requireContext(),
+                        "Gagal memuat data: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
+        } else {
+            Toast.makeText(context, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
 
         // Fungsi pencarian
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                return false // kita proses real-time, jadi tidak perlu submit
+                return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
@@ -94,7 +117,17 @@ class ListProductLaundryFragment : Fragment() {
                 val filtered = fullLaundryList.filter {
                     it.name_laundry_item!!.lowercase().contains(query)
                 }
-                laundryProductAdapter.submitList(filtered)
+
+                if (filtered.isNotEmpty()) {
+                    binding.recyclerViewProductLaundry.visibility = View.VISIBLE
+                    binding.containerDataNotFound.visibility = View.GONE
+
+                    laundryProductAdapter.submitList(filtered)
+                } else {
+                    binding.recyclerViewProductLaundry.visibility = View.GONE
+                    binding.containerDataNotFound.visibility = View.VISIBLE
+                }
+
                 binding.searchView.setIconifiedByDefault(false)
                 binding.countData.text = filtered.size.toString()
                 return true
@@ -115,19 +148,5 @@ class ListProductLaundryFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun onDetailClick(itemLaundry: ProductLaundry) {
-        Toast.makeText(context, "Detail ${itemLaundry.id_laundry_item} akan ditampilkan", Toast.LENGTH_SHORT).show()
-//        val bundle = Bundle().apply {
-//            putLong("supplierId", supplier.id_supplier)  // Mengirimkan ID supplier ke fragment berikutnya
-//        }
-//        val detailFragment = DetailSupplierFragment()
-//        detailFragment.arguments = bundle  // Menetapkan argumen untuk fragment detail
-//
-//        parentFragmentManager.beginTransaction()
-//            .replace(R.id.FragmentMenu, detailFragment)  // Mengganti fragment saat ini dengan DetailSupplierFragment
-//            .addToBackStack(null)  // Menambahkan transaksi ke back stack agar pengguna bisa kembali
-//            .commit()  // Menyelesaikan transaksi
     }
 }

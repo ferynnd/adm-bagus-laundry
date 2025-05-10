@@ -16,15 +16,14 @@ import kotlinx.coroutines.launch
 
 class RentalReportViewModel   (application: Application) : AndroidViewModel(application) {
 
-    private var rentalReportRepository = RentalReportRepository(application.applicationContext)
+    private lateinit var rentalReportRepository: RentalReportRepository
 
     private val _rentalReports = MutableLiveData<List<ReportRental>>()
     val rentalReports: LiveData<List<ReportRental>> get() = _rentalReports
 
-    init {
-        if (rentalReportRepository.isLoggedIn()) {
-            getAllReportRental()
-        }
+    fun init(context: Context) {
+        rentalReportRepository = RentalReportRepository(context)
+        getAllReportRental()
     }
 
     private fun getAllReportRental() {

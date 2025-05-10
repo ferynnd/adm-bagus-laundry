@@ -3,15 +3,18 @@ package dev.ferynnd.baguslaundry.controller.user
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.databinding.KurirCardTransaksiRentalBinding
 import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import dev.ferynnd.baguslaundry.model.StatusTransactionRental
 import dev.ferynnd.baguslaundry.model.TypeTransactionRental
 import dev.ferynnd.baguslaundry.model.User
@@ -41,6 +44,7 @@ class RentalTransaksiAdapter(
 
     inner class ReportRentalViewHolder(val binding: KurirCardTransaksiRentalBinding) :
         RecyclerView.ViewHolder(binding.root) {
+        val wadah_status = binding.wadahStatus
         val status = binding.statusTransaksiRental
         val tipe = binding.tipeTransaksiRental
         val tanggal = binding.tanggalTransaksiRental
@@ -74,14 +78,36 @@ class RentalTransaksiAdapter(
         val localeID = Locale("in", "ID")
         val numberFormat = NumberFormat.getCurrencyInstance(localeID)
         val decimalFormat = DecimalFormat("#,##0.##")
+        val context = holder.itemView.context
 
         // Status
         holder.status.text = when (report.status_transaction_rental) {
-            StatusTransactionRental.WAITING_FOR_APPROVAL -> "MENUNGGU"
+            StatusTransactionRental.WAITING_FOR_APPROVAL -> "MENUNGGU PERSETUJUAN"
             StatusTransactionRental.APPROVED -> "DISETUJUI"
             StatusTransactionRental.OUT -> "KELUAR"
             StatusTransactionRental.IN -> "MASUK"
             StatusTransactionRental.CANCELLED -> "DIBATALKAN"
+        }
+        when (report.status_transaction_rental) {
+            StatusTransactionRental.WAITING_FOR_APPROVAL -> holder.wadah_status.setCardBackgroundColor(
+                ContextCompat.getColor(context, R.color.transaksiOuther)
+            )
+
+            StatusTransactionRental.APPROVED -> holder.wadah_status.setCardBackgroundColor(
+                ContextCompat.getColor(context, R.color.transaksiOuther)
+            )
+
+            StatusTransactionRental.OUT -> holder.wadah_status.setCardBackgroundColor(
+                ContextCompat.getColor(context, R.color.transaksiOut)
+            )
+
+            StatusTransactionRental.IN -> holder.wadah_status.setCardBackgroundColor(
+                ContextCompat.getColor(context, R.color.transaksiIn)
+            )
+
+            StatusTransactionRental.CANCELLED -> holder.wadah_status.setCardBackgroundColor(
+                ContextCompat.getColor(context, R.color.transaksiCancelled)
+            )
         }
 
         // Tipe
@@ -92,10 +118,12 @@ class RentalTransaksiAdapter(
             TypeTransactionRental.KESET -> "Keset"
         }
 
-        val namaClient = client.find { it.id_client == report.id_client_transaction_rental }?.name_client ?: "-"
+        val namaClient =
+            client.find { it.id_client == report.id_client_transaction_rental }?.name_client ?: "-"
         holder.namaClient.text = namaClient.toString()
 
-        val namaKurir = kurir.find { it.id_user == report.id_kurir_transaction_rental }?.fullname_user ?: "-"
+        val namaKurir =
+            kurir.find { it.id_user == report.id_kurir_transaction_rental }?.fullname_user ?: "-"
         holder.namaKurir.text = namaKurir.toString()
 
         holder.namaPenerima.text = report.recipient_name_transaction_rental ?: "-"

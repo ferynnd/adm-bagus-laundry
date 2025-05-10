@@ -2,11 +2,14 @@ package dev.ferynnd.baguslaundry.controller.user
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.databinding.KurirCardTransaksiLaundryBinding
 import dev.ferynnd.baguslaundry.model.ReportLaundry
+import dev.ferynnd.baguslaundry.model.StatusListTransactionLaundry
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import java.text.NumberFormat
 import java.util.Locale
@@ -18,11 +21,13 @@ class LaundryTransaksiAdapter(
 
     inner class ReportLaundryViewHolder(val binding: KurirCardTransaksiLaundryBinding) :
         RecyclerView.ViewHolder(binding.root) {
+        val wadah_status = binding.wadahStatus
         val status = binding.statusTransaksiLaundry
         val harga = binding.hargaTransaksiLaundry
         val tanggalMasuk = binding.tanggalMasukTransaksiLaundry
         val tanggalKeluar = binding.tanggalKeluarTransaksiLaundry
         val namaPelanggan = binding.namaPelangganTransaksiLaundry
+        val pcs = binding.pcsTransaksiLaundry
         val berat = binding.beratTransaksiLaundry
         val total = binding.totalHargaTransaksiLaundry
         val tunai = binding.tunaiTransaksiLaundry
@@ -47,6 +52,7 @@ class LaundryTransaksiAdapter(
         val report = getItem(position)
         val localeID = Locale("in", "ID")
         val numberFormat = NumberFormat.getCurrencyInstance(localeID)
+        val context = holder.itemView.context
 
         // Status Enum
         holder.status.text = when (report.status_transaction_laundry) {
@@ -55,8 +61,23 @@ class LaundryTransaksiAdapter(
             StatusReportLaundry.completed -> "SELESAI"
             StatusReportLaundry.cancelled -> "DIBATALKAN"
         }
+        when (report.status_transaction_laundry) {
+            StatusReportLaundry.pending -> holder.wadah_status.setCardBackgroundColor(
+                ContextCompat.getColor(context, R.color.transaksiOuther)
+            )
+            StatusReportLaundry.in_progress -> holder.wadah_status.setCardBackgroundColor(
+                ContextCompat.getColor(context, R.color.transaksiOuther)
+            )
+            StatusReportLaundry.completed -> holder.wadah_status.setCardBackgroundColor(
+                ContextCompat.getColor(context, R.color.transaksiIn)
+            )
+            StatusReportLaundry.cancelled -> holder.wadah_status.setCardBackgroundColor(
+                ContextCompat.getColor(context, R.color.transaksiCancelled)
+            )
+        }
 
         // Menampilkan data lainnya
+        holder.pcs.text = report.count_item_laundry_transaction_laundry.toString()
         holder.harga.text = numberFormat.format(report.total_transaction_laundry ?: 0.0)
         holder.total.text = numberFormat.format(report.total_transaction_laundry ?: 0.0)
         holder.tunai.text = numberFormat.format(report.cash_transaction_laundry ?: 0.0)

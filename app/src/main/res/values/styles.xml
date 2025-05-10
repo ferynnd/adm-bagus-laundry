@@ -46,4 +46,14 @@
         <item name="cornerSize">16dp</item>
     </style>
 
+    <style name="BottomSheetDialogTheme" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.MaterialComponents.BottomSheet">
+        <item name="backgroundTint">@android:color/white</item> <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MyApp.LargeComponent</item> </style>
+
+    <style name="ShapeAppearance.MyApp.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item> </style>
 </resources>

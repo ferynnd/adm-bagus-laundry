@@ -13,20 +13,19 @@ import dev.ferynnd.baguslaundry.model.User
 import kotlinx.coroutines.launch
 
 
-class ClientViewModel (application: Application) : AndroidViewModel(application) {
+class ClientViewModel(application: Application) : AndroidViewModel(application) {
 
-    private var clientRepository = ClientRepository(application.applicationContext)
+    private lateinit var clientRepository: ClientRepository
 
     private val _clients = MutableLiveData<List<Client>>()
     val clients: LiveData<List<Client>> get() = _clients
 
-    init {
-        if (clientRepository.isLoggedIn()) {   // <<< cek dulu
-            getAllClient()
-        }
+    fun init(context: Context) {
+        clientRepository = ClientRepository(context)
+        getAllClient()
     }
 
-     private fun getAllClient() {
+    private fun getAllClient() {
         viewModelScope.launch {
             _clients.postValue(clientRepository.getClient().data)
         }
@@ -51,7 +50,6 @@ class ClientViewModel (application: Application) : AndroidViewModel(application)
     suspend fun getClientById(id: Int): DefaultRequest<Client> {
         return clientRepository.getClientById(id)
     }
-
 
 
 }

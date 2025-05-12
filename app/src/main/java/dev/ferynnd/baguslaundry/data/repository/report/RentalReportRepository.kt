@@ -1,9 +1,15 @@
 package dev.ferynnd.baguslaundry.data.repository.report
+
 import android.content.Context
+import android.util.Log
 import dev.ferynnd.baguslaundry.data.api.ApiResponse
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
+import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
+import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
+import dev.ferynnd.baguslaundry.model.RentalTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportRental
 
 class RentalReportRepository  (context: Context) {
@@ -15,13 +21,6 @@ class RentalReportRepository  (context: Context) {
 
     private val role: String
         get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
-
-
-    fun isLoggedIn(): Boolean {
-        val token =
-            sharedPreferences.getString("PREF_USER_TOKEN", null)  // atau apapun key token kamu
-        return !token.isNullOrEmpty()
-    }
 
     suspend fun getReportRental(): ApiResponse<ReportRental> {
         try {
@@ -51,5 +50,18 @@ class RentalReportRepository  (context: Context) {
         }
     }
 
-
+    suspend fun createReportRental(rentalTransactionRequest: RentalTransactionRequest): DefaultRequest<RentalTransactionResponse> {
+        try {
+            val response = rentalReportApiService.createReportRental(role, rentalTransactionRequest)
+            if (response.success) {
+                return response
+            } else {
+                val errorBody = response.errors
+                Log.e("API_ERROR", errorBody ?: "no body")
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+    }
 }

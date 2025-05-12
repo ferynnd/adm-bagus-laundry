@@ -1,7 +1,11 @@
 package dev.ferynnd.baguslaundry.data.api
 
 
+import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
+import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
+import dev.ferynnd.baguslaundry.model.RentalTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -17,4 +21,9 @@ interface RentalReportApiService {
     @GET("api/{role}/transaction_rentals/{id}")
     suspend fun getReportRentalById(@Path("role") role: String,@Path("id") id: Int): DefaultRequest<ReportRental>
 
+    @POST("api/{role}/create_transaction_rentals")
+    suspend fun createReportRental(
+        @Path("role") role: String,
+        @Body rentalTransactionRequest: RentalTransactionRequest
+    ): DefaultRequest<RentalTransactionResponse>
 }

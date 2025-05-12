@@ -50,6 +50,4 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
     suspend fun getClientById(id: Int): DefaultRequest<Client> {
         return clientRepository.getClientById(id)
     }
-
-
 }

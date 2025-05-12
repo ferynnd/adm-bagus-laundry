@@ -13,12 +13,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.controller.DetailLaundryReportAdapter
+import dev.ferynnd.baguslaundry.controller.DetailRentalReportAdapter
+import dev.ferynnd.baguslaundry.controller.RentalProductAdapter
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
+import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.ListTransactionReportLaundryViewModel
+import dev.ferynnd.baguslaundry.data.viewmodel.report.ListTransactionReportRentalViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminDetailListReportRentalBinding
 import dev.ferynnd.baguslaundry.model.Branch
@@ -38,33 +42,36 @@ import java.util.Locale
 class AdminDetailListReportRentalFragment : Fragment() {
 
     private lateinit var binding: FragmentAdminDetailListReportRentalBinding
-    private lateinit var listTransactionReportLaundryViewModel: ListTransactionReportLaundryViewModel
     private lateinit var reportViewModel: RentalReportViewModel
-    private lateinit var detailLaundryReportAdapter: DetailLaundryReportAdapter
-    private lateinit var laundryProductViewModel: LaundryProductViewModel
+    private lateinit var detailRentalReportAdapter: DetailRentalReportAdapter
+    private lateinit var listTransactionReportRentalViewModel: ListTransactionReportRentalViewModel
+    private lateinit var rentalProductViewModel: RentalProductViewModel
     private lateinit var branchViewModel: BranchViewModel
     private lateinit var userViewModel: UserViewModel
     private lateinit var clientViewModel: ClientViewModel
 
 
-    private var branch : List<Branch> = emptyList()
-    private var sender : List<User> = emptyList()
-    private var client : List<Client> = emptyList()
+    private var branch: List<Branch> = emptyList()
+    private var sender: List<User> = emptyList()
+    private var client: List<Client> = emptyList()
 
     private var transactionReportID: Int? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        listTransactionReportLaundryViewModel =
-            ViewModelProvider(this).get(ListTransactionReportLaundryViewModel::class.java)
+        listTransactionReportRentalViewModel =
+            ViewModelProvider(this).get(ListTransactionReportRentalViewModel::class.java)
+        listTransactionReportRentalViewModel.init(requireContext())
         reportViewModel = ViewModelProvider(this).get(RentalReportViewModel::class.java)
-        laundryProductViewModel = ViewModelProvider(this).get(LaundryProductViewModel::class.java)
-        laundryProductViewModel.init(requireContext())
+        reportViewModel.init(requireContext())
+        rentalProductViewModel = ViewModelProvider(this).get(RentalProductViewModel::class.java)
+        rentalProductViewModel.init(requireContext())
         branchViewModel = ViewModelProvider(this).get(BranchViewModel::class.java)
         branchViewModel.init(requireContext())
         userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
         clientViewModel = ViewModelProvider(this).get(ClientViewModel::class.java)
+        clientViewModel.init(requireContext())
     }
 
 
@@ -75,41 +82,41 @@ class AdminDetailListReportRentalFragment : Fragment() {
     ): View? {
         binding = FragmentAdminDetailListReportRentalBinding.inflate(layoutInflater)
         // Inflate the layout for this fragment
-        detailLaundryReportAdapter = DetailLaundryReportAdapter()
+         detailRentalReportAdapter = DetailRentalReportAdapter()
 
         transactionReportID = arguments?.getInt("transactionRentalID")
 
         binding.recyclerViewListItem.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = detailLaundryReportAdapter
+            adapter = detailRentalReportAdapter
             setOnTouchListener { _, _ -> true }
         }
 
         try {
             if (transactionReportID != null) {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { product ->
+                    rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { product ->
                         product?.let {
-                            detailLaundryReportAdapter.setProductLaundry(product)
+                            detailRentalReportAdapter.setProductRental(product)
                         }
 
                     }
-                    branchViewModel.branches.observe(viewLifecycleOwner){ branches ->
+                    branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
                         branch = branches
                     }
 
-                    userViewModel.users.observe(viewLifecycleOwner){ users ->
+                    userViewModel.users.observe(viewLifecycleOwner) { users ->
                         sender = users
                     }
-                    clientViewModel.clients.observe(viewLifecycleOwner){ clients ->
+                    clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
                         client = clients
                     }
 
-                    listTransactionReportLaundryViewModel.listTransactionLaundryReports.observe(
+                    listTransactionReportRentalViewModel.listTransactionRentalReports.observe(
                         viewLifecycleOwner
                     ) { listTransactionItem ->
                         listTransactionItem?.let {
-                            detailLaundryReportAdapter.submitList(listTransactionItem)
+                            detailRentalReportAdapter.submitList(listTransactionItem)
                         }
                     }
 
@@ -124,12 +131,14 @@ class AdminDetailListReportRentalFragment : Fragment() {
                         val localeID = Locale("in", "ID")
                         val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 
-                        inputAditionalCost.text = formatRupiah.format(dataReport.additional_cost_transaction_rental)
-                        inputTotalPrice.text = formatRupiah.format(dataReport.total_price_transaction_rental)
+                        inputAditionalCost.text =
+                            formatRupiah.format(dataReport.additional_cost_transaction_rental)
+                        inputTotalPrice.text =
+                            formatRupiah.format(dataReport.total_price_transaction_rental)
 
                         inputNotes.text = dataReport.notes_transaction_rental
 
-                        val dataStatus = when(dataReport.status_transaction_rental){
+                        val dataStatus = when (dataReport.status_transaction_rental) {
                             StatusTransactionRental.WAITING_FOR_APPROVAL -> "Menunggu Persetujuan"
                             StatusTransactionRental.APPROVED -> "Disetujui"
                             StatusTransactionRental.OUT -> "Keluar"
@@ -139,13 +148,19 @@ class AdminDetailListReportRentalFragment : Fragment() {
 
                         inputStatus.text = dataStatus
 
-                        val clientName = client.find { it.id_client == dataReport.id_client_transaction_rental }?.name_client ?: "Unknown"
-                        inputCLient.text =clientName
+                        val clientName =
+                            client.find { it.id_client == dataReport.id_client_transaction_rental }?.name_client
+                                ?: "Unknown"
+                        inputCLient.text = clientName
 
-                        val senderName = sender.find { it.id_user == dataReport.id_kurir_transaction_rental }?.fullname_user ?: "Unknown"
+                        val senderName =
+                            sender.find { it.id_user == dataReport.id_kurir_transaction_rental }?.fullname_user
+                                ?: "Unknown"
                         inputSender.text = senderName
 
-                        val branchName = branch.find { it.id_branch == dataReport.id_branch_transaction_rental }?.name_branch ?: "Unknown"
+                        val branchName =
+                            branch.find { it.id_branch == dataReport.id_branch_transaction_rental }?.name_branch
+                                ?: "Unknown"
                         inputBranch.text = branchName
 
                         inputTime.text = dataReport.time_transaction_rental

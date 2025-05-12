@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardForeground"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:layout_marginVertical="5dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.15" />
+
+
+        <TextView
+            android:id="@+id/number_invoice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:textColor="@color/blueGray"
+            android:textSize="20sp"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/guidelineTop"
+            tools:text="124785798837" />
+
+        <ImageView
+            android:id="@+id/btnDownload"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/download"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintTop_toBottomOf="@id/guidelineTop"
+            app:tint="@color/blue900" />
+
+        <TextView
+            android:id="@+id/inputDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:fontFamily="@font/inter_medium"
+            android:textColor="@color/gray900"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@id/number_invoice"
+            tools:text="28 MARET 2025" />
+
+         <TextView
+            android:id="@+id/InputClient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_semibold"
+            android:textColor="@color/blue900"
+            android:textSize="12sp"
+            android:textAllCaps="true"
+             android:layout_marginTop="7dp"
+             app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+             app:layout_constraintTop_toBottomOf="@id/inputDate"
+            tools:text="John Doe" />
+
+        <TextView
+            android:id="@+id/InputBranch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_semibold"
+            android:textColor="@color/blue900"
+            android:textSize="12sp"
+            android:textAllCaps="true"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+            app:layout_constraintTop_toTopOf="@id/InputClient"
+            app:layout_constraintBottom_toBottomOf="@id/InputClient"
+            tools:text="Kuta Bali" />
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
+
+
+

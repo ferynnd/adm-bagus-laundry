@@ -9,8 +9,8 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="410dp"
-        app:cardBackgroundColor="@color/orage"
+        android:layout_height="415dp"
+        app:cardBackgroundColor="@color/blueDark"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,7 +38,7 @@
         tools:text="USERNAME"
         android:fontFamily="@font/inter_medium"
         android:textSize="20sp"
-        android:textColor="@color/gray900"
+        android:textColor="@color/white"
         android:layout_marginStart="15dp"
         app:layout_constraintBottom_toTopOf="@id/cardForeground"
         app:layout_constraintStart_toStartOf="@id/cardBackground"
@@ -184,7 +184,7 @@
 
              <TextView
                  android:id="@+id/inputGender"
-                android:text="COWO"
+                tools:text="COWO"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"

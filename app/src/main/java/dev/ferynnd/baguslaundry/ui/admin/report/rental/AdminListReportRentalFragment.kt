@@ -8,18 +8,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputEditText
 import dev.ferynnd.baguslaundry.R
+import dev.ferynnd.baguslaundry.controller.FilterBranchAdapter
 import dev.ferynnd.baguslaundry.controller.RentalReportAdapter
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
@@ -40,7 +45,7 @@ class AdminListReportRentalFragment : Fragment() {
 
 
     private lateinit var binding: FragmentAdminListReportRentalBinding
-    private lateinit var rentalReportViewModel : RentalReportViewModel
+    private lateinit var rentalReportViewModel: RentalReportViewModel
     private lateinit var rentalReportAdapter: RentalReportAdapter
     private lateinit var branchViewModel: BranchViewModel
 
@@ -51,6 +56,7 @@ class AdminListReportRentalFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java]
+        rentalReportViewModel.init(requireContext())
         branchViewModel = ViewModelProvider(this).get(BranchViewModel::class.java)
         branchViewModel.init(requireContext())
         userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
@@ -64,33 +70,62 @@ class AdminListReportRentalFragment : Fragment() {
     ): View? {
         binding = FragmentAdminListReportRentalBinding.inflate(layoutInflater)
         // Inflate the layout for this fragment
-         rentalReportAdapter = RentalReportAdapter(
-             onDetail = { transactionReport ->
-                 onDetail(transactionReport)
-             }
-         )
-
+        rentalReportAdapter = RentalReportAdapter(
+            onDetail = { transactionReport ->
+                onDetail(transactionReport)
+            }
+        )
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rentalReportAdapter
         }
 
+        binding.btnRoutes.setOnClickListener {
+            branchViewModel.branches.value?.let { branches ->
+                showFilterBottomSheet(requireContext(), branches) { selectedBranch ->
+                    if (selectedBranch.id_branch == -1) {
+                        rentalReportViewModel.filterClient(null) // Semua Cabang
+                    } else {
+                        rentalReportViewModel.filterClient(selectedBranch.id_branch)
+                    }
+                }
+            }
+        }
+
+         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let { rentalReportViewModel.searchRentalReports(it) }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                rentalReportViewModel.searchRentalReports(newText.orEmpty())
+                return true
+            }
+        })
+
+
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                branchViewModel.branches.observe(viewLifecycleOwner){ branches ->
+                rentalReportViewModel.filteredRentalReports.observe(viewLifecycleOwner) { filteredReports ->
+                    rentalReportAdapter.submitList(filteredReports)
+                }
+                branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
                     rentalReportAdapter.setBranches(branches)
+                    rentalReportViewModel.setBranches(branches)
                 }
-                userViewModel.users.observe(viewLifecycleOwner){ users ->
+                userViewModel.users.observe(viewLifecycleOwner) { users ->
                     rentalReportAdapter.setSender(users)
+                    rentalReportViewModel.setUsers(users)
                 }
-                clientViewModel.clients.observe(viewLifecycleOwner){ clients ->
+                clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
                     rentalReportAdapter.setClient(clients)
                 }
                 rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { products ->
                     setReportRental(products)
                 }
-            } catch (e : Exception) {
+            } catch (e: Exception) {
                 throw e
             }
 
@@ -102,7 +137,7 @@ class AdminListReportRentalFragment : Fragment() {
 
         binding.iconPdf.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminInvoiceRentalFragment())
+                .replace(R.id.host_fragment_admin, AdminListInvoiceRentalFragment())
                 .commit()
         }
 
@@ -116,7 +151,7 @@ class AdminListReportRentalFragment : Fragment() {
     }
 
     private fun onDetail(productRental: ReportRental) {
-         val bundle = Bundle().apply {
+        val bundle = Bundle().apply {
             putInt("transactionRentalID", productRental.id_transaction_rental ?: 0)
         }
 
@@ -177,7 +212,7 @@ class AdminListReportRentalFragment : Fragment() {
     }
 
 
-     private fun showCetakDialog(context: Context) {
+    private fun showCetakDialog(context: Context) {
         val dialog = Dialog(context)
         dialog.setContentView(R.layout.dialog_export_excle_rental)
         dialog.window?.apply {
@@ -250,11 +285,12 @@ class AdminListReportRentalFragment : Fragment() {
             }
         }
 
-         val description = listOf("bath towel","hand towel","gorden","keset")
+        val description = listOf("bath towel", "hand towel", "gorden", "keset")
 
-         spinnerDescription.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, description).apply {
-                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                }
+        spinnerDescription.adapter =
+            ArrayAdapter(context, android.R.layout.simple_spinner_item, description).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
 
         // Tombol Cetak
         cetakButton.setOnClickListener {
@@ -320,4 +356,32 @@ class AdminListReportRentalFragment : Fragment() {
         dialog.show()
     }
 
+    private fun showFilterBottomSheet(
+        context: Context,
+        items: List<Branch>,
+        onBranchSelected: (Branch) -> Unit
+    ) {
+        val bottomSheetDialog = BottomSheetDialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_filter_branch, null)
+
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewFilterBranch)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
+        val adapter = FilterBranchAdapter { selectedBranch ->
+            onBranchSelected(selectedBranch)
+            bottomSheetDialog.dismiss()
+        }
+
+        recyclerView.adapter = adapter
+        adapter.submitList(items)
+
+        bottomSheetDialog.setContentView(view)
+        // Menentukan tinggi bottom sheet menjadi sepertiga dari tinggi layar perangkat
+        val layoutParams = bottomSheetDialog.window?.attributes
+        layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
+        bottomSheetDialog.window?.attributes = layoutParams
+
+
+        bottomSheetDialog.show()
+    }
 }

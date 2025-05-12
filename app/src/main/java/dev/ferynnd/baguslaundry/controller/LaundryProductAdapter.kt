@@ -11,6 +11,8 @@ import dev.ferynnd.baguslaundry.databinding.CardHeaderBinding
 import dev.ferynnd.baguslaundry.databinding.CardProductLaundryBinding
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ProductLaundry
+import java.text.NumberFormat
+import java.util.Locale
 
 class LaundryProductAdapter: ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
 
@@ -74,7 +76,12 @@ class LaundryProductAdapter: ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
                     inputName.text = laundryItem.name_laundry_item
                     inputBranch.text = branchName
                     inputTime.text = laundryItem.time_laundry_item
-                    inputPrice.text = laundryItem.price_laundry_item.toString()
+
+                    val localeID = Locale("in", "ID")
+                    val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
+                    val harga = laundryItem.price_laundry_item
+                    inputPrice.text = formatRupiah.format(harga)
+
                     inputDescription.text = laundryItem.description_laundry_item
                     inputStatus.text = laundryItem.is_active_laundry_item.toString()
                 }
@@ -84,7 +91,7 @@ class LaundryProductAdapter: ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
                 holder.binding.inputNameBranch.text = header.name_branch
                 holder.binding.inputNameBranch.text = header.name_branch
                 val context = holder.binding.root.context
-                val color = ContextCompat.getColor(context, R.color.orage) // pastikan 'orange' benar ada di colors.xml
+                val color = ContextCompat.getColor(context, R.color.blueGray) // pastikan 'orange' benar ada di colors.xml
                 holder.binding.root.setCardBackgroundColor(color)
             }
 

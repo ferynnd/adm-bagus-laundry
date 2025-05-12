@@ -22,5 +22,13 @@
     <color name="transaksiIn">#00A600</color>
     <color name="transaksiCancelled">#02081A</color>
     <color name="transaksiOuther">#4472FF</color>
-    <color name="baseActive">#17d957</color>
+    <color name="baseActive">#79D7BE</color>
+    <color name="red">#fd4444</color>
+    <color name="blueDark">#2E5077</color>
+    <color name="blueGreen">#164863</color>
+    <color name="greenBlueLight">#79D7BE</color>
+    <color name="blueGray">#427D9D</color>
+    <color name="grayLight">#9BBEC8</color>
+    <color name="greenDark">#176B87</color>
+
 </resources>

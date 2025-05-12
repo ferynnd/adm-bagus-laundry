@@ -10,8 +10,8 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="520dp"
-        app:cardBackgroundColor="@color/blueBase"
+        android:layout_height="510dp"
+        app:cardBackgroundColor="@color/greenDark"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,8 +38,8 @@
         android:layout_height="wrap_content"
         tools:text="CAB001234"
         android:fontFamily="@font/inter_medium"
-        android:textSize="18sp"
-        android:textColor="@color/gray900"
+        android:textSize="22sp"
+        android:textColor="@color/white"
         android:layout_marginStart="15dp"
         app:layout_constraintBottom_toTopOf="@id/cardForeground"
         app:layout_constraintStart_toStartOf="@id/cardBackground"
@@ -56,7 +56,8 @@
         android:layout_marginEnd="10dp"
         app:layout_constraintBottom_toTopOf="@id/cardForeground"
         app:layout_constraintTop_toTopOf="@id/cardBackground"
-        app:layout_constraintEnd_toEndOf="@id/cardBackground" />
+        app:layout_constraintEnd_toEndOf="@id/cardBackground"
+        app:tint="@color/white" />
 
     <TableLayout
         android:id="@+id/tableLayout"

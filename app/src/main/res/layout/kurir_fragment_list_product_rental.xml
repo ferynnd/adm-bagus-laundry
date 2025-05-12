@@ -185,7 +185,7 @@
             android:id="@+id/image_data_not_found"
             android:layout_width="140dp"
             android:layout_height="140dp"
-            android:src="@drawable/persewaan"
+            android:src="@drawable/sewa"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:ignore="MissingConstraints" />

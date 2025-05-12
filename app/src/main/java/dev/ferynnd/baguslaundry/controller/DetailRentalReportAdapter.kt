@@ -10,6 +10,8 @@ import dev.ferynnd.baguslaundry.model.ConditionListTransactionRental
 import dev.ferynnd.baguslaundry.model.ListTransactionRental
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.StatusListTransactionRental
+import java.text.NumberFormat
+import java.util.Locale
 
 class DetailRentalReportAdapter : ListAdapter<ListTransactionRental, DetailRentalReportAdapter.DetailRentalReportViewHolder>(DiffCallback()) {
 
@@ -34,7 +36,12 @@ class DetailRentalReportAdapter : ListAdapter<ListTransactionRental, DetailRenta
 
         holder.binding.apply {
             inputNameItem.text = productRentalName
-            inputPrice.text = detailReportRental.price_list_transaction_rental.toString()
+            numberItem.text = detailReportRental.id_rental_transaction.toString()
+            val localeID = Locale("in", "ID")
+            val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
+
+            val harga = detailReportRental.price_list_transaction_rental
+            inputPrice.text = formatRupiah.format(harga)
             inputWeight.text = detailReportRental.weight_list_transaction_rental.toString()
             inputNotes.text = detailReportRental.note_list_transaction_rental
               val dataCondition = when(detailReportRental.condition_list_transaction_rental) {

@@ -24,7 +24,7 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
         getAllProductRental()
     }
 
-     private fun getAllProductRental() {
+    private fun getAllProductRental() {
         viewModelScope.launch {
             _rentalProducts.postValue(rentalProductRepository.getProductRental().data)
         }
@@ -46,10 +46,36 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
     }
 
 
-
     suspend fun getProductRentalById(id: Int): DefaultRequest<ProductRental> {
         return rentalProductRepository.getProductRentalById(id)
     }
 
+
+    private val _filteredRentalProducts = MutableLiveData<List<ProductRental>>()  // hasil pencarian
+    val filteredRentalProducts: LiveData<List<ProductRental>> get() = _filteredRentalProducts
+
+
+    fun filterClient(branchId: Int?) {
+        val allRentalProducts = _rentalProducts.value ?: return
+        _filteredRentalProducts.value = if (branchId == null) {
+            allRentalProducts
+        } else {
+            allRentalProducts.filter { it.id_branch_rental_item == branchId }
+        }
+    }
+
+    fun searchRentalProducts(query: String) {
+        val allRentalProducts = _rentalProducts.value ?: return
+        if (query.isBlank()) {
+            _filteredRentalProducts.value = allRentalProducts
+        } else {
+            _filteredRentalProducts.value = allRentalProducts.filter {
+                it.name_rental_item?.contains(
+                    query,
+                    ignoreCase = true
+                ) == true || it.number_rental_item.toString().contains(query, ignoreCase = true)
+            }
+        }
+    }
 
 }

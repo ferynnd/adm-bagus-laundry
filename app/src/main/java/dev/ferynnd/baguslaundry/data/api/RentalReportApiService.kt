@@ -1,6 +1,7 @@
 package dev.ferynnd.baguslaundry.data.api
 
 
+import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
 import dev.ferynnd.baguslaundry.model.ExportReportRental
 import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
 import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
@@ -29,7 +30,16 @@ interface RentalReportApiService {
     @POST("api/admin/create_invoice_rentals")
     suspend fun createInvoiceRental(
         @Body postInvoiceReportRental: PostInvoiceRentalRequest
-    ): DefaultRequest<InvoiceRentalResponse>
+    ): DefaultRequestInvoice<InvoiceRentalResponse>
+
+    @POST("api/admin/export_invoice_rental")
+    suspend fun exportInvoiceRental(
+        @Body exportInvoiceRental: ExportInvoicePdfRentalRequest
+    ): DefaultRequestInvoice<ReportRentalResponse>
+
+    @GET("api/{role}/invoice_rentals")
+    suspend fun getInvoiceRental(@Path("role") role: String): ApiResponse<InvoiceRentalResponse>
+
 
 
 

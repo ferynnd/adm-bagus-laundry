@@ -25,7 +25,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     val loginResult: LiveData<Result<LoginResponse>> get() = _loginResult
 
     init {
-         if (userRepository.isLoggedIn()) {
+        if (userRepository.isLoggedIn()) {
             getAllUsers()
         }
     }
@@ -38,13 +38,13 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun getAllUsers() {
-    viewModelScope.launch {
-        val userList = userRepository.getUser().data
-        val filteredUsers = userList.filter { it.role_user == UserRole.kurir } // Ganti dari owner ke kurir
-        _users.postValue(filteredUsers)
+        viewModelScope.launch {
+            val userList = userRepository.getUser().data
+            val filteredUsers =
+                userList.filter { it.role_user == UserRole.kurir } // Ganti dari owner ke kurir
+            _users.postValue(filteredUsers)
+        }
     }
-}
-
 
 
     suspend fun getUser() {
@@ -63,6 +63,33 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     suspend fun getUserById(id: Int): DefaultRequest<User> {
         return userRepository.getUserById(id)
+    }
+
+
+    private val _filteredUsers = MutableLiveData<List<User>>()  // hasil pencarian
+    val filteredUsers: LiveData<List<User>> get() = _filteredUsers
+
+
+    fun filterClient(branchId: Int?) {
+        val allUsers = _users.value ?: return
+        _filteredUsers.value = if (branchId == null) {
+            allUsers
+        } else {
+            allUsers.filter { it.id_branch_user == branchId }
+        }
+    }
+
+
+    fun searchUsers(query: String) {
+        val allUsers = _users.value ?: return
+        if (query.isBlank()) {
+            _filteredUsers.value = allUsers
+        } else {
+            _filteredUsers.value = allUsers.filter {
+                it.username?.contains(query, ignoreCase = true) == true ||
+                it.fullname_user?.contains(query, ignoreCase = true) == true
+            }
+        }
     }
 
 

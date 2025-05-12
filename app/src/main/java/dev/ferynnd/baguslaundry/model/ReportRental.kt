@@ -23,7 +23,18 @@ data class ReportRental(
     val list_transaction_rentals : List<ListTransactionRental>,
     val deleted_at: Any? = null,
     val created_at : String? = null,
-)
+) {
+    override fun hashCode(): Int {
+        return id_transaction_rental?.hashCode() ?: 0
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ReportRental) return false
+
+        return id_transaction_rental == other.id_transaction_rental
+    }
+}
 
 enum class TypeTransactionRental {
     @SerializedName("bath towel")
@@ -73,22 +84,6 @@ data class ReportRentalResponse(
     val path: String
 )
 
-data class InvoiceRental(
-    val id_branch_invoice: Int,
-    val id_client_invoice: Int,
-    val notes_invoice_rental: String? = null,
-    val total_weight_invoice_rental: Double? = null,
-    val price_invoice_rental: Int? = null,
-    val promo_invoice_rental: Int? = null,
-    val additional_cost_invoice_rental: Int? = null,
-    val list_invoice_rentals: List<InvoiceRentalItem>? = null
-)
-
-data class InvoiceRentalItem(
-    val id_rental_transaction: Int,
-    val status_list_invoice_rental: StatusInvoiceRental,
-    val note_list_invoice_rental: String? = null
-)
 
 enum class StatusInvoiceRental(val value: String) {
     UNPAID("unpaid"),

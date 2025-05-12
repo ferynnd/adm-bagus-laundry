@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dev.ferynnd.baguslaundry.databinding.CardListRentalInvoiceBinding
+import dev.ferynnd.baguslaundry.model.ListInvoiceRentalItem
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.StatusInvoiceRental
 import dev.ferynnd.baguslaundry.model.StatusTransactionRental
@@ -19,10 +20,9 @@ class RentalInvoiceAdapter :
 
     private val inputNotes = mutableMapOf<Int, String>()
     private val selectedStatuses = mutableMapOf<Int, StatusInvoiceRental>()
-    val selectedItems = mutableSetOf<ReportRental>()
+    private val selectedItems = mutableSetOf<ReportRental>()
 
     fun getSelectedItems(): List<ReportRental> = selectedItems.toList()
-
 
     inner class RentalInvoiceViewHolder(val binding: CardListRentalInvoiceBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -98,17 +98,33 @@ class RentalInvoiceAdapter :
                 }
             }
 
-            iconRadio.isChecked = selectedItems.contains(rentalReport)
 
-            iconRadio.setOnCheckedChangeListener { _, isChecked ->
+            holder.binding.iconRadio.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     selectedItems.add(rentalReport)
                 } else {
                     selectedItems.remove(rentalReport)
                 }
             }
+
+            // Set status CheckBox berdasarkan apakah item sudah dipilih (jika perlu mempertahankan pilihan saat scroll)
+            holder.binding.iconRadio.isChecked = selectedItems.contains(rentalReport)
+
         }
     }
+
+    fun getSelectedInvoiceData(): List<ListInvoiceRentalItem> {
+        return selectedItems.map { rental ->
+            val status = selectedStatuses[currentList.indexOf(rental)] ?: StatusInvoiceRental.UNPAID
+            val note = inputNotes[currentList.indexOf(rental)] ?: ""
+            ListInvoiceRentalItem(
+                id_rental_transaction = rental.id_transaction_rental,
+                status_list_invoice_rental = status.value,
+                note_list_invoice_rental = note
+            )
+        }
+    }
+
 
     class DiffCallback : DiffUtil.ItemCallback<ReportRental>() {
         override fun areItemsTheSame(oldItem: ReportRental, newItem: ReportRental): Boolean {

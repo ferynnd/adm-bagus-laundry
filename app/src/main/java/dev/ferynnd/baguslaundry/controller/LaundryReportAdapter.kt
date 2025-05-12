@@ -13,6 +13,8 @@ import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import dev.ferynnd.baguslaundry.model.User
+import java.text.NumberFormat
+import java.util.Locale
 
 class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
 
@@ -90,9 +92,18 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
                         inputEmployment.text = userName
                         inputCustommer.text = transactionReportLaundry.name_client_transaction_laundry.toString()
                         inputWeight.text = transactionReportLaundry.total_weight_transaction_laundry.toString()
-                        inputTotalPrice.text = transactionReportLaundry.total_price_transaction_laundry.toString()
-                        inputCash.text = transactionReportLaundry.cash_transaction_laundry.toString()
-                        inputChangeMoney.text = transactionReportLaundry.change_money_transaction_laundry.toString()
+                        val localeID = Locale("in", "ID")
+                        val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
+
+                        val hargaTotal = transactionReportLaundry.total_price_transaction_laundry
+                        inputTotalPrice.text = formatRupiah.format(hargaTotal)
+
+                        val hargaCash = transactionReportLaundry.cash_transaction_laundry
+                        inputCash.text = formatRupiah.format(hargaCash)
+
+                        val hargaKembalian = transactionReportLaundry.change_money_transaction_laundry
+                        inputChangeMoney.text = formatRupiah.format(hargaKembalian)
+
                         inputNotes.text = transactionReportLaundry.notes_transaction_laundry
 
                         buttonDetail.setOnClickListener {
@@ -104,7 +115,7 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
                     val header = item as String
                     holder.binding.inputNameBranch.text = header
                     val context = holder.binding.root.context
-                    val color = ContextCompat.getColor(context, R.color.blueBase) // pastikan 'orange' benar ada di colors.xml
+                    val color = ContextCompat.getColor(context, R.color.greenDark) // pastikan 'orange' benar ada di colors.xml
                     holder.binding.root.setCardBackgroundColor(color)
                 }
             }

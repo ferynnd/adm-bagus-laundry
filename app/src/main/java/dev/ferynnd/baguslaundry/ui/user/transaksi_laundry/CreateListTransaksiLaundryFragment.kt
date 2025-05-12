@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -46,9 +47,11 @@ class CreateListTransaksiLaundryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+
         laundryProductViewModel = ViewModelProvider(this)[LaundryProductViewModel::class.java]
-        laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java]
         laundryProductViewModel.init(requireContext())
+
+        laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java]
         laundryReportViewModel.init(requireContext())
     }
 
@@ -392,7 +395,11 @@ class CreateListTransaksiLaundryFragment : Fragment() {
         val totalAmountToPay = extractNumericValue(binding.totalHargaKeseluruhan.text.toString())
         val cash = binding.inputUangTunai.text.toString().toDoubleOrNull() ?: 0.0
         val change = cash - totalAmountToPay
-
+        if (change < 0) {
+            binding.uangKembalian.setTextColor(ContextCompat.getColor(requireContext(), R.color.transaksiOut))
+        } else {
+            binding.uangKembalian.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue600))
+        }
         binding.uangKembalian.text = formatToRupiah(change)
     }
 

@@ -56,10 +56,3 @@ data class TransactionItemDetail(
     val note_list_transaction_laundry: String
 )
 
-data class LaundryItemDetail(
-    val id_laundry_item: Int,
-    val name_laundry_item: String,
-    val time_laundry_item: String,
-    val price_laundry_item: Double
-)
-

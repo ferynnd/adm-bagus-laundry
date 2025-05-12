@@ -52,7 +52,6 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
         return clientRepository.getClientById(id)
     }
 
-
     private val _filteredClients = MutableLiveData<List<Client>>()  // hasil pencarian
     val filteredClients: LiveData<List<Client>> get() = _filteredClients
 
@@ -76,6 +75,4 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
-
-
 }

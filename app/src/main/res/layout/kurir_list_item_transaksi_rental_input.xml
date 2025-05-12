@@ -1,0 +1,166 @@
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detail_data"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@color/white"
+    android:layout_marginBottom="14dp"
+    app:cardCornerRadius="10dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="14dp">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineMid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <Spinner
+            android:id="@+id/spinnerRental"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toStartOf="@+id/trash_create_list_transaksi"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/trash_create_list_transaksi"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:backgroundTint="@color/transaksiOut"
+            android:background="@drawable/trash"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/wadah_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            app:cardBackgroundColor="@color/blue500"
+            app:cardCornerRadius="6dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinnerRental"
+            tools:ignore="MissingConstraints">
+
+            <TextView
+                android:id="@+id/status_product_rental"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_semibold"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="4dp"
+                android:text="tersedia"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="10sp" />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/wadah_kondisi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:backgroundTint="@color/pink500"
+            app:cardBackgroundColor="@color/pink500"
+            app:cardCornerRadius="6dp"
+            app:layout_constraintStart_toEndOf="@+id/wadah_status"
+            app:layout_constraintTop_toTopOf="@+id/wadah_status"
+            tools:ignore="MissingConstraints">
+
+            <TextView
+                android:id="@+id/condition_product_rental"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_semibold"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:text="BAIK"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="10sp" />
+
+        </androidx.cardview.widget.CardView>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/outlinedSelectedKondisi"
+            style="@style/CustomTextInputLayout"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="16dp"
+            android:hint="Kondisi"
+            app:layout_constraintEnd_toStartOf="@+id/guidelineMid"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wadah_status"
+            app:endIconMode="dropdown_menu">
+
+            <AutoCompleteTextView
+                android:id="@+id/input_kondisi_list_transaksi_rental"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/outlinedTextBerat"
+            style="@style/CustomTextInputLayout"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="16dp"
+            android:hint="Berat"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guidelineMid"
+            app:layout_constraintTop_toBottomOf="@+id/wadah_status">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_berat_list_transaksi_rental"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:fontFamily="@font/inter"
+                android:inputType="numberDecimal"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/outlinedTextNote"
+            style="@style/CustomTextInputLayout"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:hint="Note"
+            android:layout_marginTop="6dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/outlinedTextBerat">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_note_list_transaksi_rental"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

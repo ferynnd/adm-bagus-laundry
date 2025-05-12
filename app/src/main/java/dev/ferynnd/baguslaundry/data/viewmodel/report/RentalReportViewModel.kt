@@ -10,6 +10,11 @@ import androidx.lifecycle.viewModelScope
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.api.DefaultRequestInvoice
 import dev.ferynnd.baguslaundry.data.repository.report.RentalReportRepository
+import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
+import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
+import dev.ferynnd.baguslaundry.model.RentalTransactionResponse
+import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
 import dev.ferynnd.baguslaundry.model.ExportReportRental
@@ -27,8 +32,12 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
     private val _rentalReports = MutableLiveData<List<ReportRental>>()
     val rentalReports: LiveData<List<ReportRental>> get() = _rentalReports
 
+    private val _createTransactionResponse = MutableLiveData<DefaultRequest<RentalTransactionResponse>?>()
+    val createTransactionResponse: LiveData<DefaultRequest<RentalTransactionResponse>?> get() = _createTransactionResponse
+
     private val _invoiceRental = MutableLiveData<List<InvoiceRentalResponse>>()
     val invoiceRental: LiveData<List<InvoiceRentalResponse>> get() = _invoiceRental
+
 
     fun init(context: Context) {
         rentalReportRepository = RentalReportRepository(context)
@@ -65,6 +74,25 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
 
     suspend fun getReportRentalById(id: Int): DefaultRequest<ReportRental> {
         return rentalReportRepository.getReportRentalById(id)
+    }
+
+
+    fun createRentalTransaction(rentalTransactionRequest: RentalTransactionRequest) {
+        viewModelScope.launch {
+            try {
+                val response = rentalReportRepository.createReportRental(rentalTransactionRequest)
+                _createTransactionResponse.value = response
+                if (!response.success) {
+                    Log.e("API_ERROR", "Error: ${response.errors}")
+                }
+            } catch (e: Exception) {
+                Log.e("RentalReportViewModel", "Error creating rental transaction", e)
+            }
+        }
+    }
+    
+    fun resetCreateTransactionResponse() {
+        _createTransactionResponse.value = null
     }
 
     suspend fun exportRentalMonthly(exportReport: ExportReportRental): DefaultRequest<ReportRentalResponse> {
@@ -165,6 +193,4 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
             }
         }
     }
-
-
 }

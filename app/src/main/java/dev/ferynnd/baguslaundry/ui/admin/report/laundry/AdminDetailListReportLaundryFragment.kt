@@ -13,24 +13,39 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.controller.DetailLaundryReportAdapter
+import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
+import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
+import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.ListTransactionReportLaundryViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminDetailListReportLaundryBinding
+import dev.ferynnd.baguslaundry.model.Branch
+import dev.ferynnd.baguslaundry.model.Client
+import dev.ferynnd.baguslaundry.model.StatusReportLaundry
+import dev.ferynnd.baguslaundry.model.User
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
-class AdminDetailListReportLaundryFragment : Fragment()  {
+class AdminDetailListReportLaundryFragment : Fragment() {
 
     private lateinit var binding: FragmentAdminDetailListReportLaundryBinding
     private lateinit var listTransactionReportLaundryViewModel: ListTransactionReportLaundryViewModel
     private lateinit var reportLaundryViewModel: LaundryReportViewModel
     private lateinit var detailLaundryReportAdapter: DetailLaundryReportAdapter
     private lateinit var laundryProductViewModel: LaundryProductViewModel
+
+    private lateinit var branchViewModel: BranchViewModel
+    private lateinit var userViewModel: UserViewModel
+
+    private var branches: List<Branch> = emptyList()
+    private var users: List<User> = emptyList()
+
 
     private var transactionReportID: Int? = null
 
@@ -39,10 +54,14 @@ class AdminDetailListReportLaundryFragment : Fragment()  {
         super.onCreate(savedInstanceState)
         listTransactionReportLaundryViewModel =
             ViewModelProvider(this).get(ListTransactionReportLaundryViewModel::class.java)
+        listTransactionReportLaundryViewModel.init(requireContext())
         reportLaundryViewModel = ViewModelProvider(this).get(LaundryReportViewModel::class.java)
         reportLaundryViewModel.init(requireContext())
         laundryProductViewModel = ViewModelProvider(this).get(LaundryProductViewModel::class.java)
         laundryProductViewModel.init(requireContext())
+        branchViewModel = ViewModelProvider(this).get(BranchViewModel::class.java)
+        branchViewModel.init(requireContext())
+        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
     }
 
 
@@ -83,40 +102,51 @@ class AdminDetailListReportLaundryFragment : Fragment()  {
                     val dataReport =
                         reportLaundryViewModel.getReportLaundryById(transactionReportID!!).data
 
+
+                    branchViewModel.branches.observe(viewLifecycleOwner) { branch ->
+                        branches = branch
+                    }
+                    userViewModel.users.observe(viewLifecycleOwner) { user ->
+                        users = user
+                    }
+
+
                     binding.apply {
                         inputEmployment.text = dataReport.id_user_transaction_laundry.toString()
                         inputBranch.text = dataReport.id_branch_transaction_laundry.toString()
                         inputCustommer.text = dataReport.name_client_transaction_laundry
-                        inputStatus.text = dataReport.status_transaction_laundry.toString()
                         inputNotes.text = dataReport.notes_transaction_laundry
                         inputWeight.text = dataReport.total_weight_transaction_laundry.toString()
-                        inputTotalPriceTransaction.text = dataReport.total_transaction_laundry.toString()
                         inputIsActive.text = dataReport.is_active_transaction_laundry.toString()
-                        inputCash.text = dataReport.cash_transaction_laundry.toString()
-                        inputTimeIn.text = dataReport.first_date_transaction_laundry
-                        inputTimeOut.text = dataReport.last_date_transaction_laundry.toString()
-                        inputTotalPrice.text = dataReport.total_price_transaction_laundry.toString()
+                        val localeID = Locale("in", "ID")
+                        val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 
-                        val formatterOutput = DateTimeFormatter.ofPattern(
-                            "HH:mm:ss - EEEE, dd MMMM yyyy",
-                            Locale("id", "ID")
-                        )
+                        inputCountItem.text =
+                            dataReport.count_item_laundry_transaction_laundry.toString()
+                        inputCash.text = formatRupiah.format(dataReport.cash_transaction_laundry)
+                        inputTotalPrice.text =
+                            formatRupiah.format(dataReport.total_price_transaction_laundry)
+                        inputTotalPriceTransaction.text =
+                            formatRupiah.format(dataReport.total_transaction_laundry)
 
-                        fun formatDateTime(dateTimeString: String?): String {
-                            return try {
-                                if (!dateTimeString.isNullOrEmpty()) {
-                                    val instant = Instant.parse(dateTimeString)
-                                    formatterOutput.format(instant.atZone(ZoneId.systemDefault()))
-                                } else {
-                                    "Tanggal tidak valid"
-                                }
-                            } catch (e: Exception) {
-                                "Tanggal tidak valid"
-                            }
+                        val branchName =
+                            branches.find { it.id_branch == dataReport.id_branch_transaction_laundry }?.name_branch
+                                ?: "Unknown"
+                        inputBranch.text = branchName
+                        val employeeName =
+                            users.find { it.id_user == dataReport.id_user_transaction_laundry }?.fullname_user
+                                ?: "Unknown"
+                        inputEmployment.text = employeeName
+                        val dataStatus = when (dataReport.status_transaction_laundry) {
+                            StatusReportLaundry.pending -> "Tertunda"
+                            StatusReportLaundry.in_progress -> "Sedang Dikerjakan"
+                            StatusReportLaundry.completed -> "Selesai"
+                            StatusReportLaundry.cancelled -> "DiBatalkan"
                         }
+                        inputStatus.text = dataStatus
+                        inputTimeIn.text = dataReport.first_date_transaction_laundry
+                        inputTimeOut.text = dataReport.last_date_transaction_laundry
 
-                        inputTimeIn.text = formatDateTime(dataReport.first_date_transaction_laundry)
-                        inputTimeOut.text = formatDateTime(dataReport.last_date_transaction_laundry)
 
                     }
 

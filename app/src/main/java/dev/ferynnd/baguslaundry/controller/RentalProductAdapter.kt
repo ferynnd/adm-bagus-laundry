@@ -69,7 +69,7 @@ class RentalProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
                 val laundryItem = item as ProductRental
                 val branchName = branches.find { it.id_branch == laundryItem.id_branch_rental_item }?.name_branch ?: "Unknown"
                 holder.binding.apply {
-                    inputName.text = laundryItem.name_rental_item
+                    inputName.text = "${laundryItem.number_rental_item} - ${laundryItem.name_rental_item}"
                     inputBranch.text = branchName
                     val dataStatus = when(laundryItem.status_rental_item) {
                         StatusRental.available -> "Tersedia"
@@ -91,7 +91,7 @@ class RentalProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
                 val header = item as Branch
                 holder.binding.inputNameBranch.text = header.name_branch
                 val context = holder.binding.root.context
-                val color = ContextCompat.getColor(context, R.color.baseRed) // pastikan 'orange' benar ada di colors.xml
+                val color = ContextCompat.getColor(context, R.color.blueGray) // pastikan 'orange' benar ada di colors.xml
                 holder.binding.root.setCardBackgroundColor(color)
             }
 

@@ -16,6 +16,7 @@ import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.StatusTransactionRental
 import dev.ferynnd.baguslaundry.model.User
+import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -94,6 +95,7 @@ class RentalReportAdapter ( private val onDetail : (ReportRental) -> Unit) : Lis
                     val senderName = sender.find { it.id_user == transactionReportRental.id_kurir_transaction_rental }?.fullname_user ?: "Unknown"
                     val clientName = client.find { it.id_client == transactionReportRental.id_client_transaction_rental }?.name_client ?: "Unknown"
                     holder.binding.apply {
+                        idUser.text = transactionReportRental.id_transaction_rental.toString()
                         inputBranch.text = branchName
                         inputCLient.text = clientName
                         inputSender.text = senderName
@@ -108,13 +110,18 @@ class RentalReportAdapter ( private val onDetail : (ReportRental) -> Unit) : Lis
                         inputRecipient.text = transactionReportRental.recipient_name_transaction_rental
                         inputWeight.text = transactionReportRental.total_weight_transaction_rental.toString()
                         inputPcs.text = transactionReportRental.total_pcs_transaction_rental.toString()
-                        inputAditionalCost.text = transactionReportRental.additional_cost_transaction_rental.toString()
-                        inputTotalPrice.text = transactionReportRental.total_price_transaction_rental.toString()
+
+                        val localeID = Locale("in", "ID")
+                        val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
+
+                        val hargaTotal = transactionReportRental.total_price_transaction_rental
+                        inputTotalPrice.text = formatRupiah.format(hargaTotal)
+                        val biayaTambahan = transactionReportRental.additional_cost_transaction_rental
+                        inputAditionalCost.text = formatRupiah.format(biayaTambahan)
+
                         inputNotes.text = transactionReportRental.notes_transaction_rental
 
-
                         val waktu = transactionReportRental.created_at
-
 
                         // Format output yang diinginkan
                         val formatterOutput = DateTimeFormatter.ofPattern("HH:mm:ss - EEEE, dd MMMM yyyy", Locale("id", "ID"))
@@ -148,7 +155,7 @@ class RentalReportAdapter ( private val onDetail : (ReportRental) -> Unit) : Lis
                     val header = item as String
                     holder.binding.inputNameBranch.text = header
                     val context = holder.binding.root.context
-                    val color = ContextCompat.getColor(context, R.color.greenBase) // pastikan 'orange' benar ada di colors.xml
+                    val color = ContextCompat.getColor(context, R.color.blueGray) // pastikan 'orange' benar ada di colors.xml
                     holder.binding.root.setCardBackgroundColor(color)
                 }
             }

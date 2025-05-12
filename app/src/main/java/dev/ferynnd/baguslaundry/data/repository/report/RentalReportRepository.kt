@@ -4,13 +4,19 @@ import android.content.Context
 import android.util.Log
 import dev.ferynnd.baguslaundry.data.api.ApiResponse
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
+import dev.ferynnd.baguslaundry.data.api.DefaultRequestInvoice
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
 import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
 import dev.ferynnd.baguslaundry.model.RentalTransactionResponse
+import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
+import dev.ferynnd.baguslaundry.model.ExportReportRental
+import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
+import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
 import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.ReportRentalResponse
 
 class RentalReportRepository  (context: Context) {
 
@@ -21,7 +27,7 @@ class RentalReportRepository  (context: Context) {
 
     private val role: String
         get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
-
+  
     suspend fun getReportRental(): ApiResponse<ReportRental> {
         try {
             val response = rentalReportApiService.getReportRental(role)
@@ -50,7 +56,7 @@ class RentalReportRepository  (context: Context) {
         }
     }
 
-    suspend fun createReportRental(rentalTransactionRequest: RentalTransactionRequest): DefaultRequest<RentalTransactionResponse> {
+suspend fun createReportRental(rentalTransactionRequest: RentalTransactionRequest): DefaultRequest<RentalTransactionResponse> {
         try {
             val response = rentalReportApiService.createReportRental(role, rentalTransactionRequest)
             if (response.success) {
@@ -63,5 +69,61 @@ class RentalReportRepository  (context: Context) {
         } catch (e: Exception) {
             throw e
         }
+    }
+
+    suspend fun exportRentalMonthly(exportReport: ExportReportRental): DefaultRequest<ReportRentalResponse> {
+         try {
+            val response = rentalReportApiService.exportRentalMonthly(exportReport)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+
+        }
+    }
+
+    suspend fun createInvoiceRental(postInvoiceReportRental: PostInvoiceRentalRequest): DefaultRequestInvoice<InvoiceRentalResponse> {
+        try {
+            val response = rentalReportApiService.createInvoiceRental(postInvoiceReportRental)
+
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+            }
+    }
+
+    suspend fun exportInvoiceRental(exportInvoiceRental: ExportInvoicePdfRentalRequest): DefaultRequestInvoice<ReportRentalResponse> {
+        try {
+            val response = rentalReportApiService.exportInvoiceRental(exportInvoiceRental)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+
+    suspend fun getInvoiceRental() : ApiResponse<InvoiceRentalResponse> {
+        try {
+            val response = rentalReportApiService.getInvoiceRental(role)
+            Log.d("InvoiceRental", "Invoice Rental: ${response.data}")
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+            }
     }
 }

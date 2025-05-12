@@ -6,6 +6,12 @@ import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.RentalTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
+import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
+import dev.ferynnd.baguslaundry.model.ExportReportRental
+import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
+import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
+import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.ReportRentalResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -26,4 +32,22 @@ interface RentalReportApiService {
         @Path("role") role: String,
         @Body rentalTransactionRequest: RentalTransactionRequest
     ): DefaultRequest<RentalTransactionResponse>
+
+    @POST("api/admin/export_transaction_monthly")
+    suspend fun exportRentalMonthly(
+        @Body exportReportRental: ExportReportRental
+    ): DefaultRequest<ReportRentalResponse>
+
+    @POST("api/admin/create_invoice_rentals")
+    suspend fun createInvoiceRental(
+        @Body postInvoiceReportRental: PostInvoiceRentalRequest
+    ): DefaultRequestInvoice<InvoiceRentalResponse>
+
+    @POST("api/admin/export_invoice_rental")
+    suspend fun exportInvoiceRental(
+        @Body exportInvoiceRental: ExportInvoicePdfRentalRequest
+    ): DefaultRequestInvoice<ReportRentalResponse>
+
+    @GET("api/{role}/invoice_rentals")
+    suspend fun getInvoiceRental(@Path("role") role: String): ApiResponse<InvoiceRentalResponse>
 }

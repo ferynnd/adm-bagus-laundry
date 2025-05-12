@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginVertical="5dp"
     android:id="@+id/cardDetailListReportRental"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -47,7 +48,7 @@
 
              <TextView
                  android:id="@+id/inputNameItem"
-                android:text="NamaKu"
+                tools:text="NamaKu"
                 android:padding="10dp"
                  android:textSize="14sp"
                  android:layout_marginEnd="10dp"
@@ -75,7 +76,7 @@
 
              <TextView
                  android:id="@+id/inputCondition"
-                android:text="BAIK"
+                tools:text="BAIK"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -118,7 +119,7 @@
              </LinearLayout>
              <TextView
                  android:id="@+id/inputPrice"
-                android:text="20000"
+                tools:text="20000"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -161,7 +162,7 @@
              </LinearLayout>
              <TextView
                  android:id="@+id/inputWeight"
-                android:text="KAKAKA"
+                tools:text="KAKAKA"
                 android:padding="10dp"
                  android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -193,7 +194,7 @@
                 android:id="@+id/layoutStatus"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/success"
+                app:cardBackgroundColor="@color/baseActive"
                 android:layout_marginVertical="5dp"
                 android:layout_marginEnd="10dp"
                 app:cardCornerRadius="5dp"
@@ -208,7 +209,7 @@
                     android:textSize="14sp"
                     android:gravity="center"
                     android:textColor="@color/white"
-                    android:text="ACTIVE"
+                    tools:text="ACTIVE"
                     />
 
             </androidx.cardview.widget.CardView>
@@ -234,7 +235,7 @@
 
     <TextView
         android:id="@+id/inputNotes"
-        android:text=" Ini catatan Ku "
+        tools:text=" Ini catatan Ku "
         android:padding="10dp"
         android:textSize="12sp"
         android:translationZ="20dp"

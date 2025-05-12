@@ -9,6 +9,8 @@ import dev.ferynnd.baguslaundry.databinding.CardListDetailReportLaundryBinding
 import dev.ferynnd.baguslaundry.model.ListTransactionLaundry
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.StatusListTransactionLaundry
+import java.text.NumberFormat
+import java.util.Locale
 
 class DetailLaundryReportAdapter : ListAdapter<ListTransactionLaundry, DetailLaundryReportAdapter.DetailLaundryReportViewHolder>(DiffCallback()) {
 
@@ -39,11 +41,15 @@ class DetailLaundryReportAdapter : ListAdapter<ListTransactionLaundry, DetailLau
                 StatusListTransactionLaundry.cancelled -> "Dibatalkan"
             }
             inputStatus.text = dataStatus
-            inputPrice.text = detailReportLaundry.price_list_transaction_laundry.toString()
+            val localeID = Locale("in", "ID")
+            val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
+
+            val harga = detailReportLaundry.price_list_transaction_laundry
+            inputPrice.text = formatRupiah.format(harga)
+
             inputWeight.text = detailReportLaundry.weight_list_transaction_laundry.toString()
             inputNotes.text = detailReportLaundry.note_list_transaction_laundry
-            inputJumlah.text = detailReportLaundry.pcs_list_transaction_laundry.toString()
-            numberItem.text = detailReportLaundry.id_transaction_laundry.toString()
+            numberItem.text = detailReportLaundry.id_list_transaction_laundry.toString()
         }
     }
 

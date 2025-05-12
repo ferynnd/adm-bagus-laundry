@@ -20,6 +20,7 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
     private val _clients = MutableLiveData<List<Client>>()
     val clients: LiveData<List<Client>> get() = _clients
 
+
     fun init(context: Context) {
         clientRepository = ClientRepository(context)
         getAllClient()
@@ -49,5 +50,29 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
 
     suspend fun getClientById(id: Int): DefaultRequest<Client> {
         return clientRepository.getClientById(id)
+    }
+
+    private val _filteredClients = MutableLiveData<List<Client>>()  // hasil pencarian
+    val filteredClients: LiveData<List<Client>> get() = _filteredClients
+
+
+    fun filterClient(branchId: Int?) {
+        val allClients = _clients.value ?: return
+        _filteredClients.value = if (branchId == null) {
+            allClients
+        } else {
+            allClients.filter { it.id_branch_client == branchId }
+        }
+    }
+
+     fun searchClients(query: String) {
+        val allClients = _clients.value ?: return
+        if (query.isBlank()) {
+            _filteredClients.value = allClients
+        } else {
+            _filteredClients.value = allClients.filter {
+                it.name_client?.contains(query, ignoreCase = true) == true
+            }
+        }
     }
 }

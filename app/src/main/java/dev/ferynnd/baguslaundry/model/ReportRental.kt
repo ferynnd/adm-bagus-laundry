@@ -23,7 +23,18 @@ data class ReportRental(
     val list_transaction_rentals : List<ListTransactionRental>,
     val deleted_at: Any? = null,
     val created_at : String? = null,
-)
+) {
+    override fun hashCode(): Int {
+        return id_transaction_rental?.hashCode() ?: 0
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ReportRental) return false
+
+        return id_transaction_rental == other.id_transaction_rental
+    }
+}
 
 enum class TypeTransactionRental {
     @SerializedName("bath towel")
@@ -56,4 +67,44 @@ enum class StatusTransactionRental {
 
     @SerializedName("cancelled")
     CANCELLED
+}
+
+
+data class ExportReportRental(
+    val month: String,
+    val location: Int,
+    val description: String,
+    val initial_stock: Int,
+    val notes: List<String>
+)
+
+data class ReportRentalResponse(
+    val download_url: String,
+    val filename: String,
+    val path: String
+)
+
+
+enum class StatusInvoiceRental(val value: String) {
+    UNPAID("unpaid"),
+    PAID("paid"),
+    CANCELLED("cancelled");
+
+    fun displayName(): String {
+        return when (this) {
+            UNPAID -> "Belum Dibayar"
+            PAID -> "Sudah Dibayar"
+            CANCELLED -> "Dibatalkan"
+        }
+    }
+
+    companion object {
+        fun fromValue(value: String): StatusInvoiceRental? {
+            return entries.find { it.value == value }
+        }
+
+        fun fromDisplayName(name: String): StatusInvoiceRental? {
+            return entries.find { it.displayName() == name }
+        }
+    }
 }

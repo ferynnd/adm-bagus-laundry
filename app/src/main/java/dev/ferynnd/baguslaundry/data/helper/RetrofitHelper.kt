@@ -23,9 +23,6 @@ class RetrofitHelper(context: Context) {
 
     private val prefs = context.getSharedPreferences("AppSharePref", Context.MODE_PRIVATE)
 
-//    val logging = HttpLoggingInterceptor().apply {
-//        level = HttpLoggingInterceptor.Level.BODY
-//    }
 
     val client = OkHttpClient.Builder()
         .addInterceptor(AuthInterceptor(prefs))
@@ -76,6 +73,4 @@ class RetrofitHelper(context: Context) {
     val listTransactionLaundryReportApiService : ListTransactionLaundryReportApiService by lazy {
         retrofit.create((ListTransactionLaundryReportApiService::class.java))
     }
-
-
 }

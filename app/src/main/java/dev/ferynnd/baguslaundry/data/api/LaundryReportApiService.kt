@@ -1,6 +1,8 @@
 package dev.ferynnd.baguslaundry.data.api
 
 import dev.ferynnd.baguslaundry.model.ExportReportLaundry
+import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
+import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportLaundryResponse
 import retrofit2.http.Body
@@ -16,6 +18,12 @@ interface LaundryReportApiService {
     suspend fun getReportRental(
         @Path("role") role: String,
     ): ApiResponse<ReportLaundry>
+
+    @POST("api/{role}/create_transaction_laundries")
+    suspend fun createReportLaundry(
+        @Path("role") role: String,
+        @Body laundryTransactionRequest: LaundryTransactionRequest
+    ): DefaultRequest<LaundryTransactionResponse>
 
     @GET("api/{role}/transaction_laundries/{id}")
     suspend fun getReportLaundryById(
@@ -36,9 +44,8 @@ interface LaundryReportApiService {
         @Body reportLaundry: ReportLaundry
     ): DefaultRequest<ReportLaundry>
 
-    @POST("api/admin/export_laundry_monthly")
+     @POST("api/admin/export_laundry_monthly")
     suspend fun exportLaundryMonthly(
         @Body exportReportLaundry: ExportReportLaundry
     ): DefaultRequest<ReportLaundryResponse>
-
 }

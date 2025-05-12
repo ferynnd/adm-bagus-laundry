@@ -153,34 +153,6 @@ class ListProductRentalFragment : Fragment() {
             Toast.makeText(context, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
 
-        // Fungsi pencarian
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false // proses real-time
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                val query = newText.orEmpty().lowercase()
-                val filtered = fullRentalList.filter {
-                    it.name_rental_item!!.lowercase().contains(query) || it.number_rental_item!!.lowercase().contains(query)
-                }
-
-                if (filtered.isNotEmpty()) {
-                    binding.recyclerViewProductRental.visibility = View.VISIBLE
-                    binding.containerDataNotFound.visibility = View.GONE
-
-                    rentalProductAdapter.submitList(filtered)
-                }else {
-                    binding.recyclerViewProductRental.visibility = View.GONE
-                    binding.containerDataNotFound.visibility = View.VISIBLE
-                }
-
-                binding.searchView.setIconifiedByDefault(false)
-                binding.countData.text = filtered.size.toString()
-                return true
-            }
-        })
-
         binding.arrowBack.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.host_fragment_user, UserDashboardFragment())
@@ -348,7 +320,8 @@ class ListProductRentalFragment : Fragment() {
         val conditionFilters = selectedFilters["condition"] ?: emptySet()
         val statusFilters = selectedFilters["status"] ?: emptySet()
 
-        val filteredList = fullRentalList.filter { item ->
+        // Langkah 1: Filter berdasarkan kondisi dan status
+        val filteredByConditionStatus = fullRentalList.filter { item ->
             val conditionMatches = if (conditionFilters.isEmpty()) {
                 true
             } else {
@@ -374,16 +347,41 @@ class ListProductRentalFragment : Fragment() {
             conditionMatches && statusMatches
         }
 
-        if (filteredList.isNotEmpty()) {
+        // Langkah 2: Atur SearchView untuk melakukan pencarian dari hasil filter sebelumnya
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean = false
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                val query = newText.orEmpty().lowercase()
+                val filteredBySearch = filteredByConditionStatus.filter {
+                    it.name_rental_item?.lowercase()?.contains(query) == true ||
+                            it.number_rental_item?.lowercase()?.contains(query) == true
+                }
+
+                if (filteredBySearch.isNotEmpty()) {
+                    binding.recyclerViewProductRental.visibility = View.VISIBLE
+                    binding.containerDataNotFound.visibility = View.GONE
+                    rentalProductAdapter.submitList(filteredBySearch)
+                } else {
+                    binding.recyclerViewProductRental.visibility = View.GONE
+                    binding.containerDataNotFound.visibility = View.VISIBLE
+                }
+
+                binding.countData.text = filteredBySearch.size.toString()
+                return true
+            }
+        })
+
+        // Langkah 3: Tampilkan hasil awal (tanpa pencarian)
+        if (filteredByConditionStatus.isNotEmpty()) {
             binding.recyclerViewProductRental.visibility = View.VISIBLE
             binding.containerDataNotFound.visibility = View.GONE
-
-            rentalProductAdapter.submitList(filteredList)
-        }else {
+            rentalProductAdapter.submitList(filteredByConditionStatus)
+        } else {
             binding.recyclerViewProductRental.visibility = View.GONE
             binding.containerDataNotFound.visibility = View.VISIBLE
         }
 
-        binding.countData.text = filteredList.size.toString()
+        binding.countData.text = filteredByConditionStatus.size.toString()
     }
 }

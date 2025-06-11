@@ -37,38 +37,6 @@ class RentalProductAdapter () : ListAdapter<ProductRental, RentalProductAdapter.
         val numberFormat = NumberFormat.getCurrencyInstance(localeID)
 
         val nama_rental = laundryItem.name_rental_item.toString()
-        val number_rental = laundryItem.number_rental_item.toString()
-        val status = laundryItem.status_rental_item.toString()
-        val kondisi = laundryItem.condition_rental_item.toString()
-
-        holder.id_nama_rental.text = "$number_rental - $nama_rental"
-        holder.price.text = numberFormat.format(laundryItem.price_rental_item)
-
-        when (status) {
-            "available" -> {
-                holder.status.text = "TERSEDIA"
-            }
-            "rented" -> {
-                holder.status.text = "DISEWA"
-            }
-            "maintenance" -> {
-                holder.status.text = "PEMELIHARAAN"
-            }
-        }
-
-        when (kondisi) {
-            "clean" -> {
-                holder.condition.text = "BERSIH"
-            }
-            "dirty" -> {
-                holder.condition.text = "KOTOR"
-            }
-            "damaged" -> {
-                holder.condition.text = "RUSAK"
-            }
-        }
-
-        holder.deskripsi.text = laundryItem.description_rental_item.toString()
     }
 
     class DiffCallback : DiffUtil.ItemCallback<ProductRental>() {

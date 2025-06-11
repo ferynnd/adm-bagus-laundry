@@ -80,30 +80,24 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
                     val userName = users.find { it.id_user == transactionReportLaundry.id_user_transaction_laundry }?.fullname_user ?: "Unknown"
 
                     holder.binding.apply {
-                        idUser.text = transactionReportLaundry.id_transaction_laundry.toString()
+                        idTransactionLaundry.text = transactionReportLaundry.number_transaction_laundry.toString()
                         inputBranch.text = branchName
-                        val dataStatus = when(transactionReportLaundry.status_transaction_laundry){
-                            StatusReportLaundry.pending -> "Tertunda"
-                            StatusReportLaundry.in_progress -> "Sedang Dikerjakan"
+                        val dataStatus = when (transactionReportLaundry.status_transaction_laundry) {
+                            StatusReportLaundry.paid -> "Sudah Dibayar"
+                            StatusReportLaundry.unpaid -> "Belum Dibayar"
                             StatusReportLaundry.completed -> "Selesai"
-                            StatusReportLaundry.cancelled -> "DiBatalkan"
+                            StatusReportLaundry.cancelled -> "Dibatalkan"
                         }
                         inputStatus.text = dataStatus
                         inputEmployment.text = userName
                         inputCustommer.text = transactionReportLaundry.name_client_transaction_laundry.toString()
                         inputWeight.text = transactionReportLaundry.total_weight_transaction_laundry.toString()
+                        inputCountItem.text = transactionReportLaundry.count_item_laundry_transaction_laundry.toString()
                         val localeID = Locale("in", "ID")
                         val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 
                         val hargaTotal = transactionReportLaundry.total_price_transaction_laundry
                         inputTotalPrice.text = formatRupiah.format(hargaTotal)
-
-                        val hargaCash = transactionReportLaundry.cash_transaction_laundry
-                        inputCash.text = formatRupiah.format(hargaCash)
-
-                        val hargaKembalian = transactionReportLaundry.change_money_transaction_laundry
-                        inputChangeMoney.text = formatRupiah.format(hargaKembalian)
-
                         inputNotes.text = transactionReportLaundry.notes_transaction_laundry
 
                         buttonDetail.setOnClickListener {

@@ -82,6 +82,13 @@ class AdminListInvoiceRentalFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
+            reportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
+            reportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+            }
             reportViewModel.filteredInvoices.observe(viewLifecycleOwner) { filteredReports ->
                 invoiceAdapter.submitList(filteredReports)
             }

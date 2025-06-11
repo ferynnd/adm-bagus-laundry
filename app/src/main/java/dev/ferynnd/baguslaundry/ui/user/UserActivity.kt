@@ -8,11 +8,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.NetworkViewModel
 import dev.ferynnd.baguslaundry.databinding.ActivityUserBinding
+import dev.ferynnd.baguslaundry.ui.user.product_laundry.ListProductLaundryFragment
+import dev.ferynnd.baguslaundry.ui.user.transaksi_laundry.ListTransaksiLaundryFragment
 
 class UserActivity : AppCompatActivity() {
 
@@ -27,8 +30,6 @@ class UserActivity : AppCompatActivity() {
         setContentView(binding.root)
         networkViewModel = ViewModelProvider(this)[NetworkViewModel::class.java]
 
-
-
         networkViewModel.isConnected.observe(this) { isConnected ->
             if (isConnected) {
                 dismissNoInternetDialog()
@@ -42,6 +43,16 @@ class UserActivity : AppCompatActivity() {
             }
         }
 
+        replaceFragment(UserDashboardFragment())
+
+        binding.bottomNav.setOnItemSelectedListener {
+            when(it.itemId) {
+                R.id.transactionMenu -> replaceFragment(UserDashboardFragment())
+                R.id.itemMenu -> replaceFragment(ListProductLaundryFragment())
+                R.id.reportMenu -> replaceFragment(ListTransaksiLaundryFragment())
+            }
+            true
+        }
 
     }
 
@@ -57,6 +68,11 @@ class UserActivity : AppCompatActivity() {
                 }
                 .show()
         }
+    }
+
+    private fun replaceFragment(fragment: Fragment){
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.host_fragment_user, fragment).commit()
     }
 
     private fun dismissNoInternetDialog() {

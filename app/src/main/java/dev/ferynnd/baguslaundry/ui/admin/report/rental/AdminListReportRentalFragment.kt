@@ -108,6 +108,16 @@ class AdminListReportRentalFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
+                rentalReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                    binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                    binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+                }
+                rentalReportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                    if (errorMessage.isNotBlank()) {
+                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                        rentalReportViewModel.resetErrorMessage()
+                    }
+                }
                 rentalReportViewModel.filteredRentalReports.observe(viewLifecycleOwner) { filteredReports ->
                     rentalReportAdapter.submitList(filteredReports)
                 }

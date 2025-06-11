@@ -10,7 +10,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="335dp"
+        android:layout_height="220dp"
         app:cardBackgroundColor="@color/blueGray"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -23,7 +23,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardForeground"
         android:layout_width="match_parent"
-        android:layout_height="285dp"
+        android:layout_height="180dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -47,8 +47,7 @@
         android:translationZ="2dp"
         />
 
-
-    <TableLayout
+        <TableLayout
         android:id="@+id/tableLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -168,6 +167,7 @@
                 app:cardBackgroundColor="@color/baseActive"
                 android:layout_marginVertical="5dp"
                 android:layout_marginEnd="10dp"
+
                 app:cardCornerRadius="5dp"
                 app:cardElevation="2dp"
                 android:padding="10dp">
@@ -179,8 +179,8 @@
                     android:fontFamily="@font/inter_medium"
                     android:textSize="14sp"
                     android:gravity="center"
-                    android:textAllCaps="true"
                     android:textColor="@color/white"
+                    android:textAllCaps="true"
                     tools:text="ACTIVE"
                     />
 
@@ -188,50 +188,9 @@
 
         </TableRow>
 
-
-        <TableRow>
-            <TextView
-                android:text="DESKRIPSI"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:fontFamily="@font/inter"
-                android:layout_marginStart="10dp"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
-        </TableRow>
     </TableLayout>
 
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardNotes"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginHorizontal="15dp"
-        android:maxLines="3"
-        app:cardBackgroundColor="@color/blueBase"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="0dp"
-        app:layout_constraintEnd_toEndOf="@id/cardForeground"
-        app:layout_constraintStart_toStartOf="@id/cardForeground"
-        app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
 
-    <TextView
-        android:id="@+id/inputDescription"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fontFamily="@font/inter"
-        android:layout_margin="10dp"
-        tools:text="Jawa"
-        android:textAlignment="textStart"
-        android:textColor="@color/blue900"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/cardBackground"
-        app:layout_constraintEnd_toEndOf="@+id/cardNotes"
-        app:layout_constraintStart_toStartOf="@+id/cardNotes"
-        app:layout_constraintTop_toTopOf="@+id/cardNotes" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

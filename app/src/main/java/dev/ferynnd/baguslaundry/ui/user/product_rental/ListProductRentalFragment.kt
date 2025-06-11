@@ -24,7 +24,6 @@ import dev.ferynnd.baguslaundry.databinding.KurirFragmentListProductRentalBindin
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.launch
-import androidx.core.view.isVisible
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -32,8 +31,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import dev.ferynnd.baguslaundry.model.ConditionRental
 import dev.ferynnd.baguslaundry.model.StatusRental
-import dev.ferynnd.baguslaundry.model.StatusTransactionRental
-import dev.ferynnd.baguslaundry.model.TypeTransactionRental
 
 class ListProductRentalFragment : Fragment() {
     private var _binding: KurirFragmentListProductRentalBinding? = null
@@ -242,7 +239,7 @@ class ListProductRentalFragment : Fragment() {
                     18.dpToPx(requireContext()),
                     8.dpToPx(requireContext())
                 )
-                setTypeface(ResourcesCompat.getFont(requireContext(), R.font.inter_semibold))
+//                setTypeface(ResourcesCompat.getFont(requireContext(), R.font.inter_semibold))
             }
 
             // Add text view to card
@@ -321,67 +318,69 @@ class ListProductRentalFragment : Fragment() {
         val statusFilters = selectedFilters["status"] ?: emptySet()
 
         // Langkah 1: Filter berdasarkan kondisi dan status
-        val filteredByConditionStatus = fullRentalList.filter { item ->
-            val conditionMatches = if (conditionFilters.isEmpty()) {
-                true
-            } else {
-                val conditionName = when (item.condition_rental_item) {
-                    ConditionRental.clean -> "clean"
-                    ConditionRental.dirty -> "dirty"
-                    ConditionRental.damaged -> "damaged"
-                }
-                conditionFilters.contains(conditionName)
-            }
-
-            val statusMatches = if (statusFilters.isEmpty()) {
-                true
-            } else {
-                val statusName = when (item.status_rental_item) {
-                    StatusRental.available -> "available"
-                    StatusRental.rented -> "rented"
-                    StatusRental.maintenance -> "maintenance"
-                }
-                statusFilters.contains(statusName)
-            }
-
-            conditionMatches && statusMatches
-        }
+//        val filteredByConditionStatus = fullRentalList.filter { item ->
+//            val conditionMatches = if (conditionFilters.isEmpty()) {
+//                true
+//            } else {
+//                val conditionName = when (item.condition_rental_item) {
+//                    ConditionRental.clean -> "clean"
+//                    ConditionRental.dirty -> "dirty"
+//                    ConditionRental.damaged -> "damaged"
+//                }
+//                conditionFilters.contains(conditionName)
+//            }
+//
+//            val statusMatches = if (statusFilters.isEmpty()) {
+//                true
+//            } else {
+//                val statusName = when (item.status_rental_item) {
+//                    StatusRental.available -> "available"
+//                    StatusRental.rented -> "rented"
+//                    StatusRental.maintenance -> "maintenance"
+//                }
+//                statusFilters.contains(statusName)
+//            }
+//
+//            conditionMatches && statusMatches
+//        }
 
         // Langkah 2: Atur SearchView untuk melakukan pencarian dari hasil filter sebelumnya
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean = false
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                val query = newText.orEmpty().lowercase()
-                val filteredBySearch = filteredByConditionStatus.filter {
-                    it.name_rental_item?.lowercase()?.contains(query) == true ||
-                            it.number_rental_item?.lowercase()?.contains(query) == true
-                }
-
-                if (filteredBySearch.isNotEmpty()) {
-                    binding.recyclerViewProductRental.visibility = View.VISIBLE
-                    binding.containerDataNotFound.visibility = View.GONE
-                    rentalProductAdapter.submitList(filteredBySearch)
-                } else {
-                    binding.recyclerViewProductRental.visibility = View.GONE
-                    binding.containerDataNotFound.visibility = View.VISIBLE
-                }
-
-                binding.countData.text = filteredBySearch.size.toString()
-                return true
-            }
-        })
-
-        // Langkah 3: Tampilkan hasil awal (tanpa pencarian)
-        if (filteredByConditionStatus.isNotEmpty()) {
-            binding.recyclerViewProductRental.visibility = View.VISIBLE
-            binding.containerDataNotFound.visibility = View.GONE
-            rentalProductAdapter.submitList(filteredByConditionStatus)
-        } else {
-            binding.recyclerViewProductRental.visibility = View.GONE
-            binding.containerDataNotFound.visibility = View.VISIBLE
+//        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(query: String?): Boolean = false
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                val query = newText.orEmpty().lowercase()
+//                val filteredBySearch = filteredByConditionStatus.filter {
+//                    it.name_rental_item?.lowercase()?.contains(query) == true ||
+//                            it.number_rental_item?.lowercase()?.contains(query) == true
+//                }
+//
+//                if (filteredBySearch.isNotEmpty()) {
+//                    binding.recyclerViewProductRental.visibility = View.VISIBLE
+//                    binding.containerDataNotFound.visibility = View.GONE
+//                    rentalProductAdapter.submitList(filteredBySearch)
+//                } else {
+//                    binding.recyclerViewProductRental.visibility = View.GONE
+//                    binding.containerDataNotFound.visibility = View.VISIBLE
+//                }
+//
+//                binding.countData.text = filteredBySearch.size.toString()
+//                return true
+//            }
+//        })
+//
+//        // Langkah 3: Tampilkan hasil awal (tanpa pencarian)
+//        if (filteredByConditionStatus.isNotEmpty()) {
+//            binding.recyclerViewProductRental.visibility = View.VISIBLE
+//            binding.containerDataNotFound.visibility = View.GONE
+//            rentalProductAdapter.submitList(filteredByConditionStatus)
+//        } else {
+//            binding.recyclerViewProductRental.visibility = View.GONE
+//            binding.containerDataNotFound.visibility = View.VISIBLE
+//        }
+//
+//        binding.countData.text = filteredByConditionStatus.size.toString()
+//    }
         }
 
-        binding.countData.text = filteredByConditionStatus.size.toString()
-    }
 }

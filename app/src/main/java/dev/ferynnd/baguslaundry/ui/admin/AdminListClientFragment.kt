@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast // Import Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -78,24 +79,45 @@ class AdminListClientFragment : Fragment() {
         })
 
         viewLifecycleOwner.lifecycleScope.launch {
+            // Observe loading state
+            clientViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
+
+            // Observe error messages
+            clientViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                if (errorMessage.isNotBlank()) {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                    clientViewModel.resetErrorMessage() // Panggil fungsi reset di ViewModel
+                }
+            }
+
             branchViewModel.branches.observe(viewLifecycleOwner) { branchList ->
                 clientAdapter.setBranches(branchList)
             }
             clientViewModel.filteredClients.observe(viewLifecycleOwner) { filteredClients ->
                 clientAdapter.submitList(filteredClients)
             }
+            // Hapus atau modifikasi bagian ini karena filteredClients sudah diamati di atas
+            // Jika Anda ingin mengamati clients untuk inisialisasi awal, pastikan tidak tumpang tindih
+            // dengan filteredClients yang menangani hasil filter/pencarian.
             clientViewModel.clients.observe(viewLifecycleOwner) { client ->
+                // Jika filteredClients sudah menangani tampilan, ini mungkin tidak diperlukan
+                // atau hanya digunakan untuk update data mentah.
                 client?.let {
                     lifecycleScope.launch(Dispatchers.Main) {
-                        if (client.isNotEmpty()) {
-                            clientAdapter.submitList(client)
+                        if (it.isNotEmpty()) {
+                            // clientAdapter.submitList(it) // Ini akan menimpa filteredClients
+                            // Pertimbangkan apakah Anda benar-benar perlu mengamati 'clients' DAN 'filteredClients' secara bersamaan
+                            // Jika 'filteredClients' adalah sumber kebenaran untuk RecyclerView,
+                            // maka Anda tidak perlu submitList di sini juga.
                         } else {
-                            clientAdapter.submitList(emptyList())
+                            // clientAdapter.submitList(emptyList())
                         }
                     }
                 }
             }
-
         }
 
         binding.arrowBack.setOnClickListener {
@@ -137,6 +159,3 @@ class AdminListClientFragment : Fragment() {
     }
 
 }
-
-
-

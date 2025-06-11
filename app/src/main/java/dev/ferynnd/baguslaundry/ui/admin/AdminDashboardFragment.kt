@@ -15,11 +15,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import dev.ferynnd.baguslaundry.R
+import dev.ferynnd.baguslaundry.controller.DashboardAdapter
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_NAME
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.data.viewmodel.DashboardViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminDashboardBinding
 import dev.ferynnd.baguslaundry.ui.LoginActivity
@@ -35,26 +39,42 @@ class AdminDashboardFragment : Fragment() {
     private lateinit var sharePreferences: SharePrefrenceHelper
     private lateinit var userViewModel: UserViewModel
 
+    private val viewModel: DashboardViewModel by viewModels()
+    private lateinit var dashboardAdapter: DashboardAdapter
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         binding = FragmentAdminDashboardBinding.inflate(inflater, container, false)
 
         sharePreferences = SharePrefrenceHelper(requireContext())
 
+        dashboardAdapter = DashboardAdapter()
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = dashboardAdapter
+        }
+        // Observe the latestTransactions LiveData
+        viewModel.latestTransactions.observe(viewLifecycleOwner) { transactions ->
+            dashboardAdapter.submitList(transactions)
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
-              try {
-                  val nameUser = sharePreferences.getString(PREF_USER_NAME, null)
-                  binding.headerName.text = nameUser
-              } catch ( e : Exception) {
-                  throw e
-              }
-          }
+            try {
+                val nameUser = sharePreferences.getString(PREF_USER_NAME, null)
+                binding.headerName.text = nameUser
+            } catch (e: Exception) {
+                throw e
+            }
+        }
 
 
         binding.menuIcon.setOnClickListener {
@@ -74,7 +94,7 @@ class AdminDashboardFragment : Fragment() {
                     }
 
                     R.id.menu_logout -> {
-                       logoutDialog()
+                        logoutDialog()
                         true
                     }
 
@@ -84,6 +104,7 @@ class AdminDashboardFragment : Fragment() {
             popup.show()
         }
 
+
         binding.menuBranch.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.host_fragment_admin, AdminListBranchFragment())
@@ -92,9 +113,9 @@ class AdminDashboardFragment : Fragment() {
         }
 
         binding.menuClient.setOnClickListener {
-             parentFragmentManager.beginTransaction()
+            parentFragmentManager.beginTransaction()
                 .replace(R.id.host_fragment_admin, AdminListClientFragment())
-                 .addToBackStack("client")
+                .addToBackStack("client")
                 .commit()
         }
 
@@ -107,7 +128,7 @@ class AdminDashboardFragment : Fragment() {
 
 
         binding.menuProduct.setOnClickListener {
-           showDialogMEnu(" PRODUK")
+            showDialogMEnu(" PRODUK")
         }
 
         binding.menuReport.setOnClickListener {
@@ -135,7 +156,7 @@ class AdminDashboardFragment : Fragment() {
             .show()
     }
 
-    private fun showDialogMEnu(textMenu : String) {
+    private fun showDialogMEnu(textMenu: String) {
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(true)
@@ -164,23 +185,23 @@ class AdminDashboardFragment : Fragment() {
             }
 
             " PRODUK" -> {
-                  val btnRental: LinearLayout = dialog.findViewById(R.id.iconProductRental)
-                    btnRental.setOnClickListener {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.host_fragment_admin, AdminListProductRentalFragment())
-                            .addToBackStack("rental")
-                            .commit()
-                        dialog.dismiss()
-                    }
+                val btnRental: LinearLayout = dialog.findViewById(R.id.iconProductRental)
+                btnRental.setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_admin, AdminListProductRentalFragment())
+                        .addToBackStack("rental")
+                        .commit()
+                    dialog.dismiss()
+                }
 
-                    val btnLaundry: LinearLayout = dialog.findViewById(R.id.iconProductLaundry)
-                    btnLaundry.setOnClickListener {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.host_fragment_admin, AdminListProductLaundryFragment())
-                            .addToBackStack("laundry")
-                            .commit()
-                        dialog.dismiss()
-                    }
+                val btnLaundry: LinearLayout = dialog.findViewById(R.id.iconProductLaundry)
+                btnLaundry.setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_admin, AdminListProductLaundryFragment())
+                        .addToBackStack("laundry")
+                        .commit()
+                    dialog.dismiss()
+                }
             }
         }
 

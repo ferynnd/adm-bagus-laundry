@@ -28,14 +28,12 @@ import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
 import dev.ferynnd.baguslaundry.databinding.KurirFragmentListTransaksiLaundryBinding
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
-import dev.ferynnd.baguslaundry.model.StatusTransactionRental
-import dev.ferynnd.baguslaundry.model.TypeTransactionRental
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.launch
 
 class ListTransaksiLaundryFragment : Fragment() {
-    private var _binding: KurirFragmentListTransaksiLaundryBinding? = null
-    private val binding get() = _binding!!
+
+    private lateinit var binding : KurirFragmentListTransaksiLaundryBinding
 
     private lateinit var userViewModel: UserViewModel
     private lateinit var transaksiLaundryViewModel: LaundryReportViewModel
@@ -85,7 +83,7 @@ class ListTransaksiLaundryFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = KurirFragmentListTransaksiLaundryBinding.inflate(layoutInflater)
+        binding = KurirFragmentListTransaksiLaundryBinding.inflate(layoutInflater)
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
@@ -181,33 +179,29 @@ class ListTransaksiLaundryFragment : Fragment() {
             showFilterBottomSheet()
         }
 
-        binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, UserDashboardFragment())
-                .addToBackStack(null)
-                .commit()
-        }
+//        binding.arrowBack.setOnClickListener {
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.host_fragment_user, UserDashboardFragment())
+//                .addToBackStack(null)
+//                .commit()
+//        }
 
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
     private fun onDetailClick(transaksiLaundry: ReportLaundry) {
 //        Toast.makeText(context, "Detail ${transaksiLaundry.id_transaction_laundry} akan ditampilkan", Toast.LENGTH_SHORT).show()
         val bundle = Bundle().apply {
             putInt("TRANSAKSI_LAUNDRY_ID", transaksiLaundry.id_transaction_laundry ?: 0)
         }
-        val detailFragment = DetailListTransaksiLaundryFragment()
-        detailFragment.arguments = bundle
-
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.host_fragment_user, detailFragment)
-            .addToBackStack(null)
-            .commit()
+//        val detailFragment = DetailListTransaksiLaundryFragment()
+//        detailFragment.arguments = bundle
+//
+//        parentFragmentManager.beginTransaction()
+//            .replace(R.id.host_fragment_user, detailFragment)
+//            .addToBackStack(null)
+//            .commit()
     }
 
     private fun initializeFilterBottomSheet() {
@@ -273,7 +267,7 @@ class ListTransaksiLaundryFragment : Fragment() {
                     18.dpToPx(requireContext()),
                     8.dpToPx(requireContext())
                 )
-                setTypeface(ResourcesCompat.getFont(requireContext(), R.font.inter_semibold))
+//                setTypeface(ResourcesCompat.getFont(requireContext(), R.font.inter_semibold))
             }
 
             card.addView(textView)
@@ -356,8 +350,8 @@ class ListTransaksiLaundryFragment : Fragment() {
                 true
             } else {
                 val statusName = when (item.status_transaction_laundry) {
-                    StatusReportLaundry.pending -> "pending"
-                    StatusReportLaundry.in_progress -> "in_progress"
+                    StatusReportLaundry.paid -> "pending"
+                    StatusReportLaundry.unpaid -> "in_progress"
                     StatusReportLaundry.completed -> "completed"
                     StatusReportLaundry.cancelled -> "cancelled"
                 }

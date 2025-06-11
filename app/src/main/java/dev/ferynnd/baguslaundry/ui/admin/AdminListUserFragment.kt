@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast // Import Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -78,26 +79,26 @@ class AdminListUserFragment : Fragment() {
         })
 
         viewLifecycleOwner.lifecycleScope.launch {
+            // Observe loading state
+            userViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
+
+            // Observe error messages
+            userViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                if (errorMessage.isNotBlank()) {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                    userViewModel.resetErrorMessage() // Panggil fungsi reset di ViewModel
+                }
+            }
+
             branchViewModel.branches.observe(viewLifecycleOwner) { branchList ->
                 userAdapter.setBranches(branchList)
             }
             userViewModel.filteredUsers.observe(viewLifecycleOwner) { filteredUsers ->
                 userAdapter.submitList(filteredUsers)
             }
-            userViewModel.getUser()
-            userViewModel.users.observe(viewLifecycleOwner) { user ->
-                user?.let {
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        if (user.isNotEmpty()) {
-                            userAdapter.submitList(user)
-                        } else {
-                            userAdapter.submitList(emptyList())
-                            userAdapter.notifyDataSetChanged()
-                        }
-                    }
-                }
-            }
-
         }
 
         binding.arrowBack.setOnClickListener {
@@ -134,11 +135,6 @@ class AdminListUserFragment : Fragment() {
         layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
         bottomSheetDialog.window?.attributes = layoutParams
 
-
         bottomSheetDialog.show()
     }
-
 }
-
-
-

@@ -5,6 +5,7 @@ import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
 import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportLaundryResponse
+import dev.ferynnd.baguslaundry.model.TransactionData
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -22,8 +23,8 @@ interface LaundryReportApiService {
     @POST("api/{role}/create_transaction_laundries")
     suspend fun createReportLaundry(
         @Path("role") role: String,
-        @Body laundryTransactionRequest: LaundryTransactionRequest
-    ): DefaultRequest<LaundryTransactionResponse>
+        @Body laundryTransactionRequest: TransactionData
+    ): DefaultRequest<TransactionData>
 
     @GET("api/{role}/transaction_laundries/{id}")
     suspend fun getReportLaundryById(

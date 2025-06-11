@@ -33,7 +33,6 @@ class LaundryProductAdapter() : ListAdapter<ProductLaundry, LaundryProductAdapte
 
         holder.nama_laundry.text = laundryItem.name_laundry_item.toString()
         holder.harga_waktu.text = "$harga_laundry - $waktu_laundry"
-        holder.deskripsi.text = laundryItem.description_laundry_item.toString()
     }
 
     class DiffCallback : DiffUtil.ItemCallback<ProductLaundry>() {

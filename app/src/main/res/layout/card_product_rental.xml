@@ -10,7 +10,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="320dp"
+        android:layout_height="190dp"
         app:cardBackgroundColor="@color/blueGray"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -20,10 +20,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardForeground"
         android:layout_width="match_parent"
-        android:layout_height="270dp"
+        android:layout_height="145dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -36,7 +37,7 @@
         android:id="@+id/inputName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="CAB001234"
+        android:text="CAB001234"
         android:fontFamily="@font/inter_medium"
         android:textSize="18sp"
         android:textColor="@color/white"
@@ -46,8 +47,6 @@
         app:layout_constraintTop_toTopOf="@id/cardBackground"
         android:translationZ="2dp"
         />
-
-
 
     <TableLayout
         android:id="@+id/tableLayout"
@@ -59,87 +58,6 @@
         app:layout_constraintTop_toTopOf="@id/cardForeground"
         >
 
-        <TableRow>
-            <TextView
-                android:text="KETERSEDIAAN"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:fontFamily="@font/inter"
-                android:layout_marginStart="10dp"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/layoutStatus"
-                android:layout_width="130dp"
-                android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/blue500"
-                android:layout_marginVertical="5dp"
-                android:layout_marginEnd="10dp"
-                app:cardCornerRadius="5dp"
-                app:cardElevation="2dp"
-                android:padding="10dp">
-
-                <TextView
-                    android:id="@+id/inputStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:fontFamily="@font/inter_medium"
-                    android:textSize="14sp"
-                    android:gravity="center"
-                    android:textAllCaps="true"
-                    android:textColor="@color/white"
-                    tools:text="TIDAK TERSEDIA"
-                    />
-
-            </androidx.cardview.widget.CardView>
-
-        </TableRow>
-
-                  <TableRow>
-            <TextView
-                android:text="KONDISI"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:fontFamily="@font/inter"
-                android:layout_marginStart="10dp"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/layoutCondition"
-                android:layout_width="80dp"
-                android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/pink500"
-                android:layout_marginVertical="5dp"
-                android:layout_marginEnd="10dp"
-                app:cardCornerRadius="5dp"
-                app:cardElevation="2dp"
-                android:padding="10dp">
-
-                <TextView
-                    android:id="@+id/inputCondition"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:fontFamily="@font/inter_medium"
-                    android:textSize="14sp"
-                    android:gravity="center"
-                    android:textColor="@color/white"
-                    android:textAllCaps="true"
-                    tools:text="BAIK"
-                    />
-
-            </androidx.cardview.widget.CardView>
-
-        </TableRow>
         <TableRow>
             <TextView
                 android:text="CABANG"
@@ -170,6 +88,36 @@
 
         </TableRow>
 
+        <TableRow>
+            <TextView
+                android:text="HARGA"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:fontFamily="@font/inter"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/blue900"
+                android:textAlignment="textStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
+
+               <TextView
+                 android:id="@+id/inputPrice"
+                tools:text="Rp. 10.000"
+                android:padding="10dp"
+                 android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                 android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+
+        </TableRow>
+
            <TableRow>
             <TextView
                 android:text="STATUS"
@@ -186,7 +134,7 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/layoutIsActive"
-                android:layout_width="100dp"
+                android:layout_width="140dp"
                 android:layout_height="match_parent"
                 app:cardBackgroundColor="@color/baseActive"
                 android:layout_marginVertical="5dp"
@@ -212,49 +160,7 @@
         </TableRow>
 
 
-        <TableRow>
-            <TextView
-                android:text="CATATAN"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:fontFamily="@font/inter"
-                android:layout_marginHorizontal="10dp"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
-        </TableRow>
     </TableLayout>
 
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardNotes"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginHorizontal="15dp"
-        android:maxLines="3"
-        app:cardBackgroundColor="@color/blueBase"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="0dp"
-        app:layout_constraintEnd_toEndOf="@id/cardForeground"
-        app:layout_constraintStart_toStartOf="@id/cardForeground"
-        app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
-
-    <TextView
-        android:id="@+id/inputDescription"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fontFamily="@font/inter"
-        android:layout_margin="10dp"
-        tools:text="Jawa"
-        android:textAlignment="textStart"
-        android:textColor="@color/blue900"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/cardBackground"
-        app:layout_constraintEnd_toEndOf="@+id/cardNotes"
-        app:layout_constraintStart_toStartOf="@+id/cardNotes"
-        app:layout_constraintTop_toTopOf="@+id/cardNotes" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

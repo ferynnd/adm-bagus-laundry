@@ -104,6 +104,17 @@ class AdminListReportLaundryFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
+                laundryReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                    binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                    binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+                }
+                laundryReportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                    if (errorMessage.isNotBlank()) {
+                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                        laundryReportViewModel.resetErrorMessage()
+                    }
+                }
+
                 laundryReportViewModel.filteredLaundryReports.observe(viewLifecycleOwner) { filteredProducts ->
                     laundryReportAdapter.submitList(filteredProducts)
                 }

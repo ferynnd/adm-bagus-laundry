@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dev.ferynnd.baguslaundry.databinding.CardListDetailReportLaundryBinding
+import dev.ferynnd.baguslaundry.model.IsActiveListTransactionLaundry
 import dev.ferynnd.baguslaundry.model.ListTransactionLaundry
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.StatusListTransactionLaundry
@@ -35,21 +36,23 @@ class DetailLaundryReportAdapter : ListAdapter<ListTransactionLaundry, DetailLau
 
         holder.binding.apply {
             inputNameItem.text = productLaundryName
-            val dataStatus = when(detailReportLaundry.status_list_transaction_laundry) {
-                StatusListTransactionLaundry.pending -> "Menunggu Konfirmasi"
-                StatusListTransactionLaundry.completed -> "Selesai"
-                StatusListTransactionLaundry.cancelled -> "Dibatalkan"
-            }
-            inputStatus.text = dataStatus
             val localeID = Locale("in", "ID")
             val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 
             val harga = detailReportLaundry.price_list_transaction_laundry
             inputPrice.text = formatRupiah.format(harga)
+            val totalHarga = detailReportLaundry.total_price_list_transaction_laundry
+            inputTotalPrice.text = formatRupiah.format(totalHarga)
 
             inputWeight.text = detailReportLaundry.weight_list_transaction_laundry.toString()
-            inputNotes.text = detailReportLaundry.note_list_transaction_laundry
-            numberItem.text = detailReportLaundry.id_list_transaction_laundry.toString()
+            inputNumber.text = detailReportLaundry.id_transaction_laundry.toString()
+            inputNameItem.text = productLaundryName
+            val dataStatus = when(detailReportLaundry.is_active_list_transaction_laundry) {
+                IsActiveListTransactionLaundry.active -> "AKTIF"
+                IsActiveListTransactionLaundry.inactive -> "TIDAK AKTIF"
+                else -> null
+            }
+            inputStatus.text = dataStatus
         }
     }
 

@@ -10,7 +10,6 @@ import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
 import dev.ferynnd.baguslaundry.model.ExportReportRental
 import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
 import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
-import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.ReportRentalResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE

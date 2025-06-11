@@ -26,6 +26,8 @@ import dev.ferynnd.baguslaundry.databinding.KurirFragmentUserDashboardBinding
 import dev.ferynnd.baguslaundry.ui.LoginActivity
 import dev.ferynnd.baguslaundry.ui.user.product_laundry.ListProductLaundryFragment
 import dev.ferynnd.baguslaundry.ui.user.product_rental.ListProductRentalFragment
+import dev.ferynnd.baguslaundry.ui.user.transaksi_laundry.CreateListTransaksiLaundryFragment
+import dev.ferynnd.baguslaundry.ui.user.ListItemTransactionLaundryFragment
 import dev.ferynnd.baguslaundry.ui.user.transaksi_laundry.ListTransaksiLaundryFragment
 import dev.ferynnd.baguslaundry.ui.user.transaksi_rental.CreateListTransaksiRentalFragment
 import dev.ferynnd.baguslaundry.ui.user.transaksi_rental.ListTransaksiRentalFragment
@@ -43,20 +45,22 @@ class UserDashboardFragment : Fragment() {
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         binding = KurirFragmentUserDashboardBinding.inflate(inflater, container, false)
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
 
         viewLifecycleOwner.lifecycleScope.launch {
-              try {
-                  val nameUser = sharePrefrences.getString(PREF_USER_NAME, null)
-                  binding.headerName.text = nameUser
-              } catch ( e : Exception) {
-                  throw e
-              }
+            try {
+                val nameUser = sharePrefrences.getString(PREF_USER_NAME, null)
+                binding.headerName.text = nameUser
+            } catch (e: Exception) {
+                throw e
+            }
         }
 
         binding.menuIcon.setOnClickListener {
@@ -65,7 +69,6 @@ class UserDashboardFragment : Fragment() {
             popup.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.menu_setting -> {
-                        Toast.makeText(requireContext(), "Menu: Setting", Toast.LENGTH_SHORT).show()
                         parentFragmentManager.beginTransaction()
                             .replace(R.id.host_fragment_user, UserProfileFragment())
                             .addToBackStack("setting")
@@ -74,7 +77,7 @@ class UserDashboardFragment : Fragment() {
                     }
 
                     R.id.menu_logout -> {
-                       logoutDialog()
+                        logoutDialog()
                         true
                     }
 
@@ -84,17 +87,9 @@ class UserDashboardFragment : Fragment() {
             popup.show()
         }
 
-        binding.menuProduct.setOnClickListener {
-            showDialogMenu(" PRODUK")
-        }
-
-        binding.menuReport.setOnClickListener {
-            showDialogMenu(" LAPORAN")
-        }
-
         binding.menuTransaksiLaundry.setOnClickListener {
             parentFragmentManager.beginTransaction()
-//                .replace(R.id.host_fragment_user, CreateListTransaksiLaundryFragment())
+                .replace(R.id.host_fragment_user, ListItemTransactionLaundryFragment())
                 .addToBackStack(null)
                 .commit()
         }
@@ -127,7 +122,7 @@ class UserDashboardFragment : Fragment() {
             .show()
     }
 
-    private fun showDialogMenu(textMenu : String) {
+    private fun showDialogMenu(textMenu: String) {
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(true)
@@ -156,23 +151,23 @@ class UserDashboardFragment : Fragment() {
             }
 
             " PRODUK" -> {
-                  val btnRental: LinearLayout = dialog.findViewById(R.id.iconProductRental)
-                    btnRental.setOnClickListener {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.host_fragment_user, ListProductRentalFragment())
-                            .addToBackStack(null)
-                            .commit()
-                        dialog.dismiss()
-                    }
+                val btnRental: LinearLayout = dialog.findViewById(R.id.iconProductRental)
+                btnRental.setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_user, ListProductRentalFragment())
+                        .addToBackStack(null)
+                        .commit()
+                    dialog.dismiss()
+                }
 
-                    val btnLaundry: LinearLayout = dialog.findViewById(R.id.iconProductLaundry)
-                    btnLaundry.setOnClickListener {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.host_fragment_user, ListProductLaundryFragment())
-                            .addToBackStack(null)
-                            .commit()
-                        dialog.dismiss()
-                    }
+                val btnLaundry: LinearLayout = dialog.findViewById(R.id.iconProductLaundry)
+                btnLaundry.setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_user, ListProductLaundryFragment())
+                        .addToBackStack(null)
+                        .commit()
+                    dialog.dismiss()
+                }
             }
         }
 

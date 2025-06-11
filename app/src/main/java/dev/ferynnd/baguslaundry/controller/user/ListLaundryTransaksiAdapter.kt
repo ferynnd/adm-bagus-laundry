@@ -12,7 +12,6 @@ import dev.ferynnd.baguslaundry.model.ListTransactionLaundry
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.StatusListTransactionLaundry
-import dev.ferynnd.baguslaundry.model.StatusTransactionRental
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -38,12 +37,6 @@ class ListLaundryTransaksiAdapter :
         val berat = binding.beratProductLaundry
         val total = binding.totalHargaProductLaundry
         val note = binding.noteTransaksiLaundry
-
-//        init {
-//            itemView.setOnClickListener {
-//                onItemClick(getItem(adapterPosition))
-//            }
-//        }
     }
 
     override fun onCreateViewHolder(
@@ -67,29 +60,6 @@ class ListLaundryTransaksiAdapter :
                 ?: "-"
         holder.nama.text = nama_list_transaksi_laundry
 
-        // Status Enum
-        val status = when (report.status_list_transaction_laundry) {
-            StatusListTransactionLaundry.pending -> "MENUNGGU"
-            StatusListTransactionLaundry.completed -> "SELESAI"
-            StatusListTransactionLaundry.cancelled -> "DIBATALKAN"
-        }
-        holder.status.text = status
-        when (report.status_list_transaction_laundry) {
-            StatusListTransactionLaundry.pending -> holder.wadah_status.setCardBackgroundColor(
-                ContextCompat.getColor(context, R.color.transaksiOuther)
-            )
-
-            StatusListTransactionLaundry.completed ->
-                holder.wadah_status.setCardBackgroundColor(
-                    ContextCompat.getColor(context, R.color.transaksiIn)
-                )
-
-            StatusListTransactionLaundry.cancelled ->
-                holder.wadah_status.setCardBackgroundColor(
-                    ContextCompat.getColor(context, R.color.transaksiCancelled)
-                )
-        }
-
         // Menampilkan data lainnya
         holder.harga.text = numberFormat.format(report.price_list_transaction_laundry ?: 0)
         holder.berat.text = (report.weight_list_transaction_laundry ?: 0.0).toString() + " Kg"
@@ -100,11 +70,7 @@ class ListLaundryTransaksiAdapter :
         } ?: 0.0
 
         holder.total.text = numberFormat.format(totalHarga)
-        holder.note.text = report.note_list_transaction_laundry ?: "-"
 
-//        holder.itemView.setOnClickListener {
-//            onItemClick(report)
-//        }
     }
 
     class DiffCallback : DiffUtil.ItemCallback<ListTransactionLaundry>() {

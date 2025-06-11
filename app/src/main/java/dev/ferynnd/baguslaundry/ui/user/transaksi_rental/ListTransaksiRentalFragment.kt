@@ -28,8 +28,6 @@ import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.KurirFragmentListTransaksiRentalBinding
 import dev.ferynnd.baguslaundry.model.ReportRental
-import dev.ferynnd.baguslaundry.model.StatusTransactionRental
-import dev.ferynnd.baguslaundry.model.TypeTransactionRental
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.launch
 
@@ -221,7 +219,7 @@ class ListTransaksiRentalFragment : Fragment() {
         val bundle = Bundle().apply {
             putInt(
                 "TRANSAKSI_RENTAL_ID",
-                transaksiRental.id_transaction_rental
+                transaksiRental.id_transaction_rental!!.toInt()
             )  // Mengirimkan ID supplier ke fragment berikutnya
         }
         val detailFragment = DetailListTransaksiRentalFragment()
@@ -259,7 +257,7 @@ class ListTransaksiRentalFragment : Fragment() {
         val resetFilter = filterBottomSheetView.findViewById<MaterialButton>(R.id.reset_filter)
 
         terapkanFilter.setOnClickListener {
-            applyFilters()
+//            applyFilters()
             filterBottomSheetDialog.dismiss()
         }
 
@@ -302,7 +300,7 @@ class ListTransaksiRentalFragment : Fragment() {
                     18.dpToPx(requireContext()),
                     8.dpToPx(requireContext())
                 )
-                setTypeface(ResourcesCompat.getFont(requireContext(), R.font.inter_semibold))
+//                setTypeface(ResourcesCompat.getFont(requireContext(), R.font.inter_semibold))
             }
 
             card.addView(textView)
@@ -376,50 +374,50 @@ class ListTransaksiRentalFragment : Fragment() {
     }
 
     // Apply current filters to the list
-    private fun applyFilters() {
-        val typeFilters = selectedFilters["type"] ?: emptySet()
-        val statusFilters = selectedFilters["status"] ?: emptySet()
-
-        val filteredList = fullTransaksiRentalList.filter { item ->
-
-            val typeMatches = if (typeFilters.isEmpty()) {
-                true
-            } else {
-                val typeName = when (item.type_rental_transaction) {
-                    TypeTransactionRental.BATH_TOWEL -> "bath towel"
-                    TypeTransactionRental.HAND_TOWEL -> "hand towel"
-                    TypeTransactionRental.GORDEN -> "gorden"
-                    TypeTransactionRental.KESET -> "keset"
-                }
-                typeFilters.contains(typeName)
-            }
-
-            val statusMatches = if (statusFilters.isEmpty()) {
-                true
-            } else {
-                val statusName = when (item.status_transaction_rental) {
-                    StatusTransactionRental.WAITING_FOR_APPROVAL -> "waiting for approval"
-                    StatusTransactionRental.APPROVED -> "approved"
-                    StatusTransactionRental.OUT -> "out"
-                    StatusTransactionRental.IN -> "in"
-                    StatusTransactionRental.CANCELLED -> "cancelled"
-                }
-                statusFilters.contains(statusName)
-            }
-
-            typeMatches && statusMatches
-        }
-
-        if (filteredList.isNotEmpty()) {
-            binding.recyclerViewTransaksiRental.visibility = View.VISIBLE
-            binding.containerDataNotFound.visibility = View.GONE
-
-            transaksiRentalAdapter.submitList(filteredList)
-        } else {
-            binding.recyclerViewTransaksiRental.visibility = View.GONE
-            binding.containerDataNotFound.visibility = View.VISIBLE
-        }
-
-        binding.countData.text = filteredList.size.toString()
-    }
+//    private fun applyFilters() {
+//        val typeFilters = selectedFilters["type"] ?: emptySet()
+//        val statusFilters = selectedFilters["status"] ?: emptySet()
+//
+//        val filteredList = fullTransaksiRentalList.filter { item ->
+//
+//            val typeMatches = if (typeFilters.isEmpty()) {
+//                true
+//            } else {
+//                val typeName = when (item.type_rental_transaction) {
+//                    TypeTransactionRental.BATH_TOWEL -> "bath towel"
+//                    TypeTransactionRental.HAND_TOWEL -> "hand towel"
+//                    TypeTransactionRental.GORDEN -> "gorden"
+//                    TypeTransactionRental.KESET -> "keset"
+//                }
+//                typeFilters.contains(typeName)
+//            }
+//
+//            val statusMatches = if (statusFilters.isEmpty()) {
+//                true
+//            } else {
+//                val statusName = when (item.status_transaction_rental) {
+//                    StatusTransactionRental.WAITING_FOR_APPROVAL -> "waiting for approval"
+//                    StatusTransactionRental.APPROVED -> "approved"
+//                    StatusTransactionRental.OUT -> "out"
+//                    StatusTransactionRental.IN -> "in"
+//                    StatusTransactionRental.CANCELLED -> "cancelled"
+//                }
+//                statusFilters.contains(statusName)
+//            }
+//
+//            typeMatches && statusMatches
+//        }
+//
+//        if (filteredList.isNotEmpty()) {
+//            binding.recyclerViewTransaksiRental.visibility = View.VISIBLE
+//            binding.containerDataNotFound.visibility = View.GONE
+//
+//            transaksiRentalAdapter.submitList(filteredList)
+//        } else {
+//            binding.recyclerViewTransaksiRental.visibility = View.GONE
+//            binding.containerDataNotFound.visibility = View.VISIBLE
+//        }
+//
+//        binding.countData.text = filteredList.size.toString()
+//    }
 }

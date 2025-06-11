@@ -122,9 +122,6 @@
         app:layout_constraintTop_toBottomOf="@id/searchView"
         android:visibility="gone"
         />
-    <!--    Nanti Ini Dihapus-->
-
-
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -136,5 +133,15 @@
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"/>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progresBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guidelineTop" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

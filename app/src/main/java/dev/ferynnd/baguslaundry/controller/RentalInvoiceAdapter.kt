@@ -13,7 +13,6 @@ import dev.ferynnd.baguslaundry.databinding.CardListRentalInvoiceBinding
 import dev.ferynnd.baguslaundry.model.ListInvoiceRentalItem
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.StatusInvoiceRental
-import dev.ferynnd.baguslaundry.model.StatusTransactionRental
 
 class RentalInvoiceAdapter :
     ListAdapter<ReportRental, RentalInvoiceAdapter.RentalInvoiceViewHolder>(DiffCallback()) {
@@ -46,14 +45,7 @@ class RentalInvoiceAdapter :
 
         holder.binding.apply {
             inputIdTransaction.text = rentalReport.id_transaction_rental.toString()
-            val dataStatus = when (rentalReport.status_transaction_rental) {
-                StatusTransactionRental.WAITING_FOR_APPROVAL -> "Menunggu Persetujuan"
-                StatusTransactionRental.APPROVED -> "Disetujui"
-                StatusTransactionRental.OUT -> "Keluar"
-                StatusTransactionRental.IN -> "Masuk"
-                StatusTransactionRental.CANCELLED -> "Dibatalkan"
-            }
-            inputStatus.text = dataStatus
+
             inputDate.text = rentalReport.time_transaction_rental.toString()
 
             // Spinner adapter dengan label Indonesia
@@ -68,12 +60,12 @@ class RentalInvoiceAdapter :
             selectStatus.adapter = adapterSpinner
 
             // Ambil status yang sedang dipilih, fallback ke default dari data
-            val selected = selectedStatuses[position]
-                ?: StatusInvoiceRental.fromValue(rentalReport.status_transaction_rental.toString()) // gunakan field yang sesuai
+//            val selected = selectedStatuses[position]
+//                ?: StatusInvoiceRental.fromValue(rentalReport.status_transaction_rental.toString()) // gunakan field yang sesuai
 
-            selected?.let {
-                selectStatus.setSelection(statusEnumValues.indexOf(it))
-            }
+//            selected?.let {
+//                selectStatus.setSelection(statusEnumValues.indexOf(it))
+//            }
 
             // Spinner listener
             selectStatus.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

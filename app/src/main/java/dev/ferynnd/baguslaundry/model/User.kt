@@ -10,7 +10,7 @@ data class User(
     val gender_user: UserGender,
     val phone_user: String? = null,
     val address_user: String? = null,
-    val is_active_user: IsActiveUser,
+    val is_active_user: IsActiveUser? = IsActiveUser.active,
     val deleted_at: String? = null,
 )
 

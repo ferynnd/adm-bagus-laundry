@@ -14,9 +14,6 @@ import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.databinding.KurirCardTransaksiRentalBinding
 import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ReportRental
-import dev.ferynnd.baguslaundry.model.StatusReportLaundry
-import dev.ferynnd.baguslaundry.model.StatusTransactionRental
-import dev.ferynnd.baguslaundry.model.TypeTransactionRental
 import dev.ferynnd.baguslaundry.model.User
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -79,67 +76,6 @@ class RentalTransaksiAdapter(
         val numberFormat = NumberFormat.getCurrencyInstance(localeID)
         val decimalFormat = DecimalFormat("#,##0.##")
         val context = holder.itemView.context
-
-        // Status
-        holder.status.text = when (report.status_transaction_rental) {
-            StatusTransactionRental.WAITING_FOR_APPROVAL -> "MENUNGGU PERSETUJUAN"
-            StatusTransactionRental.APPROVED -> "DISETUJUI"
-            StatusTransactionRental.OUT -> "KELUAR"
-            StatusTransactionRental.IN -> "MASUK"
-            StatusTransactionRental.CANCELLED -> "DIBATALKAN"
-        }
-        when (report.status_transaction_rental) {
-            StatusTransactionRental.WAITING_FOR_APPROVAL -> holder.wadah_status.setCardBackgroundColor(
-                ContextCompat.getColor(context, R.color.transaksiOuther)
-            )
-
-            StatusTransactionRental.APPROVED -> holder.wadah_status.setCardBackgroundColor(
-                ContextCompat.getColor(context, R.color.transaksiOuther)
-            )
-
-            StatusTransactionRental.OUT -> holder.wadah_status.setCardBackgroundColor(
-                ContextCompat.getColor(context, R.color.transaksiOut)
-            )
-
-            StatusTransactionRental.IN -> holder.wadah_status.setCardBackgroundColor(
-                ContextCompat.getColor(context, R.color.transaksiIn)
-            )
-
-            StatusTransactionRental.CANCELLED -> holder.wadah_status.setCardBackgroundColor(
-                ContextCompat.getColor(context, R.color.transaksiCancelled)
-            )
-        }
-
-        // Tipe
-        holder.tipe.text = when (report.type_rental_transaction) {
-            TypeTransactionRental.BATH_TOWEL -> "Bath Towel"
-            TypeTransactionRental.HAND_TOWEL -> "Hand Towel"
-            TypeTransactionRental.GORDEN -> "Gorden"
-            TypeTransactionRental.KESET -> "Keset"
-        }
-
-        val namaClient =
-            client.find { it.id_client == report.id_client_transaction_rental }?.name_client ?: "-"
-        holder.namaClient.text = namaClient.toString()
-
-        val namaKurir =
-            kurir.find { it.id_user == report.id_kurir_transaction_rental }?.fullname_user ?: "-"
-        holder.namaKurir.text = namaKurir.toString()
-
-        holder.namaPenerima.text = report.recipient_name_transaction_rental ?: "-"
-
-        holder.tanggal.text = report.time_transaction_rental ?: "-"
-
-        holder.jumlahItem.text = "${report.total_pcs_transaction_rental ?: 0} pcs"
-        holder.totalBerat.text =
-            "${decimalFormat.format(report.total_weight_transaction_rental ?: 0.0)} kg"
-
-        // Harga dan biaya lainnya
-        holder.totalHarga.text = numberFormat.format(report.total_price_transaction_rental ?: 0.0)
-        holder.promo.text = numberFormat.format(report.promo_transaction_rental ?: 0.0)
-        holder.tambahan.text = numberFormat.format(report.additional_cost_transaction_rental ?: 0.0)
-        holder.beratPerKg.text = "${numberFormat.format(report.price_weight_transaction_rental)}/kg"
-        holder.note.text = report.notes_transaction_rental ?: "-"
 
         holder.itemView.setOnClickListener {
             onItemClick(report)

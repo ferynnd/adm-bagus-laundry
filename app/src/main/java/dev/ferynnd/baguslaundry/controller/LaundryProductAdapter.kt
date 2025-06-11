@@ -10,6 +10,7 @@ import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.databinding.CardHeaderBinding
 import dev.ferynnd.baguslaundry.databinding.CardProductLaundryBinding
 import dev.ferynnd.baguslaundry.model.Branch
+import dev.ferynnd.baguslaundry.model.IsActiveLaundryItem
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import java.text.NumberFormat
 import java.util.Locale
@@ -82,17 +83,29 @@ class LaundryProductAdapter: ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
                     val harga = laundryItem.price_laundry_item
                     inputPrice.text = formatRupiah.format(harga)
 
-                    inputDescription.text = laundryItem.description_laundry_item
                     inputStatus.text = laundryItem.is_active_laundry_item.toString()
+                    val context = holder.binding.root.context
+                    if (laundryItem.is_active_laundry_item == IsActiveLaundryItem.active) {
+                        layoutStatus.setCardBackgroundColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.baseActive
+                            )
+                        )
+                    } else {
+                        layoutStatus.setCardBackgroundColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.red
+                            )
+                        )
+
+                    }
                 }
             }
             is HeaderLaundryViewHolder -> {
                 val header = item as Branch
                 holder.binding.inputNameBranch.text = header.name_branch
-                holder.binding.inputNameBranch.text = header.name_branch
-                val context = holder.binding.root.context
-                val color = ContextCompat.getColor(context, R.color.blueGray) // pastikan 'orange' benar ada di colors.xml
-                holder.binding.root.setCardBackgroundColor(color)
             }
 
         }

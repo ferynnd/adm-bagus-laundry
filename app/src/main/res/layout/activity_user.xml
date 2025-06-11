@@ -11,10 +11,20 @@
       <FrameLayout
         android:id="@+id/host_fragment_user"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="0dp"
+          app:layout_constraintBottom_toTopOf="@id/bottomNav"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
+
+       <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:menu="@menu/user_navigation" app:backgroundTint="@color/white"
+        app:itemIconTint="@color/blue600" app:itemIconSize="30dp" app:itemActiveIndicatorStyle="@color/blueBase" app:labelVisibilityMode="selected"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

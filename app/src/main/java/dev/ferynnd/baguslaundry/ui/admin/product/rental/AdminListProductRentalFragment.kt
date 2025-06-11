@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast // Import Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -28,7 +29,6 @@ import kotlinx.coroutines.launch
 
 class AdminListProductRentalFragment : Fragment() {
 
-
     private lateinit var binding: FragmentAdminListProductRentalBinding
     private lateinit var rentalProductViewModel: RentalProductViewModel
     private lateinit var branchViewModel: BranchViewModel
@@ -45,7 +45,6 @@ class AdminListProductRentalFragment : Fragment() {
         branchViewModel.init(requireContext())
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -58,6 +57,21 @@ class AdminListProductRentalFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rentalProductAdapter
         }
+
+        // Tambahkan ProgressBar ke layout Anda (misalnya di fragment_admin_list_product_rental.xml)
+        // dan berikan ID 'progresBar' agar ini berfungsi.
+        // Contoh:
+        // <ProgressBar
+        //    android:id="@+id/progresBar"
+        //    style="?android:attr/progressBarStyle"
+        //    android:layout_width="wrap_content"
+        //    android:layout_height="wrap_content"
+        //    android:layout_centerInParent="true"
+        //    android:visibility="gone"
+        //    app:layout_constraintBottom_toBottomOf="parent"
+        //    app:layout_constraintEnd_toEndOf="parent"
+        //    app:layout_constraintStart_toStartOf="parent"
+        //    app:layout_constraintTop_toTopOf="parent" />
 
 
         binding.btnRoutes.setOnClickListener {
@@ -85,6 +99,19 @@ class AdminListProductRentalFragment : Fragment() {
         })
 
         viewLifecycleOwner.lifecycleScope.launch {
+            // Observe loading state
+            rentalProductViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
+
+            // Observe error messages
+            rentalProductViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                if (errorMessage.isNotBlank()) {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                    rentalProductViewModel.resetErrorMessage() // Panggil fungsi reset di ViewModel
+                }
+            }
 
             rentalProductViewModel.filteredRentalProducts.observe(viewLifecycleOwner) { filteredProducts ->
                 rentalProductAdapter.submitList(filteredProducts)
@@ -99,11 +126,7 @@ class AdminListProductRentalFragment : Fragment() {
                 productRentalList = products
                 updateUIIfReady()
             }
-
-
         }
-
-
 
         binding.arrowBack.setOnClickListener {
             parentFragmentManager.beginTransaction()
@@ -123,7 +146,6 @@ class AdminListProductRentalFragment : Fragment() {
         }
     }
 
-
     private fun setProductRental(newProductRentals: List<ProductRental>) {
         val tempGroupedData = mutableListOf<Any>()
 
@@ -140,7 +162,6 @@ class AdminListProductRentalFragment : Fragment() {
                 val unknownBranch = Branch(
                     id_branch = branchId,
                     name_branch = "UNKNOWN",
-                    address_branch = "",
                     city_branch = "",
                     is_active_branch = Status.active,
                     deleted_at = ""
@@ -150,7 +171,6 @@ class AdminListProductRentalFragment : Fragment() {
                 tempGroupedData.addAll(products)
             }
         }
-
         rentalProductAdapter.submitList(tempGroupedData)
     }
 
@@ -179,8 +199,6 @@ class AdminListProductRentalFragment : Fragment() {
         layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
         bottomSheetDialog.window?.attributes = layoutParams
 
-
         bottomSheetDialog.show()
     }
-
 }

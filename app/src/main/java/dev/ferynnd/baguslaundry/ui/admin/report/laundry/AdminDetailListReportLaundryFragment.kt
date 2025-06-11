@@ -138,8 +138,8 @@ class AdminDetailListReportLaundryFragment : Fragment() {
                                 ?: "Unknown"
                         inputEmployment.text = employeeName
                         val dataStatus = when (dataReport.status_transaction_laundry) {
-                            StatusReportLaundry.pending -> "Tertunda"
-                            StatusReportLaundry.in_progress -> "Sedang Dikerjakan"
+                            StatusReportLaundry.paid -> "Sudah Bayar"
+                            StatusReportLaundry.unpaid -> "Belum Bayar"
                             StatusReportLaundry.completed -> "Selesai"
                             StatusReportLaundry.cancelled -> "DiBatalkan"
                         }

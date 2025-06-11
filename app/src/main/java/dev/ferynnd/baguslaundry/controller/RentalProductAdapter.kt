@@ -13,6 +13,8 @@ import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ConditionRental
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.StatusRental
+import java.text.NumberFormat
+import java.util.Locale
 
 class RentalProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
 
@@ -66,25 +68,16 @@ class RentalProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
         val item = getItem(position)
         when (holder) {
             is ProductRentalViewHolder -> {
-                val laundryItem = item as ProductRental
-                val branchName = branches.find { it.id_branch == laundryItem.id_branch_rental_item }?.name_branch ?: "Unknown"
+                val rentalItem = item as ProductRental
+                val branchName = branches.find { it.id_branch == rentalItem.id_branch_rental_item }?.name_branch ?: "Unknown"
                 holder.binding.apply {
-                    inputName.text = "${laundryItem.number_rental_item} - ${laundryItem.name_rental_item}"
+                    inputName.text = rentalItem.name_rental_item
                     inputBranch.text = branchName
-                    val dataStatus = when(laundryItem.status_rental_item) {
-                        StatusRental.available -> "Tersedia"
-                        StatusRental.rented -> "Di Pinjam"
-                        StatusRental.maintenance -> "Perawatan"
-                    }
-                    inputStatus.text = dataStatus
-                    val dataCondition = when(laundryItem.condition_rental_item) {
-                        ConditionRental.clean -> "Bersih"
-                        ConditionRental.dirty -> "Kotor"
-                        ConditionRental.damaged -> "Rusak"
-                    }
-                    inputCondition.text = dataCondition
-                    inputDescription.text = laundryItem.description_rental_item
-                    inputIsActive.text = laundryItem.is_active_rental_item.toString()
+                    inputIsActive.text = rentalItem.is_active_rental_item.toString()
+                    val localeID = Locale("in", "ID")
+                    val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
+                    val harga = rentalItem.price_rental_item
+                    inputPrice.text = formatRupiah.format(harga)
                 }
             }
             is HeaderLaundryViewHolder -> {

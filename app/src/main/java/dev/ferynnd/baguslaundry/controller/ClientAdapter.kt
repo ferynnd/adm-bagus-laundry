@@ -34,7 +34,7 @@ class ClientAdapter : ListAdapter<Client, ClientAdapter.ClientViewHolder>(DiffCa
             inputName.text = client.name_client
             inputStatus.text = client.is_active_client.toString()
             inputTelephon.text = client.phone_client
-            inputAddress.text = client.address_client
+            inputAddress.text = client.full_address_client
 
             val branchName = branches.find { it.id_branch == client.id_branch_client}?.name_branch ?: "Unknown"
             inputBranch.text = branchName

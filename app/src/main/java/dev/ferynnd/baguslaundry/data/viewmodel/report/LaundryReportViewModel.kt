@@ -9,11 +9,13 @@ import androidx.lifecycle.viewModelScope
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.repository.report.LaundryReportRepository
 import dev.ferynnd.baguslaundry.model.Branch
+import dev.ferynnd.baguslaundry.model.ExportReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportLaundryResponse
 import dev.ferynnd.baguslaundry.model.User
 import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
 import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
+import dev.ferynnd.baguslaundry.model.TransactionData
 import kotlinx.coroutines.launch
 
 class LaundryReportViewModel(application: Application) : AndroidViewModel(application) {
@@ -23,47 +25,111 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
     private val _laundryReports = MutableLiveData<List<ReportLaundry>>()
     val laundryReports: LiveData<List<ReportLaundry>> get() = _laundryReports
 
-    private val _createTransactionResponse = MutableLiveData<DefaultRequest<LaundryTransactionResponse>?>()
-    val createTransactionResponse: LiveData<DefaultRequest<LaundryTransactionResponse>?> get() = _createTransactionResponse
+    private val _createTransactionResponse = MutableLiveData<DefaultRequest<TransactionData>?>()
+    val createTransactionResponse: LiveData<DefaultRequest<TransactionData>?> get() = _createTransactionResponse
+
+
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> = _loading
+
+    private val _error =
+        MutableLiveData<String>() // Tidak lagi nullable, diinisialisasi dengan string kosong
+    val error: LiveData<String> = _error
+
+    private val _filteredLaundryReports = MutableLiveData<List<ReportLaundry>>()
+    val filteredLaundryReports: LiveData<List<ReportLaundry>> get() = _filteredLaundryReports
+
 
     fun init(context: Context) {
         laundryReportRepository = LaundryReportRepository(context)
         getAllReportLaundry()
     }
 
+    // Fungsi publik untuk mereset pesan error
+    fun resetErrorMessage() {
+        _error.postValue("") // Gunakan postValue untuk memastikan pembaruan terjadi di main thread
+    }
+
     private fun getAllReportLaundry() {
+        _loading.postValue(true) // Set loading to true
+        _error.postValue("") // Reset error message
         viewModelScope.launch {
-            _laundryReports.postValue(laundryReportRepository.getReportLaundry().data)
+            try {
+                val response = laundryReportRepository.getReportLaundry()
+                if (response.success) {
+                    _laundryReports.postValue(response.data)
+                    _filteredLaundryReports.postValue(response.data) // Inisialisasi filtered dengan semua data
+                } else {
+                    _error.postValue(response.message ?: "Gagal mengambil data laundry awal.")
+                }
+            } catch (e: Exception) {
+                _error.postValue(
+                    e.message ?: "Terjadi kesalahan saat memuat transaksi laundry awal."
+                )
+            } finally {
+                _loading.postValue(false) // Set loading to false
+            }
         }
     }
 
     suspend fun getReportLaundry() {
+        _loading.postValue(true) // Set loading to true
+        _error.postValue("") // Reset error message
         try {
             val response = laundryReportRepository.getReportLaundry()
             if (response.success) {
-                val client = response.data
-                _laundryReports.postValue(client) // Memperbarui LiveData dengan data baru
+                _laundryReports.postValue(response.data)
+                _filteredLaundryReports.postValue(response.data) // Update filtered list as well
             } else {
-                throw Exception("API request failed")
+                _error.postValue("Permintaan API gagal saat mengambil transaksi laundry: ${response.message}")
             }
         } catch (e: Exception) {
-            throw e
+            _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil transaksi laundry.")
+        } finally {
+            _loading.postValue(false) // Set loading to false
         }
     }
 
     suspend fun getReportLaundryById(id: Int): DefaultRequest<ReportLaundry> {
-        return laundryReportRepository.getReportLaundryById(id)
+        _loading.postValue(true) // Set loading to true
+        _error.postValue("") // Reset error message
+        return try {
+            laundryReportRepository.getReportLaundryById(id)
+        } catch (e: Exception) {
+            _error.postValue(
+                e.message ?: "Terjadi kesalahan saat mengambil laporan laundry berdasarkan ID."
+            )
+            // Penting: Pastikan ini mengembalikan objek DefaultRequest yang valid, bukan null
+            DefaultRequest(success = false, message = e.message.toString(), data = null)
+        } finally {
+            _loading.postValue(false) // Set loading to false
+        } as DefaultRequest<ReportLaundry>
     }
 
-     fun createReportLaundry(laundryTransactionRequest: LaundryTransactionRequest) {
+    fun createReportLaundry(laundryTransactionRequest: TransactionData) {
+        _loading.postValue(true)
+        _error.postValue("")
+        _createTransactionResponse.postValue(null) // Reset response
         viewModelScope.launch {
             try {
-                val response = laundryReportRepository.createReportLaundry(laundryTransactionRequest)
-                _createTransactionResponse.value = response
+                val response =
+                    laundryReportRepository.createReportLaundry(laundryTransactionRequest)
+                _createTransactionResponse.postValue(response)
+                // Logic error di sini akan ditangani oleh observer _error atau _createTransactionResponse
             } catch (e: Exception) {
-                throw e
+                _error.postValue(e.message ?: "Terjadi kesalahan saat membuat transaksi laundry.")
+            } finally {
+                _loading.postValue(false)
             }
         }
+    }
+
+    fun clearCreateTransactionResponse() {
+        _createTransactionResponse.value = null
+    }
+
+    fun clearError() {
+        _error.value = ""
     }
 
 
@@ -71,21 +137,31 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         _createTransactionResponse.value = null
     }
 
-        suspend fun exportLaundryMonthly(exportReportLaundry: ExportReportLaundry): DefaultRequest<ReportLaundryResponse> {
-        return laundryReportRepository.exportLaundryMonthly(exportReportLaundry)
+    suspend fun exportLaundryMonthly(exportReportLaundry: ExportReportLaundry): DefaultRequest<ReportLaundryResponse> {
+        _loading.postValue(true) // Set loading to true
+        _error.postValue("") // Reset error message
+        return try {
+            laundryReportRepository.exportLaundryMonthly(exportReportLaundry)
+        } catch (e: Exception) {
+            _error.postValue(
+                e.message ?: "Terjadi kesalahan saat mengekspor laporan bulanan laundry."
+            )
+            // Penting: Pastikan ini mengembalikan objek DefaultRequest yang valid, bukan null
+            DefaultRequest(success = false, message = e.message.toString(), data = null)
+        } finally {
+            _loading.postValue(false) // Set loading to false
+        } as DefaultRequest<ReportLaundryResponse>
     }
 
-    private val _filteredLaundryReports = MutableLiveData<List<ReportLaundry>>()  // hasil pencarian
-    val filteredLaundryReports: LiveData<List<ReportLaundry>> get() = _filteredLaundryReports
-
-
     fun filterClient(branchId: Int?) {
+        // Tidak perlu indikator loading di sini karena ini adalah operasi filter lokal
         val allLaundryReports = _laundryReports.value ?: return
-        _filteredLaundryReports.value = if (branchId == null) {
-            allLaundryReports
-        } else {
-            allLaundryReports.filter { it.id_branch_transaction_laundry == branchId }
-        }
+        _filteredLaundryReports.value =
+            if (branchId == null || branchId == -1) { // Menambahkan kondisi untuk "Semua Cabang" (-1)
+                allLaundryReports
+            } else {
+                allLaundryReports.filter { it.id_branch_transaction_laundry == branchId }
+            }
     }
 
     private var branches: List<Branch> = emptyList()
@@ -99,8 +175,8 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         users = data
     }
 
-
     fun searchLaundryReports(query: String) {
+        // Tidak perlu indikator loading di sini karena ini adalah operasi pencarian lokal
         val allLaundryReports = _laundryReports.value ?: return
         if (query.isBlank()) {
             _filteredLaundryReports.value = allLaundryReports

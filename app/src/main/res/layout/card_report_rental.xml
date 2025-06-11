@@ -10,7 +10,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="620dp"
+        android:layout_height="500dp"
         app:cardBackgroundColor="@color/blueGray"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -20,10 +20,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardForeground"
         android:layout_width="match_parent"
-        android:layout_height="560dp"
+        android:layout_height="445dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -33,14 +34,14 @@
         />
 
     <TextView
-        android:id="@+id/idUser"
+        android:id="@+id/idTransactionRental"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="CAB001234"
         android:fontFamily="@font/inter_medium"
-        android:textSize="22sp"
+        android:textSize="18sp"
         android:textColor="@color/white"
-        android:layout_marginStart="15dp"
+        android:layout_marginStart="20dp"
         app:layout_constraintBottom_toTopOf="@id/cardForeground"
         app:layout_constraintStart_toStartOf="@id/cardBackground"
         app:layout_constraintTop_toTopOf="@id/cardBackground"
@@ -53,11 +54,11 @@
         android:layout_height="30dp"
         android:src="@drawable/detail"
         android:translationZ="2dp"
-        android:layout_marginEnd="10dp"
+        app:tint="@color/white"
+        android:layout_marginEnd="20dp"
         app:layout_constraintBottom_toTopOf="@id/cardForeground"
         app:layout_constraintTop_toTopOf="@id/cardBackground"
-        app:layout_constraintEnd_toEndOf="@id/cardBackground"
-        app:tint="@color/white" />
+        app:layout_constraintEnd_toEndOf="@id/cardBackground" />
 
     <TableLayout
         android:id="@+id/tableLayout"
@@ -127,63 +128,6 @@
                 />
         </TableRow>
 
-        <TableRow>
-            <TextView
-                android:text="PENERIMA"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:layout_marginStart="10dp"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
-
-             <TextView
-                 android:id="@+id/inputRecipient"
-                tools:text="NANDOO"
-                android:padding="10dp"
-                 android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
-
-        <TableRow>
-            <TextView
-                android:text="PENGIRIM"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:layout_marginStart="10dp"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
-
-             <TextView
-                 android:id="@+id/inputSender"
-                tools:text="KAKAKA"
-                android:padding="10dp"
-                 android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
 
         <TableRow>
             <TextView
@@ -216,11 +160,11 @@
 
         <TableRow>
             <TextView
-                android:text="STATUS"
+                android:text="PENERIMA"
                 android:padding="10dp"
                 android:textSize="12sp"
-                android:fontFamily="@font/inter"
                 android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
                 android:textColor="@color/blue900"
                 android:textAlignment="textStart"
                 android:layout_width="wrap_content"
@@ -228,34 +172,52 @@
                 android:layout_weight="1"
                 /> <!-- kasih lebar minimum -->
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/layoutStatus"
-                android:layout_width="80dp"
-                android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/baseActive"
-                android:layout_marginVertical="5dp"
+             <TextView
+                 android:id="@+id/inputRecipient"
+                tools:text="NANDOO"
+                android:padding="10dp"
+                 android:textSize="14sp"
                 android:layout_marginEnd="10dp"
-                app:cardCornerRadius="5dp"
-                app:cardElevation="2dp"
-                android:padding="10dp">
-
-                <TextView
-                    android:id="@+id/inputStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:fontFamily="@font/inter_medium"
-                    android:textSize="14sp"
-                    android:textAllCaps="true"
-                    android:gravity="center"
-                    android:textColor="@color/white"
-                    tools:text="ACTIVE"
-                    />
-
-            </androidx.cardview.widget.CardView>
-
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                 android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
         </TableRow>
 
-         <TableRow>
+        <TableRow>
+            <TextView
+                android:text="KURIR"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/blue900"
+                android:textAlignment="textStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
+
+             <TextView
+                 android:id="@+id/inputSender"
+                tools:text="KAKAKA"
+                android:padding="10dp"
+                 android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                 android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+        </TableRow>
+
+
+        <TableRow>
 
              <LinearLayout
                 android:layout_width="wrap_content"
@@ -346,93 +308,7 @@
                 />
         </TableRow>
 
-        <TableRow>
-              <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                 android:orientation="horizontal">
-                    <TextView
-                        android:text="BIAYA TAMBAHAN"
-                        android:padding="10dp"
-                        android:textSize="12sp"
-                        android:layout_marginStart="10dp"
-                        android:fontFamily="@font/inter"
-                        android:textColor="@color/blue900"
-                        android:textAlignment="textStart"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
-                     <TextView
-                        android:text="@string/rupiah"
-                        android:padding="10dp"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/inter"
-                        android:textColor="@color/primary"
-                        android:textAlignment="textStart"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
-             </LinearLayout>
 
-            <TextView
-                 android:id="@+id/inputAditionalCost"
-                tools:text="10.000"
-                android:padding="10dp"
-                 android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
-
-        <TableRow>
-              <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                 android:orientation="horizontal">
-                    <TextView
-                        android:text="TOTAL HARGA"
-                        android:padding="10dp"
-                        android:textSize="12sp"
-                        android:layout_marginStart="10dp"
-                        android:fontFamily="@font/inter"
-                        android:textColor="@color/blue900"
-                        android:textAlignment="textStart"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
-                     <TextView
-                        android:text="@string/rupiah"
-                        android:padding="10dp"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/inter"
-                        android:textColor="@color/primary"
-                        android:textAlignment="textStart"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
-             </LinearLayout>
-
-            <TextView
-                android:id="@+id/inputTotalPrice"
-                tools:text="10.000"
-                android:padding="10dp"
-                 android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
     </TableLayout>
 
     <TextView

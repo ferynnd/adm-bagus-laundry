@@ -10,6 +10,7 @@ import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
 import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportLaundryResponse
+import dev.ferynnd.baguslaundry.model.TransactionData
 
 class LaundryReportRepository(context: Context) {
 
@@ -49,7 +50,7 @@ class LaundryReportRepository(context: Context) {
         }
     }
 
-    suspend fun createReportLaundry(laundryTransactionRequest: LaundryTransactionRequest): DefaultRequest<LaundryTransactionResponse> {
+    suspend fun createReportLaundry(laundryTransactionRequest: TransactionData): DefaultRequest<TransactionData> {
         try {
             val response =
                 laundryReportApiService.createReportLaundry(role, laundryTransactionRequest)

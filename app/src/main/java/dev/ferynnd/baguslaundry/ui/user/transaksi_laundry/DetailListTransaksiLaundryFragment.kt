@@ -73,17 +73,17 @@ class DetailListTransaksiLaundryFragment : Fragment() {
 
                          val status =
                             when (dataTransaskiLaundry.status_transaction_laundry) {
-                                StatusReportLaundry.pending -> "MENUNGGU"
-                                StatusReportLaundry.in_progress -> "SEDANG DIPROSES"
+                                StatusReportLaundry.paid -> "SUDAH BAYAR"
+                                StatusReportLaundry.unpaid -> "BELUM BAYAR"
                                 StatusReportLaundry.completed -> "SELESAI"
                                 StatusReportLaundry.cancelled -> "DIBATALKAN"
                             }
                         statusTransaksiLaundry.text = status
                         when (dataTransaskiLaundry.status_transaction_laundry) {
-                            StatusReportLaundry.pending -> wadahStatus.setCardBackgroundColor(
+                            StatusReportLaundry.paid -> wadahStatus.setCardBackgroundColor(
                                 ContextCompat.getColor(requireContext(), R.color.transaksiOuther)
                             )
-                            StatusReportLaundry.in_progress -> wadahStatus.setCardBackgroundColor(
+                            StatusReportLaundry.unpaid -> wadahStatus.setCardBackgroundColor(
                                 ContextCompat.getColor(requireContext(), R.color.transaksiOuther)
                             )
                             StatusReportLaundry.completed -> wadahStatus.setCardBackgroundColor(

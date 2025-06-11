@@ -56,16 +56,16 @@ class LaundryTransaksiAdapter(
 
         // Status Enum
         holder.status.text = when (report.status_transaction_laundry) {
-            StatusReportLaundry.pending -> "MENUNGGU"
-            StatusReportLaundry.in_progress -> "SEDANG DIPROSES"
+            StatusReportLaundry.paid -> "SUDAH BAYAR"
+            StatusReportLaundry.unpaid -> "BELUM BAYAR"
             StatusReportLaundry.completed -> "SELESAI"
             StatusReportLaundry.cancelled -> "DIBATALKAN"
         }
         when (report.status_transaction_laundry) {
-            StatusReportLaundry.pending -> holder.wadah_status.setCardBackgroundColor(
+            StatusReportLaundry.paid -> holder.wadah_status.setCardBackgroundColor(
                 ContextCompat.getColor(context, R.color.transaksiOuther)
             )
-            StatusReportLaundry.in_progress -> holder.wadah_status.setCardBackgroundColor(
+            StatusReportLaundry.unpaid -> holder.wadah_status.setCardBackgroundColor(
                 ContextCompat.getColor(context, R.color.transaksiOuther)
             )
             StatusReportLaundry.completed -> holder.wadah_status.setCardBackgroundColor(

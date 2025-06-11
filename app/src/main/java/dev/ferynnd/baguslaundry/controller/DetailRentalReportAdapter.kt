@@ -35,16 +35,13 @@ class DetailRentalReportAdapter : ListAdapter<ListTransactionRental, DetailRenta
          val productRentalName = productRentals.find { it.id_rental_item == detailReportRental.id_item_rental }?.name_rental_item ?: "Tanpa Nama"
 
         holder.binding.apply {
-            inputNameItem.text = productRentalName
-            numberItem.text = detailReportRental.id_rental_transaction.toString()
-            val localeID = Locale("in", "ID")
-            val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
-
-            val harga = detailReportRental.price_list_transaction_rental
-            inputPrice.text = formatRupiah.format(harga)
+            inputName.text = productRentalName
+            inputNumber.text = detailReportRental.id_item_rental.toString()
+            inputPrice.text = detailReportRental.count_list_transaction_rental.toString()
             inputWeight.text = detailReportRental.weight_list_transaction_rental.toString()
-            inputNotes.text = detailReportRental.note_list_transaction_rental
-              val dataCondition = when(detailReportRental.condition_list_transaction_rental) {
+
+
+            val dataCondition = when(detailReportRental.condition_list_transaction_rental) {
                 ConditionListTransactionRental.dirty -> "Kotor"
                 ConditionListTransactionRental.clean -> "Bersih"
                 ConditionListTransactionRental.damaged -> "Rusak"
@@ -54,14 +51,13 @@ class DetailRentalReportAdapter : ListAdapter<ListTransactionRental, DetailRenta
             inputCondition.text = dataCondition
 
             val dataStatus = when(detailReportRental.status_list_transaction_rental) {
-                StatusListTransactionRental.rented -> "Dipinjam"
-                StatusListTransactionRental.returned -> "Dikembalikan"
-                StatusListTransactionRental.cancelled -> "Dibatalkan"
+                StatusListTransactionRental.IN -> "Masuk"
+                StatusListTransactionRental.OUT -> "Keluar"
+                StatusListTransactionRental.CANCELLED -> "Dibatalkan"
                 else -> "Unknown"
             }
 
             inputStatus.text = dataStatus
-
         }
     }
 

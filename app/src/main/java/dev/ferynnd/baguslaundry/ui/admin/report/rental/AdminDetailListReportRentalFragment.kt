@@ -27,7 +27,6 @@ import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminDetailListReportRentalBinding
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.Client
-import dev.ferynnd.baguslaundry.model.StatusTransactionRental
 import dev.ferynnd.baguslaundry.model.User
 import dev.ferynnd.baguslaundry.ui.admin.report.laundry.AdminDetailListReportLaundryFragment
 import dev.ferynnd.baguslaundry.ui.admin.report.laundry.AdminListReportLaundryFragment
@@ -128,25 +127,9 @@ class AdminDetailListReportRentalFragment : Fragment() {
                         inputWeight.text = dataReport.total_weight_transaction_rental.toString()
                         inputPcs.text = dataReport.total_pcs_transaction_rental.toString()
 
-                        val localeID = Locale("in", "ID")
-                        val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
-
-                        inputAditionalCost.text =
-                            formatRupiah.format(dataReport.additional_cost_transaction_rental)
-                        inputTotalPrice.text =
-                            formatRupiah.format(dataReport.total_price_transaction_rental)
 
                         inputNotes.text = dataReport.notes_transaction_rental
 
-                        val dataStatus = when (dataReport.status_transaction_rental) {
-                            StatusTransactionRental.WAITING_FOR_APPROVAL -> "Menunggu Persetujuan"
-                            StatusTransactionRental.APPROVED -> "Disetujui"
-                            StatusTransactionRental.OUT -> "Keluar"
-                            StatusTransactionRental.IN -> "Masuk"
-                            StatusTransactionRental.CANCELLED -> "Dibatalkan"
-                        }
-
-                        inputStatus.text = dataStatus
 
                         val clientName =
                             client.find { it.id_client == dataReport.id_client_transaction_rental }?.name_client

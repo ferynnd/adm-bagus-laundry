@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -28,7 +29,6 @@ import kotlinx.coroutines.launch
 
 class AdminListProductLaundryFragment : Fragment()  {
 
-
     private lateinit var binding: FragmentAdminListProductLaundryBinding
     private lateinit var laundryProductViewModel : LaundryProductViewModel
     private lateinit var branchViewModel: BranchViewModel
@@ -37,9 +37,7 @@ class AdminListProductLaundryFragment : Fragment()  {
     private var productLaundryList: List<ProductLaundry>? = null
     private var branchList: List<Branch>? = null
 
-
-   private val groupedData = mutableListOf<Any>()
-
+    private val groupedData = mutableListOf<Any>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,20 +47,18 @@ class AdminListProductLaundryFragment : Fragment()  {
         branchViewModel.init(requireContext())
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAdminListProductLaundryBinding.inflate(layoutInflater)
         // Inflate the layout for this fragment
-         laundryProductAdapter = LaundryProductAdapter()
+        laundryProductAdapter = LaundryProductAdapter()
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = laundryProductAdapter
         }
-
 
         binding.btnRoutes.setOnClickListener {
             branchViewModel.branches.value?.let { branches ->
@@ -76,7 +72,7 @@ class AdminListProductLaundryFragment : Fragment()  {
             }
         }
 
-         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let { laundryProductViewModel.searchLaundryProducts(it) }
                 return true
@@ -88,10 +84,24 @@ class AdminListProductLaundryFragment : Fragment()  {
             }
         })
 
-
         viewLifecycleOwner.lifecycleScope.launch {
+            // Observe loading state
+            laundryProductViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
 
-            laundryProductViewModel.filteredLaundryProducts.observe(viewLifecycleOwner) { filteredProducts ->
+            // Observe error messages
+            laundryProductViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                // Periksa apakah pesan error tidak kosong
+                if (errorMessage.isNotBlank()) {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                    // Panggil fungsi reset di ViewModel
+                    laundryProductViewModel.resetErrorMessage()
+                }
+            }
+
+            laundryProductViewModel.filteredProductLaundry.observe(viewLifecycleOwner) { filteredProducts ->
                 laundryProductAdapter.submitList(filteredProducts)
             }
 
@@ -105,7 +115,6 @@ class AdminListProductLaundryFragment : Fragment()  {
                 productLaundryList = products
                 updateUIIfReady()
             }
-
         }
 
         binding.arrowBack.setOnClickListener {
@@ -127,9 +136,6 @@ class AdminListProductLaundryFragment : Fragment()  {
         }
     }
 
-
-
-
     private fun setProductLaundry(newProductLaundrys: List<ProductLaundry>) {
         groupedData.clear()
 
@@ -149,7 +155,6 @@ class AdminListProductLaundryFragment : Fragment()  {
                 val unknownBranch = Branch(
                     id_branch = branchId,
                     name_branch = "UNKNOWN",
-                    address_branch = "",
                     city_branch = "",
                     is_active_branch = Status.active,
                     deleted_at = ""
@@ -159,14 +164,13 @@ class AdminListProductLaundryFragment : Fragment()  {
                 groupedData.addAll(products)
             }
         }
-
         laundryProductAdapter.submitList(groupedData)
     }
 
-        private fun showFilterBottomSheet(
-            context: Context,
-            items: List<Branch>,
-            onBranchSelected: (Branch) -> Unit
+    private fun showFilterBottomSheet(
+        context: Context,
+        items: List<Branch>,
+        onBranchSelected: (Branch) -> Unit
     ) {
         val bottomSheetDialog = BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_filter_branch, null)
@@ -188,11 +192,6 @@ class AdminListProductLaundryFragment : Fragment()  {
         layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
         bottomSheetDialog.window?.attributes = layoutParams
 
-
         bottomSheetDialog.show()
     }
-
-
-
-
 }

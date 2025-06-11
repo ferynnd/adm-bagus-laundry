@@ -6,9 +6,10 @@ data class ProductLaundry(
     val name_laundry_item: String?= null,
     val price_laundry_item: Int? = null,
     val time_laundry_item: String? = null,
-    val description_laundry_item: String? = null,
-    val is_active_laundry_item: IsActiveLaundryItem,
-    val deleted_at: Any? = null
+    val is_active_laundry_item: IsActiveLaundryItem? = IsActiveLaundryItem.active,
+    val deleted_at: Any? = null,
+    var isSelected: Boolean? = false,
+    var weight: Float? = null
 )
 
 enum class IsActiveLaundryItem {

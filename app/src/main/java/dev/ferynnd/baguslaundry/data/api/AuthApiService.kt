@@ -7,7 +7,7 @@ import retrofit2.http.POST
 
 interface AuthApiService {
     @FormUrlEncoded
-    @POST("api/login") // ganti dengan endpoint sesuai rute API-mu
+    @POST("api/login")
     suspend fun login(
         @Field("username") username: String,
         @Field("password") password: String

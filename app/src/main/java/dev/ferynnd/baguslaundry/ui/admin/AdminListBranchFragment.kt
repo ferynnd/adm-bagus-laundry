@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast // Import Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -75,23 +76,42 @@ class AdminListBranchFragment : Fragment() {
 
 
         viewLifecycleOwner.lifecycleScope.launch {
+            // Observe loading state
+            branchViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
+
+            // Observe error messages
+            branchViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                if (errorMessage.isNotBlank()) {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                    branchViewModel.resetErrorMessage() // Panggil fungsi reset di ViewModel
+                }
+            }
+
             branchViewModel.filteredBranches.observe(viewLifecycleOwner) { filteredBranches ->
                 branchAdapter.submitList(filteredBranches)
             }
+            // Hapus atau modifikasi bagian ini karena filteredBranches sudah diamati di atas
+            // Jika Anda ingin mengamati branches untuk inisialisasi awal, pastikan tidak tumpang tindih
+            // dengan filteredBranches yang menangani hasil filter/pencarian.
             branchViewModel.branches.observe(viewLifecycleOwner) { branch ->
+                // Jika filteredBranches sudah menangani tampilan, ini mungkin tidak diperlukan
+                // atau hanya digunakan untuk update data mentah.
                 branch?.let {
                     lifecycleScope.launch(Dispatchers.Main) {
-                        if (branch.isNotEmpty()) {
-                            branchAdapter.submitList(branch)
-//                              setProduct(products)
+                        if (it.isNotEmpty()) { // Gunakan 'it' untuk data LiveData
+                            // branchAdapter.submitList(it) // Ini akan menimpa filteredBranches
+                            // Pertimbangkan apakah Anda benar-benar perlu mengamati 'branches' DAN 'filteredBranches' secara bersamaan
+                            // Jika 'filteredBranches' adalah sumber kebenaran untuk RecyclerView,
+                            // maka Anda tidak perlu submitList di sini juga.
                         } else {
-                            branchAdapter.submitList(emptyList())
-//                              productAdapter.notifyDataSetChanged()
+                            // branchAdapter.submitList(emptyList())
                         }
                     }
                 }
             }
-
         }
 
         binding.arrowBack.setOnClickListener {
@@ -131,6 +151,4 @@ class AdminListBranchFragment : Fragment() {
 
         bottomSheetDialog.show()
     }
-
-
 }

@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.05" />
+                app:layout_constraintGuide_percent="0.04" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineRight"
@@ -75,49 +75,27 @@
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
                 app:layout_constraintTop_toTopOf="@+id/textHeaderLight" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutTypeTransaksi"
-                style="@style/CustomTextInputLayout"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/title_list_transaksi_rental"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="14dp"
-                app:endIconMode="dropdown_menu"
-                app:layout_constraintEnd_toStartOf="@+id/image_filter_item_rental"
+                android:fontFamily="@font/inter_semibold"
+                android:text="Daftar Pesanan"
+                android:textColor="@color/gray900"
+                android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/textHeaderBold">
-
-                <AutoCompleteTextView
-                    android:id="@+id/inputTypeTransaksi"
-                    style="@style/CustomTextInputEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Type Transaksi"
-                    android:fontFamily="@font/inter_medium"
-                    android:textColor="@color/black"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <ImageView
-                android:id="@+id/image_filter_item_rental"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_weight="1"
-                android:src="@drawable/filter"
-                app:layout_constraintBottom_toBottomOf="@+id/inputLayoutTypeTransaksi"
-                app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-                app:layout_constraintTop_toTopOf="@+id/inputLayoutTypeTransaksi"
-                tools:ignore="MissingConstraints" />
+                app:layout_constraintTop_toBottomOf="@+id/textHeaderBold" />
 
             <LinearLayout
                 android:id="@+id/containerRental"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="14dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/inputLayoutTypeTransaksi" />
+                app:layout_constraintTop_toBottomOf="@+id/title_list_transaksi_rental" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddItem"
@@ -133,125 +111,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/containerRental" />
 
             <TextView
-                android:id="@+id/title_pcs_transaksi_rental"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/inter_semibold"
-                android:text="Total Pcs"
-                android:textColor="@color/gray900"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/btnAddItem" />
-
-            <TextView
-                android:id="@+id/pcs_transaksi_rental"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_bold"
-                android:text="0"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/title_pcs_transaksi_rental"
-                app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-                app:layout_constraintTop_toTopOf="@+id/title_pcs_transaksi_rental" />
-
-            <TextView
-                android:id="@+id/title_harga_per_kilo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:text="Harga Per Kg"
-                android:textColor="@color/gray900"
-                android:textSize="14sp"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/title_pcs_transaksi_rental" />
-
-            <TextView
-                android:id="@+id/harga_per_kilo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_bold"
-                android:text="Rp 5000/Kg"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/title_harga_per_kilo"
-                app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-                app:layout_constraintTop_toTopOf="@+id/title_harga_per_kilo" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutHargaPerKg"
-                style="@style/CustomTextInputLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
-                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/title_pcs_transaksi_rental">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputHargaPerKg"
-                    style="@style/CustomTextInputEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Harga Per Kg"
-                    android:fontFamily="@font/inter_medium"
-                    android:textColor="@color/black"
-                    android:inputType="numberDecimal" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:id="@+id/total_berat_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/inter_semibold"
-                android:text="Total Berat Item Rental"
-                android:textColor="@color/gray900"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/inputLayoutHargaPerKg" />
-
-            <TextView
-                android:id="@+id/total_berat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_bold"
-                android:text="0.00 Kg"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/total_berat_list"
-                app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-                app:layout_constraintTop_toTopOf="@+id/total_berat_list" />
-
-            <TextView
-                android:id="@+id/total_harga_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:text="Total Harga Item Rental"
-                android:textColor="@color/gray900"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/total_berat_list" />
-
-            <TextView
-                android:id="@+id/totalPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_bold"
-                android:text="Rp 0"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/total_harga_list"
-                app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-                app:layout_constraintTop_toTopOf="@+id/total_harga_list" />
-
-            <TextView
                 android:id="@+id/title_nama_kurir"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -259,32 +118,33 @@
                 android:fontFamily="@font/inter_semibold"
                 android:text="Nama Kurir"
                 android:textColor="@color/gray900"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/total_harga_list" />
+                app:layout_constraintTop_toBottomOf="@+id/btnAddItem" />
 
             <TextView
                 android:id="@+id/nama_kurir"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:fontFamily="@font/inter_bold"
                 android:text="-"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/title_nama_kurir"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-                app:layout_constraintTop_toTopOf="@+id/title_nama_kurir" />
+                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
+                app:layout_constraintTop_toBottomOf="@+id/title_nama_kurir" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/inputLayoutNamaClient"
                 style="@style/CustomTextInputLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="14dp"
                 app:endIconMode="dropdown_menu"
                 app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/title_nama_kurir">
+                app:layout_constraintTop_toBottomOf="@+id/nama_kurir">
 
                 <AutoCompleteTextView
                     android:id="@+id/inputNamaClient"
@@ -311,15 +171,16 @@
 
             <TextView
                 android:id="@+id/alamat_klien"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_bold"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/inter_semibold"
                 android:text="-"
                 android:textColor="@color/black"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/title_alamat_klien"
+                android:textSize="12sp"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-                app:layout_constraintTop_toTopOf="@+id/title_alamat_klien" />
+                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
+                app:layout_constraintTop_toBottomOf="@+id/title_alamat_klien" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/inputLayoutNamaPenerima"
@@ -329,7 +190,7 @@
                 android:layout_marginTop="24dp"
                 app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/title_alamat_klien">
+                app:layout_constraintTop_toBottomOf="@+id/alamat_klien">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputNamaPenerima"
@@ -343,70 +204,6 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutStatusTransaksi"
-                style="@style/CustomTextInputLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:endIconMode="dropdown_menu"
-                app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
-                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/inputLayoutNamaPenerima">
-
-                <AutoCompleteTextView
-                    android:id="@+id/inputStatusTransaksi"
-                    style="@style/CustomTextInputEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Status Transaksi"
-                    android:fontFamily="@font/inter_medium"
-                    android:textColor="@color/black"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutPromoTransaksi"
-                style="@style/CustomTextInputLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
-                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/inputLayoutStatusTransaksi">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputPromoTransaksi"
-                    style="@style/CustomTextInputEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Promo (Opsional)"
-                    android:fontFamily="@font/inter_medium"
-                    android:textColor="@color/black"
-                    android:inputType="numberDecimal" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutTambahanTransaksi"
-                style="@style/CustomTextInputLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
-                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/inputLayoutPromoTransaksi">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputTambahanTransaksi"
-                    style="@style/CustomTextInputEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Biaya Tambahan (Opsional)"
-                    android:fontFamily="@font/inter_medium"
-                    android:textColor="@color/black"
-                    android:inputType="numberDecimal"  />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/inputLayoutNoteTransaksi"
                 style="@style/CustomTextInputLayout"
                 android:layout_width="0dp"
@@ -414,7 +211,7 @@
                 android:layout_marginTop="24dp"
                 app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/inputLayoutTambahanTransaksi">
+                app:layout_constraintTop_toBottomOf="@+id/inputLayoutNamaPenerima">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputNoteTransaksi"
@@ -426,30 +223,6 @@
                     android:textColor="@color/black"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:id="@+id/title_total_transaksi_rental"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:fontFamily="@font/inter_semibold"
-                android:text="Total Transaksi"
-                android:textColor="@color/gray900"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/inputLayoutNoteTransaksi" />
-
-            <TextView
-                android:id="@+id/total_transaksi_rental"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_bold"
-                android:text="0"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/title_total_transaksi_rental"
-                app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-                app:layout_constraintTop_toTopOf="@+id/title_total_transaksi_rental" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSubmit"
@@ -464,7 +237,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/title_total_transaksi_rental" />
+                app:layout_constraintTop_toBottomOf="@+id/inputLayoutNoteTransaksi" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

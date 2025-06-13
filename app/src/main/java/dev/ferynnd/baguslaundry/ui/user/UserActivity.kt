@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import dev.ferynnd.baguslaundry.R
+import dev.ferynnd.baguslaundry.controller.user.KurirProductAdapter
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.NetworkViewModel
 import dev.ferynnd.baguslaundry.databinding.ActivityUserBinding
@@ -48,8 +49,8 @@ class UserActivity : AppCompatActivity() {
         binding.bottomNav.setOnItemSelectedListener {
             when(it.itemId) {
                 R.id.transactionMenu -> replaceFragment(UserDashboardFragment())
-                R.id.itemMenu -> replaceFragment(ListProductLaundryFragment())
-                R.id.reportMenu -> replaceFragment(ListTransaksiLaundryFragment())
+                R.id.itemMenu -> replaceFragment(KurirProductFragment())
+                R.id.reportMenu -> replaceFragment(KurirTransactionReportFragment())
             }
             true
         }

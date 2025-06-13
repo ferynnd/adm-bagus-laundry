@@ -1,7 +1,5 @@
 package dev.ferynnd.baguslaundry.model
 
-import com.google.gson.annotations.SerializedName
-
 
 data class ReportRental(
     val id_transaction_rental: Int? = null,

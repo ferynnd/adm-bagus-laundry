@@ -90,14 +90,14 @@ class UserDashboardFragment : Fragment() {
         binding.menuTransaksiLaundry.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.host_fragment_user, ListItemTransactionLaundryFragment())
-                .addToBackStack(null)
+                .addToBackStack("laundry")
                 .commit()
         }
 
         binding.menuTransaksiRental.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.host_fragment_user, CreateListTransaksiRentalFragment())
-                .addToBackStack(null)
+                .addToBackStack("rental")
                 .commit()
         }
 

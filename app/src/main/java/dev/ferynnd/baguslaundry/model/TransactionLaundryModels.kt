@@ -30,7 +30,7 @@ data class TransactionData(
     val id_branch_transaction_laundry: Int ? = null,
     val number_transaction_laundry : String ? = null,
     val name_client_transaction_laundry: String ? = null,
-    val status_transaction_laundry: String ? = null,
+    val status_transaction_laundry: StatusReportLaundry? = null,
     val notes_transaction_laundry: String ? = null,
     val total_weight_transaction_laundry: Double ? = null,
     val total_price_transaction_laundry: Double ? = null,
@@ -43,7 +43,7 @@ data class TransactionData(
     val is_active_transaction_laundry: String ? = null,
     val first_date_transaction_laundry: String ? = null,
     val last_date_transaction_laundry: String ? = null,
-    val list_transaction_laundry: List<ProductLaundry>
+    val list_transaction_laundry: List<ListTransactionLaundry>
 )
 
 data class TransactionItemDetail(

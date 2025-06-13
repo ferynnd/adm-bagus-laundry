@@ -6,7 +6,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import dev.ferynnd.baguslaundry.data.repository.UserRepository
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
+import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.repository.product.RentalProductRepository
 import dev.ferynnd.baguslaundry.model.ProductRental
 import kotlinx.coroutines.launch
@@ -14,6 +16,10 @@ import kotlinx.coroutines.launch
 class RentalProductViewModel(application: Application) : AndroidViewModel(application) {
 
     private lateinit var rentalProductRepository: RentalProductRepository
+
+    private val sharedPreferences = SharePrefrenceHelper(application)
+
+    private lateinit var userRepository: UserRepository
 
     private val _rentalProducts = MutableLiveData<List<ProductRental>>()
     val rentalProducts: LiveData<List<ProductRental>> get() = _rentalProducts
@@ -29,6 +35,7 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
 
     fun init(context: Context) {
         rentalProductRepository = RentalProductRepository(context)
+        userRepository = UserRepository(context)
         getAllProductRental()
     }
 
@@ -50,7 +57,9 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
                     _error.postValue(response.message ?: "Failed to load initial rental items.")
                 }
             } catch (e: Exception) {
-                _error.postValue(e.message ?: "An error occurred while loading initial rental items.")
+                _error.postValue(
+                    e.message ?: "An error occurred while loading initial rental items."
+                )
             } finally {
                 _loading.postValue(false) // Set loading to false
             }
@@ -61,10 +70,25 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
         _loading.postValue(true) // Set loading to true
         _error.postValue("") // Reset error
         try {
+            val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
+            if (userId == null) {
+                _error.postValue("ID user tidak ditemukan di SharedPreferences.")
+                return
+            }
+
+            val userResponse = userRepository.getUserById(userId)
+            if (!userResponse.success) {
+                _error.postValue("Gagal mengambil data user.")
+                return
+            }
+
+            val branchId = userResponse.data.id_branch_user
             val response = rentalProductRepository.getProductRental()
             if (response.success) {
-                _rentalProducts.postValue(response.data)
-                _filteredRentalProducts.postValue(response.data) // Update filtered list as well
+                val rentalProducts = response.data
+                val filteredList = rentalProducts.filter { it.id_branch_rental_item == branchId }
+                _rentalProducts.postValue(filteredList)
+                _filteredRentalProducts.postValue(filteredList)
             } else {
                 _error.postValue(response.message ?: "Failed to get rental items.")
             }
@@ -81,7 +105,9 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
         return try {
             rentalProductRepository.getProductRentalById(id)
         } catch (e: Exception) {
-            _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil item rental berdasarkan ID.")
+            _error.postValue(
+                e.message ?: "Terjadi kesalahan saat mengambil item rental berdasarkan ID."
+            )
             // Penting: Pastikan ini mengembalikan objek DefaultRequest yang valid, bukan null
             DefaultRequest(success = false, message = e.message.toString(), data = null)
         } finally {

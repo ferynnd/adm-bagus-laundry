@@ -17,11 +17,8 @@ class RentalProductAdapter () : ListAdapter<ProductRental, RentalProductAdapter.
 
     inner class ProductRentalViewHolder(val binding: KurirCardProductRentalBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        val id_nama_rental = binding.numberNamaProductRental
-        val status = binding.statusProductRental
-        val condition = binding.conditionProductRental
-        val deskripsi = binding.deskirpiProductLaundry
-        val price = binding.priceProductLaundry
+        val id_nama_rental = binding.productName
+        val price = binding.priceProductRental
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductRentalViewHolder {

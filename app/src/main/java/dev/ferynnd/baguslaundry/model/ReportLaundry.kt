@@ -22,12 +22,25 @@ data class ReportLaundry(
     val deleted_at: String?,
 )
 
-enum class StatusReportLaundry {
-    unpaid,
-    paid,
-    completed,
-    cancelled
+//enum class StatusReportLaundry {
+//    unpaid,
+//    paid,
+//    completed,
+//    cancelled
+//}
+
+enum class StatusReportLaundry(val label: String) {
+    unpaid("Belum Dibayar"),
+    paid("Sudah Dibayar"),
+    completed("Selesai"),
+    cancelled("Dibatalkan");
+
+    override fun toString(): String {
+        return label
+    }
 }
+
+
 enum class IsActiveReportLaundry {
     active,
     inactive

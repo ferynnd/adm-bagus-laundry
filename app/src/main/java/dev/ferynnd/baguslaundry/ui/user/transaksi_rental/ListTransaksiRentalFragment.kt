@@ -198,12 +198,6 @@ class ListTransaksiRentalFragment : Fragment() {
             showFilterBottomSheet()
         }
 
-        binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, UserDashboardFragment())
-                .addToBackStack(null)
-                .commit()
-        }
 
         return binding.root
     }

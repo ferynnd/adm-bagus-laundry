@@ -8,6 +8,8 @@
     <color name="secondary">#536AF4</color>
     <color name="blueBase">#E7F0FF</color>
     <color name="blue900">#283954</color>
+    <color name="blue200">#90CAF9</color>
+    <color name="blue100">#BBDEFB</color>
     <color name="blueCharcoal">#02081A</color>
     <color name="gray900">#535353</color>
     <color name="success">#00A600</color>

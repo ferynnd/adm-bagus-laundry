@@ -41,20 +41,6 @@ class RentalTransaksiAdapter(
 
     inner class ReportRentalViewHolder(val binding: KurirCardTransaksiRentalBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        val wadah_status = binding.wadahStatus
-        val status = binding.statusTransaksiRental
-        val tipe = binding.tipeTransaksiRental
-        val tanggal = binding.tanggalTransaksiRental
-        val namaClient = binding.namaClientTransaksiRental
-        val namaPenerima = binding.namaPenerimaTransaksiRental
-        val namaKurir = binding.namaKurirTransaksiRental
-        val jumlahItem = binding.jumlahItemTransaksiRental
-        val beratPerKg = binding.hargaPerKgTransaksiRental
-        val totalBerat = binding.totalBeratTransaksiRental
-        val totalHarga = binding.totalHargaTransaksiRental
-        val promo = binding.promoTransaksiRental
-        val tambahan = binding.tambahanTransaksiRental
-        val note = binding.noteTransaksiRental
 
         init {
             itemView.setOnClickListener {

@@ -36,16 +36,6 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.35" />
 
-    <ImageView
-        android:id="@+id/arrowBack"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/back"
-        app:layout_constraintBottom_toBottomOf="@id/textHeaderLight"
-        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-        app:layout_constraintTop_toBottomOf="@id/guidelineTop"
-        app:layout_constraintTop_toTopOf="@id/textHeaderLight" />
-
     <TextView
         android:id="@+id/textHeaderBold"
         android:layout_width="wrap_content"

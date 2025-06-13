@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dev.ferynnd.baguslaundry.databinding.KurirCardProductLaundryBinding
+import dev.ferynnd.baguslaundry.databinding.KurirCardProductRentalBinding
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 
 class LaundryProductAdapter() : ListAdapter<ProductLaundry, LaundryProductAdapter.ProductLaundryViewHolder>(DiffCallback()) {
@@ -15,8 +16,8 @@ class LaundryProductAdapter() : ListAdapter<ProductLaundry, LaundryProductAdapte
     inner class ProductLaundryViewHolder(val binding: KurirCardProductLaundryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         val nama_laundry = binding.namaProductLaundry
-        val harga_waktu = binding.hargaWaktuProductLaundry
-        val deskripsi = binding.deskripsiProductLaundry
+        val harga_waktu = binding.waktuProductLaundry
+        val deskripsi = binding.hargaProductLaundry
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductLaundryViewHolder {

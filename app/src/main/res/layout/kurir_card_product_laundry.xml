@@ -28,11 +28,11 @@
             tools:ignore="MissingConstraints" />
 
         <TextView
-            android:id="@+id/harga_waktu_product_laundry"
+            android:id="@+id/waktu_product_laundry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter_bold"
-            android:text="Rp. 100.000 - 1 H"
+            android:text="1 H"
             android:textColor="@color/blue500"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,16 +40,16 @@
             tools:ignore="MissingConstraints" />
 
         <TextView
-            android:id="@+id/deskripsi_product_laundry"
+            android:id="@+id/harga_product_laundry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:fontFamily="@font/inter_medium"
+            android:fontFamily="@font/inter_semibold"
             android:maxLines="2"
             android:singleLine="false"
-            android:text="80 Kg"
+            android:text="Rp. 10.000"
             android:textColor="@color/gray900"
-            android:textSize="12sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:ignore="MissingConstraints" />

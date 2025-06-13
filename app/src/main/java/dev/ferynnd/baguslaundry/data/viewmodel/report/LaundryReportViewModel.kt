@@ -7,6 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
+import dev.ferynnd.baguslaundry.data.repository.UserRepository
+import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.repository.report.LaundryReportRepository
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ExportReportLaundry
@@ -22,12 +24,15 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
 
     private lateinit var laundryReportRepository: LaundryReportRepository
 
+    private val sharedPreferences = SharePrefrenceHelper(application)
+
+    private lateinit var userRepository: UserRepository
+
     private val _laundryReports = MutableLiveData<List<ReportLaundry>>()
     val laundryReports: LiveData<List<ReportLaundry>> get() = _laundryReports
 
     private val _createTransactionResponse = MutableLiveData<DefaultRequest<TransactionData>?>()
     val createTransactionResponse: LiveData<DefaultRequest<TransactionData>?> get() = _createTransactionResponse
-
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading
@@ -42,6 +47,7 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
 
     fun init(context: Context) {
         laundryReportRepository = LaundryReportRepository(context)
+        userRepository = UserRepository(context)
         getAllReportLaundry()
     }
 
@@ -76,10 +82,25 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         _loading.postValue(true) // Set loading to true
         _error.postValue("") // Reset error message
         try {
+            val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
+            if (userId == null) {
+                _error.postValue("ID user tidak ditemukan di SharedPreferences.")
+                return
+            }
+
+            val userResponse = userRepository.getUserById(userId)
+            if (!userResponse.success) {
+                _error.postValue("Gagal mengambil data user.")
+                return
+            }
+
+            val branchId = userResponse.data.id_branch_user
             val response = laundryReportRepository.getReportLaundry()
             if (response.success) {
-                _laundryReports.postValue(response.data)
-                _filteredLaundryReports.postValue(response.data) // Update filtered list as well
+                val laundryReports = response.data
+                val filteredList = laundryReports.filter { it.id_branch_transaction_laundry == branchId }
+                _laundryReports.postValue(filteredList)
+                _filteredLaundryReports.postValue(filteredList) // Update filtered list as well
             } else {
                 _error.postValue("Permintaan API gagal saat mengambil transaksi laundry: ${response.message}")
             }

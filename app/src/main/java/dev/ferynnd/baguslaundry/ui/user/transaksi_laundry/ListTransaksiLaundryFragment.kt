@@ -104,80 +104,80 @@ class ListTransaksiLaundryFragment : Fragment() {
         initializeFilterBottomSheet()
 
         // Dapatkan user dan baru lanjut observe
-        if (userId != 0) {
-            viewLifecycleOwner.lifecycleScope.launch {
-                try {
-                    val user = userViewModel.getUserById(userId)
-                    userIdBranch = user.data.id_branch_user!!.toInt()
-
-                    // Setelah userIdBranch tersedia, baru observe
-                    transaksiLaundryViewModel.laundryReports.observe(viewLifecycleOwner) { productLaundry ->
-                        productLaundry?.let {
-                            val filteredList = productLaundry.filter { item ->
-                                item.id_branch_transaction_laundry == userIdBranch
-                            }
-
-                            // Simpan list untuk pencarian
-                            fullTransaksiLaundryList = filteredList
-
-                            countListTransaksiLaundry = filteredList.size
-                            binding.countData.text = countListTransaksiLaundry.toString()
-
-                            if (fullTransaksiLaundryList.isNotEmpty()) {
-                                binding.recyclerViewTransaksiLaundry.visibility = View.VISIBLE
-                                binding.containerDataNotFound.visibility = View.GONE
-
-                                transaksiLaundryAdapter.submitList(filteredList)
-                            } else {
-                                binding.recyclerViewTransaksiLaundry.visibility = View.GONE
-                                binding.containerDataNotFound.visibility = View.VISIBLE
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Toast.makeText(
-                        requireContext(),
-                        "Gagal memuat data: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        } else {
-            Toast.makeText(context, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
-        }
+//        if (userId != 0) {
+//            viewLifecycleOwner.lifecycleScope.launch {
+//                try {
+//                    val user = userViewModel.getUserById(userId)
+//                    userIdBranch = user.data.id_branch_user!!.toInt()
+//
+//                    // Setelah userIdBranch tersedia, baru observe
+//                    transaksiLaundryViewModel.laundryReports.observe(viewLifecycleOwner) { productLaundry ->
+//                        productLaundry?.let {
+//                            val filteredList = productLaundry.filter { item ->
+//                                item.id_branch_transaction_laundry == userIdBranch
+//                            }
+//
+//                            // Simpan list untuk pencarian
+//                            fullTransaksiLaundryList = filteredList
+//
+//                            countListTransaksiLaundry = filteredList.size
+//                            binding.countData.text = countListTransaksiLaundry.toString()
+//
+//                            if (fullTransaksiLaundryList.isNotEmpty()) {
+//                                binding.recyclerViewTransaksiLaundry.visibility = View.VISIBLE
+//                                binding.containerDataNotFound.visibility = View.GONE
+//
+//                                transaksiLaundryAdapter.submitList(filteredList)
+//                            } else {
+//                                binding.recyclerViewTransaksiLaundry.visibility = View.GONE
+//                                binding.containerDataNotFound.visibility = View.VISIBLE
+//                            }
+//                        }
+//                    }
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Gagal memuat data: ${e.message}",
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                }
+//            }
+//        } else {
+//            Toast.makeText(context, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
+//        }
 
         // Fungsi pencarian
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false // kita proses real-time, jadi tidak perlu submit
-            }
+//        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//                return false // kita proses real-time, jadi tidak perlu submit
+//            }
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                val query = newText.orEmpty().lowercase()
+//                val filtered = fullTransaksiLaundryList.filter {
+//                    it.name_client_transaction_laundry!!.lowercase().contains(query)
+//                }
+//
+//                if (fullTransaksiLaundryList.isNotEmpty()) {
+//                    binding.recyclerViewTransaksiLaundry.visibility = View.VISIBLE
+//                    binding.containerDataNotFound.visibility = View.GONE
+//
+//                    transaksiLaundryAdapter.submitList(filtered)
+//                } else {
+//                    binding.recyclerViewTransaksiLaundry.visibility = View.GONE
+//                    binding.containerDataNotFound.visibility = View.VISIBLE
+//                }
+//
+//                binding.searchView.setIconifiedByDefault(false)
+//                binding.countData.text = filtered.size.toString()
+//                return true
+//            }
+//        })
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                val query = newText.orEmpty().lowercase()
-                val filtered = fullTransaksiLaundryList.filter {
-                    it.name_client_transaction_laundry!!.lowercase().contains(query)
-                }
-
-                if (fullTransaksiLaundryList.isNotEmpty()) {
-                    binding.recyclerViewTransaksiLaundry.visibility = View.VISIBLE
-                    binding.containerDataNotFound.visibility = View.GONE
-
-                    transaksiLaundryAdapter.submitList(filtered)
-                } else {
-                    binding.recyclerViewTransaksiLaundry.visibility = View.GONE
-                    binding.containerDataNotFound.visibility = View.VISIBLE
-                }
-
-                binding.searchView.setIconifiedByDefault(false)
-                binding.countData.text = filtered.size.toString()
-                return true
-            }
-        })
-
-        binding.imageFilter.setOnClickListener {
-            showFilterBottomSheet()
-        }
+//        binding.imageFilter.setOnClickListener {
+//            showFilterBottomSheet()
+//        }
 
 //        binding.arrowBack.setOnClickListener {
 //            parentFragmentManager.beginTransaction()
@@ -223,15 +223,15 @@ class ListTransaksiLaundryFragment : Fragment() {
             filterBottomSheetView.findViewById<MaterialButton>(R.id.terapkan_filter)
         val resetFilter = filterBottomSheetView.findViewById<MaterialButton>(R.id.reset_filter)
 
-        terapkanFilter.setOnClickListener {
-            applyFilters()
-            filterBottomSheetDialog.dismiss()
-        }
-
-        resetFilter.setOnClickListener {
-            resetAllFilters()
-            filterBottomSheetDialog.dismiss()
-        }
+//        terapkanFilter.setOnClickListener {
+//            applyFilters()
+//            filterBottomSheetDialog.dismiss()
+//        }
+//
+//        resetFilter.setOnClickListener {
+//            resetAllFilters()
+//            filterBottomSheetDialog.dismiss()
+//        }
 
         val behavior = filterBottomSheetDialog.behavior
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -309,31 +309,31 @@ class ListTransaksiLaundryFragment : Fragment() {
     }
 
     // Reset all filters
-    private fun resetAllFilters() {
-        // Clear all selections
-        selectedFilters.forEach { (_, selections) -> selections.clear() }
-
-        // Reset UI for all buttons
-        filterButtons.forEach { (_, buttons) ->
-            buttons.forEach { (card, textView) ->
-                card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
-                textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue500))
-            }
-            buttons.clear()
-        }
-
-        if (fullTransaksiLaundryList.isNotEmpty()) {
-            binding.recyclerViewTransaksiLaundry.visibility = View.VISIBLE
-            binding.containerDataNotFound.visibility = View.GONE
-
-            transaksiLaundryAdapter.submitList(fullTransaksiLaundryList)
-        } else {
-            binding.recyclerViewTransaksiLaundry.visibility = View.GONE
-            binding.containerDataNotFound.visibility = View.VISIBLE
-        }
-
-        binding.countData.text = fullTransaksiLaundryList.size.toString()
-    }
+//    private fun resetAllFilters() {
+//        // Clear all selections
+//        selectedFilters.forEach { (_, selections) -> selections.clear() }
+//
+//        // Reset UI for all buttons
+//        filterButtons.forEach { (_, buttons) ->
+//            buttons.forEach { (card, textView) ->
+//                card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+//                textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue500))
+//            }
+//            buttons.clear()
+//        }
+//
+//        if (fullTransaksiLaundryList.isNotEmpty()) {
+//            binding.recyclerViewTransaksiLaundry.visibility = View.VISIBLE
+//            binding.containerDataNotFound.visibility = View.GONE
+//
+//            transaksiLaundryAdapter.submitList(fullTransaksiLaundryList)
+//        } else {
+//            binding.recyclerViewTransaksiLaundry.visibility = View.GONE
+//            binding.containerDataNotFound.visibility = View.VISIBLE
+//        }
+//
+//        binding.countData.text = fullTransaksiLaundryList.size.toString()
+//    }
 
     // Show bottom sheet filter
     private fun showFilterBottomSheet() {
@@ -341,36 +341,36 @@ class ListTransaksiLaundryFragment : Fragment() {
     }
 
     // Apply current filters to the list
-    private fun applyFilters() {
-        val statusFilters = selectedFilters["status"] ?: emptySet()
-
-        val filteredList = fullTransaksiLaundryList.filter { item ->
-
-            val statusMatches = if (statusFilters.isEmpty()) {
-                true
-            } else {
-                val statusName = when (item.status_transaction_laundry) {
-                    StatusReportLaundry.paid -> "pending"
-                    StatusReportLaundry.unpaid -> "in_progress"
-                    StatusReportLaundry.completed -> "completed"
-                    StatusReportLaundry.cancelled -> "cancelled"
-                }
-                statusFilters.contains(statusName)
-            }
-
-            statusMatches
-        }
-
-        if (filteredList.isNotEmpty()) {
-            binding.recyclerViewTransaksiLaundry.visibility = View.VISIBLE
-            binding.containerDataNotFound.visibility = View.GONE
-
-            transaksiLaundryAdapter.submitList(filteredList)
-        } else {
-            binding.recyclerViewTransaksiLaundry.visibility = View.GONE
-            binding.containerDataNotFound.visibility = View.VISIBLE
-        }
-
-        binding.countData.text = filteredList.size.toString()
-    }
+//    private fun applyFilters() {
+//        val statusFilters = selectedFilters["status"] ?: emptySet()
+//
+//        val filteredList = fullTransaksiLaundryList.filter { item ->
+//
+//            val statusMatches = if (statusFilters.isEmpty()) {
+//                true
+//            } else {
+//                val statusName = when (item.status_transaction_laundry) {
+//                    StatusReportLaundry.paid -> "pending"
+//                    StatusReportLaundry.unpaid -> "in_progress"
+//                    StatusReportLaundry.completed -> "completed"
+//                    StatusReportLaundry.cancelled -> "cancelled"
+//                }
+//                statusFilters.contains(statusName)
+//            }
+//
+//            statusMatches
+//        }
+//
+//        if (filteredList.isNotEmpty()) {
+//            binding.recyclerViewTransaksiLaundry.visibility = View.VISIBLE
+//            binding.containerDataNotFound.visibility = View.GONE
+//
+//            transaksiLaundryAdapter.submitList(filteredList)
+//        } else {
+//            binding.recyclerViewTransaksiLaundry.visibility = View.GONE
+//            binding.containerDataNotFound.visibility = View.VISIBLE
+//        }
+//
+//        binding.countData.text = filteredList.size.toString()
+//    }
 }

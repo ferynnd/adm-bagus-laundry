@@ -150,12 +150,6 @@ class ListProductRentalFragment : Fragment() {
             Toast.makeText(context, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
 
-        binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, UserDashboardFragment())
-                .addToBackStack(null)
-                .commit()
-        }
 
         binding.imageFilter.setOnClickListener {
             showFilterBottomSheet()

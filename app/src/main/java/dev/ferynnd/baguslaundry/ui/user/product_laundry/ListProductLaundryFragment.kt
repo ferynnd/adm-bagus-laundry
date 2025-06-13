@@ -66,80 +66,80 @@ class ListProductLaundryFragment : Fragment() {
         }
 
         // Dapatkan user dan baru lanjut observe
-        if (userId != 0) {
-            viewLifecycleOwner.lifecycleScope.launch {
-                try {
-                    val user = userViewModel.getUserById(userId)
-                    userIdBranch = user.data.id_branch_user!!.toInt()
-
-
-                    laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { productLaundry ->
-                        val filteredList = productLaundry.filter { item ->
-                            item.id_branch_laundry_item == userIdBranch
-                        }
-
-                        fullLaundryList = filteredList
+//        if (userId != 0) {
+//            viewLifecycleOwner.lifecycleScope.launch {
+//                try {
+//                    val user = userViewModel.getUserById(userId)
+//                    userIdBranch = user.data.id_branch_user!!.toInt()
 //
-                        countProductLaundry = filteredList.size
-                        binding.countData.text = countProductLaundry.toString()
-
-                        if (filteredList.isNotEmpty()) {
-                            binding.recyclerViewProductLaundry.visibility = View.VISIBLE
-                            binding.containerDataNotFound.visibility = View.GONE
-
-                            laundryProductAdapter.submitList(filteredList)
-                        } else {
-                            binding.recyclerViewProductLaundry.visibility = View.GONE
-                            binding.containerDataNotFound.visibility = View.VISIBLE
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Toast.makeText(
-                        requireContext(),
-                        "Gagal memuat data: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        } else {
-            Toast.makeText(context, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
-        }
+//
+//                    laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { productLaundry ->
+//                        val filteredList = productLaundry.filter { item ->
+//                            item.id_branch_laundry_item == userIdBranch
+//                        }
+//
+//                        fullLaundryList = filteredList
+////
+//                        countProductLaundry = filteredList.size
+//                        binding.countData.text = countProductLaundry.toString()
+//
+//                        if (filteredList.isNotEmpty()) {
+//                            binding.recyclerViewProductLaundry.visibility = View.VISIBLE
+//                            binding.containerDataNotFound.visibility = View.GONE
+//
+//                            laundryProductAdapter.submitList(filteredList)
+//                        } else {
+//                            binding.recyclerViewProductLaundry.visibility = View.GONE
+//                            binding.containerDataNotFound.visibility = View.VISIBLE
+//                        }
+//                    }
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "Gagal memuat data: ${e.message}",
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                }
+//            }
+//        } else {
+//            Toast.makeText(context, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
+//        }
 
         // Fungsi pencarian
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                val query = newText.orEmpty().lowercase()
-                val filtered = fullLaundryList.filter {
-                    it.name_laundry_item!!.lowercase().contains(query)
-                }
-
-                if (filtered.isNotEmpty()) {
-                    binding.recyclerViewProductLaundry.visibility = View.VISIBLE
-                    binding.containerDataNotFound.visibility = View.GONE
-
-                    laundryProductAdapter.submitList(filtered)
-                } else {
-                    binding.recyclerViewProductLaundry.visibility = View.GONE
-                    binding.containerDataNotFound.visibility = View.VISIBLE
-                }
-
-                binding.searchView.setIconifiedByDefault(false)
-                binding.countData.text = filtered.size.toString()
-                return true
-            }
-        })
-
-        binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, UserDashboardFragment())
-                .addToBackStack(null)
-                .commit()
-        }
+//        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//                return false
+//            }
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                val query = newText.orEmpty().lowercase()
+//                val filtered = fullLaundryList.filter {
+//                    it.name_laundry_item!!.lowercase().contains(query)
+//                }
+//
+//                if (filtered.isNotEmpty()) {
+//                    binding.recyclerViewProductLaundry.visibility = View.VISIBLE
+//                    binding.containerDataNotFound.visibility = View.GONE
+//
+//                    laundryProductAdapter.submitList(filtered)
+//                } else {
+//                    binding.recyclerViewProductLaundry.visibility = View.GONE
+//                    binding.containerDataNotFound.visibility = View.VISIBLE
+//                }
+//
+//                binding.searchView.setIconifiedByDefault(false)
+//                binding.countData.text = filtered.size.toString()
+//                return true
+//            }
+//        })
+//
+//        binding.arrowBack.setOnClickListener {
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.host_fragment_user, UserDashboardFragment())
+//                .addToBackStack(null)
+//                .commit()
+//        }
 
         return binding.root
     }

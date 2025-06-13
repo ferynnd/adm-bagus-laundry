@@ -9,6 +9,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.api.DefaultRequestInvoice
+import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.data.repository.UserRepository
 import dev.ferynnd.baguslaundry.data.repository.report.RentalReportRepository
 import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
 import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
@@ -27,6 +29,10 @@ import kotlinx.coroutines.launch
 class RentalReportViewModel(application: Application) : AndroidViewModel(application) {
 
     private lateinit var rentalReportRepository: RentalReportRepository
+
+    private val sharedPreferences = SharePrefrenceHelper(application)
+
+    private lateinit var userRepository: UserRepository
 
     private val _rentalReports = MutableLiveData<List<ReportRental>>()
     val rentalReports: LiveData<List<ReportRental>> get() = _rentalReports
@@ -54,6 +60,7 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
 
     fun init(context: Context) {
         rentalReportRepository = RentalReportRepository(context)
+        userRepository = UserRepository(context)
         getAllReportRental()
         getAllInvoiceRental()
     }
@@ -101,6 +108,39 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
             } finally {
                 _loading.postValue(false) // Always set loading to false
             }
+        }
+    }
+
+    suspend fun getReportRental(){
+        _loading.postValue(true) // Set loading to true
+        _error.postValue("") // Reset error message
+        try {
+            val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
+            if (userId == null) {
+                _error.postValue("ID user tidak ditemukan di SharedPreferences.")
+                return
+            }
+
+            val userResponse = userRepository.getUserById(userId)
+            if (!userResponse.success) {
+                _error.postValue("Gagal mengambil data user.")
+                return
+            }
+
+            val branchId = userResponse.data.id_branch_user
+            val response = rentalReportRepository.getReportRental()
+            if (response.success) {
+                val rentalReports = response.data
+                val filteredList = rentalReports.filter { it.id_branch_transaction_rental == branchId }
+                _rentalReports.postValue(filteredList)
+                _filteredRentalReports.postValue(filteredList) // Update filtered list as well
+            } else {
+                _error.postValue("Permintaan API gagal saat mengambil transaksi rental: ${response.message}")
+            }
+        } catch (e: Exception) {
+            _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil transaksi rental.")
+        } finally {
+            _loading.postValue(false)
         }
     }
 

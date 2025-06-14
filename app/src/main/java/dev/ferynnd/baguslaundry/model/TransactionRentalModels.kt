@@ -10,17 +10,17 @@ data class RentalTransactionRequest(
 )
 
 data class RentalTransactionItem(
-    val id_item_rental: Int,
+    val id_item_rental: Int?,
     val status_list_transaction_rental: String, // "in", "out", "cancelled"
     val condition_list_transaction_rental: String, // "clean", "dirty", "damaged"
     val count_list_transaction_rental: Int,
-    val weight_list_transaction_rental: Double
+    val weight_list_transaction_rental: Double? = null
 )
 
 data class RentalTransactionResponse(
     val success: Boolean,
     val message: String = "",
-    val data: RentalTransactionData? = null,
+    val data: RentalTransactionData?,
     val errors: Map<String, Any>? = null
 )
 

@@ -1,8 +1,6 @@
 package dev.ferynnd.baguslaundry.data.api
 
 
-import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
-import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.RentalTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.RentalTransactionRequest

@@ -7,8 +7,6 @@ import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.api.DefaultRequestInvoice
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
-import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
-import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
 import dev.ferynnd.baguslaundry.model.RentalTransactionResponse
 import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest

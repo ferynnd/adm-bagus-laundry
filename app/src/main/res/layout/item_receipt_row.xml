@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="4dp"
+    android:fontFamily="@font/inter"
+    android:layout_marginBottom="4dp"> <TextView
+        android:id="@+id/text_item_name_and_calc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:text="Nama Item (XX.XKg x Y.000)"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textColor="@color/gray900" /> <TextView
+        android:id="@+id/text_item_total_price"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:gravity="end"
+        android:text="Rp 0"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textColor="@color/gray900" /> </LinearLayout>

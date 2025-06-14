@@ -4,6 +4,9 @@
         android:id="@+id/menu_setting"
         android:title="PROFILE" />
     <item
+        android:id="@+id/menu_bluetooth"
+        android:title="BLUETOOTH" />
+    <item
         android:id="@+id/menu_logout"
         android:title="KELUAR" />
 </menu>

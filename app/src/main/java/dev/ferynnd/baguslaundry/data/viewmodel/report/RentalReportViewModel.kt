@@ -12,8 +12,6 @@ import dev.ferynnd.baguslaundry.data.api.DefaultRequestInvoice
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.repository.UserRepository
 import dev.ferynnd.baguslaundry.data.repository.report.RentalReportRepository
-import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
-import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
 import dev.ferynnd.baguslaundry.model.RentalTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.RentalTransactionRequest

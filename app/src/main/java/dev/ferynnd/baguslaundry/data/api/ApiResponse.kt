@@ -25,6 +25,19 @@ data class DefaultRequest<T>(
     val errors: String? = null
 )
 
+data class DefaultRequestPrint<T>(
+    val success: Boolean,
+    val message: String,
+    val data: T?,
+    val errors: String? = null
+)
+
+data class DefaultResponse(
+    val success: Boolean,
+    val message: String,
+    val errors: Any? = null
+)
+
 data class DefaultRequestInvoice<T>(
     val success: Boolean,
     val message: String,

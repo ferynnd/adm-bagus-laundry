@@ -15,8 +15,6 @@ import dev.ferynnd.baguslaundry.controller.user.KurirProductAdapter
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.NetworkViewModel
 import dev.ferynnd.baguslaundry.databinding.ActivityUserBinding
-import dev.ferynnd.baguslaundry.ui.user.product_laundry.ListProductLaundryFragment
-import dev.ferynnd.baguslaundry.ui.user.transaksi_laundry.ListTransaksiLaundryFragment
 
 class UserActivity : AppCompatActivity() {
 

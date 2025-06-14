@@ -62,13 +62,12 @@ class ListItemTransactionLaundryFragment : Fragment(), ListItemTransactionLaundr
             laundryProductAdapter.submitList(filteredProducts)
         }
 
-        // Tombol submit hanya muncul jika ada item yang dipilih
         laundryProductViewModel.selectedItems.observe(viewLifecycleOwner) { selected ->
             binding.btnSubmit.visibility = if (selected.isNotEmpty()) View.VISIBLE else View.GONE
             binding.btnSubmit.setOnClickListener {
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.host_fragment_user, LaundryTransactionMenuFragment())
-                    .addToBackStack(null)
+                    .addToBackStack("product")
                     .commit()
             }
         }
@@ -76,7 +75,7 @@ class ListItemTransactionLaundryFragment : Fragment(), ListItemTransactionLaundr
         // Tombol kembali
         binding.arrowBack.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, UserDashboardFragment())
+                .replace(R.id.host_fragment_user, UserDashboardFragment())
                 .commit()
         }
 
@@ -90,6 +89,11 @@ class ListItemTransactionLaundryFragment : Fragment(), ListItemTransactionLaundr
 
     private fun hideBottomNavigationView() {
         activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
     }
 
     override fun onItemClick(item: ProductLaundry, position: Int) {

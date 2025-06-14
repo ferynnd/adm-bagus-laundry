@@ -112,7 +112,7 @@ class AdminDetailListReportLaundryFragment : Fragment() {
 
 
                     binding.apply {
-                        inputEmployment.text = dataReport.id_user_transaction_laundry.toString()
+                        inputEmployment.text = dataReport.id_kurir_transaction_laundry.toString()
                         inputBranch.text = dataReport.id_branch_transaction_laundry.toString()
                         inputCustommer.text = dataReport.name_client_transaction_laundry
                         inputNotes.text = dataReport.notes_transaction_laundry
@@ -122,7 +122,7 @@ class AdminDetailListReportLaundryFragment : Fragment() {
                         val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 
                         inputCountItem.text =
-                            dataReport.count_item_laundry_transaction_laundry.toString()
+                            dataReport.count_item_transaction_laundry.toString()
                         inputCash.text = formatRupiah.format(dataReport.cash_transaction_laundry)
                         inputTotalPrice.text =
                             formatRupiah.format(dataReport.total_price_transaction_laundry)
@@ -134,7 +134,7 @@ class AdminDetailListReportLaundryFragment : Fragment() {
                                 ?: "Unknown"
                         inputBranch.text = branchName
                         val employeeName =
-                            users.find { it.id_user == dataReport.id_user_transaction_laundry }?.fullname_user
+                            users.find { it.id_user == dataReport.id_kurir_transaction_laundry }?.fullname_user
                                 ?: "Unknown"
                         inputEmployment.text = employeeName
                         val dataStatus = when (dataReport.status_transaction_laundry) {

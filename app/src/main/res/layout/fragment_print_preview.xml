@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:title="Print Preview"
+            app:titleTextColor="?attr/colorOnPrimary"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Gunakan FrameLayout untuk menumpuk konten dan ProgressBar -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/background"
+            android:padding="16dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/receipt_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:maxWidth="400dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/white">
+
+                <include
+                    android:id="@+id/receipt_layout_include"
+                    layout="@layout/layout_receipt_preview"/>
+            </com.google.android.material.card.MaterialCardView>
+        </ScrollView>
+
+        <!-- PROGRESS BAR -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:indeterminateTint="@color/blue500"
+            android:layout_margin="16dp"/>
+    </FrameLayout>
+
+    <!-- BUTTON PRINT -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/print_button"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="Print Receipt"
+        app:icon="@drawable/report"
+        app:iconGravity="textStart"
+        style="@style/Widget.MaterialComponents.Button.Icon"/>
+</LinearLayout>

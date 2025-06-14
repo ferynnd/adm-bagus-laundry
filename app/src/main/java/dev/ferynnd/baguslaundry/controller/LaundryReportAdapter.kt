@@ -77,7 +77,7 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
                     val transactionReportLaundry = item as ReportLaundry
 
                     val branchName = branches.find { it.id_branch == transactionReportLaundry.id_branch_transaction_laundry }?.name_branch ?: "Unknown"
-                    val userName = users.find { it.id_user == transactionReportLaundry.id_user_transaction_laundry }?.fullname_user ?: "Unknown"
+                    val userName = users.find { it.id_user == transactionReportLaundry.id_kurir_transaction_laundry }?.fullname_user ?: "Unknown"
 
                     holder.binding.apply {
                         idTransactionLaundry.text = transactionReportLaundry.number_transaction_laundry.toString()
@@ -92,7 +92,7 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
                         inputEmployment.text = userName
                         inputCustommer.text = transactionReportLaundry.name_client_transaction_laundry.toString()
                         inputWeight.text = transactionReportLaundry.total_weight_transaction_laundry.toString()
-                        inputCountItem.text = transactionReportLaundry.count_item_laundry_transaction_laundry.toString()
+                        inputCountItem.text = transactionReportLaundry.count_item_transaction_laundry.toString()
                         val localeID = Locale("in", "ID")
                         val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 

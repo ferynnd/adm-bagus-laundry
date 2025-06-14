@@ -4,18 +4,21 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import dev.ferynnd.baguslaundry.databinding.KurirCardListTransaksiLaundryBinding
-import dev.ferynnd.baguslaundry.databinding.KurirCardListTransaksiRentalBinding
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.databinding.KurirCardTransaksiLaundryBinding
 import dev.ferynnd.baguslaundry.databinding.KurirCardTransaksiRentalBinding
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.Client
+import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import dev.ferynnd.baguslaundry.model.User
+import java.text.NumberFormat
+import java.util.Locale
 
 
 class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()){
@@ -32,6 +35,14 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
         users = userList
         notifyDataSetChanged()
     }
+
+      // Formatter untuk mata uang (sama seperti di Fragment)
+    private val numberFormatter: NumberFormat =
+        NumberFormat.getCurrencyInstance(Locale("in", "ID")).apply {
+            isGroupingUsed = true // Untuk pemisah ribuan (titik)
+            maximumFractionDigits = 0 // Ini yang menghilangkan ",00"
+            minimumFractionDigits = 0 // Pastikan tidak ada desimal minimal
+        }
 
 
     inner class TransactionRentalViewHolder(val binding: KurirCardTransaksiRentalBinding) :
@@ -71,18 +82,25 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
         when (holder) {
             is TransactionLaundryViewHolder -> {
                 val laundryReport = item as ReportLaundry
+                val context = holder.binding.root.context
                 holder.binding.numberTransaction.text = laundryReport.number_transaction_laundry.toString()
+                if (laundryReport.status_transaction_laundry == StatusReportLaundry.completed) {
+                    holder.binding.wadahStatus.setCardBackgroundColor(ContextCompat.getColor(
+                                context,
+                                R.color.greenBlueLight
+                            ))
+                }
                 holder.binding.namaPelangganTransaksiLaundry.text = laundryReport.name_client_transaction_laundry.toString()
                 holder.binding.tanggalMasukTransaksiLaundry.text = laundryReport.first_date_transaction_laundry.toString()
-                holder.binding.tanggalKeluarTransaksiLaundry.text = laundryReport.last_date_transaction_laundry.toString()
-                holder.binding.pcsTransaksiLaundry.text =  if ( laundryReport.count_item_laundry_transaction_laundry == null ) "0" else laundryReport.count_item_laundry_transaction_laundry.toString()
+                holder.binding.tanggalKeluarTransaksiLaundry.text = if( laundryReport.last_date_transaction_laundry == null ) "Tidak ada tanggal keluar" else laundryReport.last_date_transaction_laundry.toString()
+                holder.binding.pcsTransaksiLaundry.text =  if ( laundryReport.count_item_transaction_laundry == null ) "0" else laundryReport.count_item_transaction_laundry.toString()
                 holder.binding.statusTransaksiLaundry.text = laundryReport.status_transaction_laundry.toString()
-                holder.binding.hargaTransaksiLaundry.text = laundryReport.total_transaction_laundry.toString()
+                holder.binding.hargaTransaksiLaundry.text =  numberFormatter.format(laundryReport.total_transaction_laundry?.toDouble() ?: 0.0)
                 holder.binding.beratTransaksiLaundry.text = laundryReport.total_weight_transaction_laundry.toString()
-                holder.binding.totalHargaTransaksiLaundry.text = laundryReport.total_price_transaction_laundry.toString()
-                holder.binding.tunaiTransaksiLaundry.text = laundryReport.cash_transaction_laundry.toString()
-                holder.binding.kembalianTransaksiLaundry.text = laundryReport.change_money_transaction_laundry.toString()
-                holder.binding.noteTransaksiLaundry.text = laundryReport.notes_transaction_laundry.toString()
+                holder.binding.totalHargaTransaksiLaundry.text =  numberFormatter.format(laundryReport.total_price_transaction_laundry?.toDouble() ?: 0.0)
+                holder.binding.tunaiTransaksiLaundry.text =  numberFormatter.format(laundryReport.cash_transaction_laundry?.toDouble() ?: 0.0)
+                holder.binding.kembalianTransaksiLaundry.text =  numberFormatter.format(laundryReport.change_money_transaction_laundry?.toDouble() ?: 0.0)
+                holder.binding.noteTransaksiLaundry.text = if ( laundryReport.notes_transaction_laundry == null ) "Tidak ada catatan" else laundryReport.notes_transaction_laundry.toString()
             }
             is TransactionRentalViewHolder -> {
                 val rentalReport = item as ReportRental
@@ -95,7 +113,7 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
                 holder.binding.namaKurirTransaksiRental.text = userName
                 holder.binding.jumlahItemTransaksiRental.text = rentalReport.total_pcs_transaction_rental.toString()
                 holder.binding.totalBeratTransaksiRental.text = rentalReport.total_weight_transaction_rental.toString()
-                holder.binding.noteTransaksiRental.text = rentalReport.notes_transaction_rental.toString()
+                holder.binding.noteTransaksiRental.text = if( rentalReport.notes_transaction_rental == null ) "Tidak ada catatan" else rentalReport.notes_transaction_rental.toString()
             }
         }
     }

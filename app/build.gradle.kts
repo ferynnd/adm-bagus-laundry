@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+     id("kotlin-parcelize")
 }
 
 android {
@@ -62,10 +63,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
+    implementation("com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.3.0")
+
     //gsom
     implementation(libs.gson)
 
-//    ksp(libs.symbol.processing.api) // Ganti dengan versi yang sesuai
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

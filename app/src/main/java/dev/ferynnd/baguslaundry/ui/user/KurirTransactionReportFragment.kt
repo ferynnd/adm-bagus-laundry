@@ -22,6 +22,7 @@ import dev.ferynnd.baguslaundry.databinding.KurirFragmentListTransaksiLaundryBin
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.model.Client
+import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import dev.ferynnd.baguslaundry.model.User
 import kotlinx.coroutines.launch
 
@@ -46,6 +47,7 @@ class KurirTransactionReportFragment : Fragment() {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
+        clientViewModel.init(requireContext())
         laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java].apply { init(requireContext()) }
         rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java].apply { init(requireContext()) }
     }
@@ -74,8 +76,8 @@ class KurirTransactionReportFragment : Fragment() {
         // Observer produk laundry
         laundryReportViewModel.laundryReports.observe(viewLifecycleOwner) { laundry ->
             if (isLaundryTabSelected()) {
-                Log.d("Laundry", laundry.toString())
-                updateTransactionReportList(laundry)
+                val filterStatus = laundry?.filter { it.status_transaction_laundry == StatusReportLaundry.completed }
+                updateTransactionReportList(filterStatus)
                 updateCounter(laundry?.size ?: 0, "Laundry")
             }
         }
@@ -83,7 +85,6 @@ class KurirTransactionReportFragment : Fragment() {
         // Observer produk rental
         rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { rental ->
             if (isRentalTabSelected()) {
-                    Log.d("Rental", rental.toString())
                 updateTransactionReportList(rental)
                 updateCounter(rental?.size ?: 0, "Persewaan")
             }
@@ -132,13 +133,11 @@ class KurirTransactionReportFragment : Fragment() {
             0 -> {
                 viewLifecycleOwner.lifecycleScope.launch {
                     laundryReportViewModel.getReportLaundry()
-                    Log.d("Laundry", laundryReportViewModel.laundryReports.value.toString())
                 }
             }
             1 -> {
                 viewLifecycleOwner.lifecycleScope.launch {
                     rentalReportViewModel.getReportRental()
-                    Log.d("Rental", rentalReportViewModel.rentalReports.value.toString())
                 }
             }
         }

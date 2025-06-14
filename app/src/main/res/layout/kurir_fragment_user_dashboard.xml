@@ -161,28 +161,41 @@
         app:layout_constraintStart_toStartOf="@id/iconLaundry"
         app:layout_constraintTop_toBottomOf="@id/iconLaundry" />
 
-    <!--    <TextView-->
-    <!--        android:id="@+id/textTitle"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="DATA MASUK"-->
-    <!--        android:layout_marginTop="20dp"-->
-    <!--        android:fontFamily="@font/inter_semibold"-->
-    <!--        android:textSize="15sp"-->
-    <!--        android:textColor="@color/blue900"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/menuTransaksiLaundry"-->
-    <!--        app:layout_constraintStart_toEndOf="@id/guidelineLeft"-->
-    <!--        />-->
 
-    <!--    <androidx.recyclerview.widget.RecyclerView-->
-    <!--        android:id="@+id/recyclerView"-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginBottom="8dp"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--        app:layout_constraintEnd_toStartOf="@id/guidelineRight"-->
-    <!--        app:layout_constraintStart_toEndOf="@id/guidelineLeft"-->
-    <!--        app:layout_constraintTop_toBottomOf="@+id/textTitle"-->
-    <!--        tools:listitem="@layout/card_transaksi_laundry" />-->
+    <TextView
+        android:id="@+id/textTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/inter_semibold"
+        android:text="TRANSAKSI TERBARU"
+        android:textColor="@color/blue900"
+        android:textSize="15sp"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/menuTransaksiLaundry" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/textTitle"
+        tools:listitem="@layout/card_dashboard" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progresBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:layout_constraintBottom_toBottomOf="@id/recyclerView"
+        app:layout_constraintEnd_toEndOf="@id/recyclerView"
+        app:layout_constraintStart_toStartOf="@id/recyclerView"
+        app:layout_constraintTop_toTopOf="@id/recyclerView" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

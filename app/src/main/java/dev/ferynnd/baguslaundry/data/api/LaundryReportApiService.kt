@@ -1,8 +1,7 @@
 package dev.ferynnd.baguslaundry.data.api
 
 import dev.ferynnd.baguslaundry.model.ExportReportLaundry
-import dev.ferynnd.baguslaundry.model.LaundryTransactionRequest
-import dev.ferynnd.baguslaundry.model.LaundryTransactionResponse
+import dev.ferynnd.baguslaundry.model.LaundryPrintTransaction
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportLaundryResponse
 import dev.ferynnd.baguslaundry.model.TransactionData
@@ -43,10 +42,16 @@ interface LaundryReportApiService {
         @Path("role") role: String,
         @Path("id") id: Int,
         @Body reportLaundry: ReportLaundry
-    ): DefaultRequest<ReportLaundry>
+    ): DefaultResponse // Asumsi mengembalikan DefaultResponse
 
      @POST("api/admin/export_laundry_monthly")
     suspend fun exportLaundryMonthly(
         @Body exportReportLaundry: ExportReportLaundry
     ): DefaultRequest<ReportLaundryResponse>
+
+    @GET("api/{role}/transaction_laundries/{id}/list")
+    suspend fun getLaundryPrint(
+        @Path("role") role: String,
+        @Path("id") id: Int?
+    ) : DefaultRequestPrint<LaundryPrintTransaction>
 }

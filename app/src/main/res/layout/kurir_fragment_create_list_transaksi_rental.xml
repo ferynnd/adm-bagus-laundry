@@ -9,6 +9,7 @@
     tools:context=".ui.user.transaksi_rental.CreateListTransaksiRentalFragment">
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -151,10 +152,10 @@
                     style="@style/CustomTextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Nama Klien"
                     android:fontFamily="@font/inter_medium"
-                    android:textColor="@color/black"
-                    android:inputType="none" />
+                    android:hint="Nama Klien"
+                    android:inputType="none"
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -197,10 +198,10 @@
                     style="@style/CustomTextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Nama Penerima"
                     android:fontFamily="@font/inter_medium"
-                    android:textColor="@color/black"
-                    android:inputType="textPersonName" />
+                    android:hint="Nama Penerima"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -218,10 +219,10 @@
                     style="@style/CustomTextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Catatan (Opsional)"
                     android:fontFamily="@font/inter_medium"
-                    android:textColor="@color/black"
-                    android:inputType="none" />
+                    android:hint="Catatan (Opsional)"
+                    android:inputType="none"
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -242,5 +243,15 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progresBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,6 +13,7 @@ import dev.ferynnd.baguslaundry.data.repository.UserRepository
 import dev.ferynnd.baguslaundry.data.repository.product.LaundryProductRepository
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 class LaundryProductViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -186,6 +187,15 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
 //        }
 //        _selectedItems.postValue(currentList)
 //    }
+
+    fun updateItemWeight(itemId: Int, weight: BigDecimal) {
+        val currentList = _selectedItems.value?.toMutableList() ?: return
+        val index = currentList.indexOfFirst { it.id_laundry_item == itemId }
+        if (index != -1) {
+            currentList[index] = currentList[index].copy(weight = weight)
+            _selectedItems.value = currentList
+        }
+    }
 
     fun toggleItemSelection(item: ProductLaundry) {
         item.isSelected = !(item.isSelected ?: false)

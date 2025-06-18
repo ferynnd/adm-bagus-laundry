@@ -101,35 +101,6 @@ class CreateListTransaksiRentalFragment : Fragment() {
             Toast.makeText(context, "Data pengguna tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
 
-        // --- Hapus blok observer ini dari sini ---
-        // rentalReportViewModel.createTransactionResponse.observe(viewLifecycleOwner) { response ->
-        //    if (response != null) {
-        //        if (response.success) {
-        //            Toast.makeText(requireContext(), "Data Berhasil Disimpan", Toast.LENGTH_SHORT)
-        //                .show()
-        //           val bundle = Bundle()
-        //            bundle.putInt("transactionId", response.data.data?.id_transaction_rental!!)
-        //
-        //            val fragment = PrintPreviewRentalFragment()
-        //            fragment.arguments = bundle
-        //
-        //            parentFragmentManager.beginTransaction()
-        //                .replace(R.id.host_fragment_user, fragment)
-        //                .addToBackStack(null) // opsional, jika ingin bisa kembali
-        //                .commit()
-        //
-        //        } else {
-        //            Toast.makeText(
-        //                requireContext(),
-        //                response.message ?: "Gagal membuat transaksi.",
-        //                Toast.LENGTH_SHORT
-        //            ).show()
-        //        }
-        //        rentalReportViewModel.clearCreateTransactionResponse()
-        //    }
-        // }
-        // --- Akhir blok yang dihapus ---
-
         setupClickListeners()
         return binding.root
     }

@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -34,14 +35,16 @@ import java.math.BigDecimal // Import BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
 
-class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapter.OnItemWeightChangeListener {
+class LaundryTransactionMenuFragment : Fragment() {
 
     private lateinit var binding: FragmentLaundryTransactionMenuBinding
     private lateinit var laundryProductViewModel: LaundryProductViewModel
     private lateinit var laundryReportViewModel: LaundryReportViewModel
-    private lateinit var laundryTransactionMenuAdapter: LaundryTransactionMenuAdapter
     private lateinit var userViewModel: UserViewModel
     private lateinit var sharePrefrences: SharePrefrenceHelper
+
+    // Map untuk menyimpan reference ke EditText berat untuk setiap item
+    private val weightInputMap = mutableMapOf<Int, TextInputEditText>()
 
     private val numberFormatter: NumberFormat =
         NumberFormat.getCurrencyInstance(Locale("in", "ID")).apply {
@@ -64,12 +67,23 @@ class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapte
         }
     }
 
+    // Fungsi untuk mengkonversi input weight ke BigDecimal
+    private fun getBigDecimalFromWeightInput(editText: TextInputEditText): BigDecimal {
+        val cleanString = editText.text.toString().trim()
+        return try {
+            if (cleanString.isEmpty()) BigDecimal.ZERO
+            else BigDecimal(cleanString)
+        } catch (e: NumberFormatException) {
+            Log.e("WeightConvert", "Error converting '$cleanString' to BigDecimal: ${e.message}")
+            BigDecimal.ZERO
+        }
+    }
+
     // Fungsi untuk memformat BigDecimal ke Rupiah tanpa desimal untuk tampilan
     private fun formatBigDecimalToRupiahWithoutDecimal(value: BigDecimal): String {
         // BigDecimal ke Double untuk formatter bawaan NumberFormat, dengan RoundingMode
         return numberFormatter.format(value.setScale(0, BigDecimal.ROUND_HALF_UP).toDouble())
     }
-
 
     private var userId: Int = 0
     private var userIdBranch: Int = 0
@@ -102,7 +116,6 @@ class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapte
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
 
-
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val user = userViewModel.getUserById(userId)
@@ -116,16 +129,8 @@ class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapte
             }
         }
 
-        laundryTransactionMenuAdapter = LaundryTransactionMenuAdapter()
-        // 2. Set listener ke adapter
-        laundryTransactionMenuAdapter.setOnItemWeightChangeListener(this)
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = laundryTransactionMenuAdapter
-        }
-
         laundryProductViewModel.selectedItems.observe(viewLifecycleOwner) { selected ->
-            laundryTransactionMenuAdapter.submitList(selected)
+            populateLinearLayout(selected)
             updateTotalPrices() // Panggil untuk memperbarui total saat item berubah
         }
 
@@ -139,13 +144,12 @@ class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapte
             }
         })
 
-
         laundryReportViewModel.createTransactionResponse.observe(viewLifecycleOwner) { response ->
             if (response != null) {
                 if (response.success) {
                     Toast.makeText(requireContext(), "Data Berhasil Disimpan", Toast.LENGTH_SHORT)
                         .show()
-                   val bundle = Bundle()
+                    val bundle = Bundle()
                     bundle.putInt("transactionId", response.data.id_transaction_laundry!!)
 
                     val fragment = PrintPreviewFragment()
@@ -212,10 +216,56 @@ class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapte
         activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.GONE
     }
 
-    override fun onWeightChanged() {
-        updateTotalPrices() // Panggil metode update total harga
-    }
+    // Fungsi baru untuk populate LinearLayout
+    private fun populateLinearLayout(selectedItems: List<ProductLaundry>) {
+        binding.linearLayoutContainer.removeAllViews()
+        weightInputMap.clear()
 
+        selectedItems.forEach { item ->
+            val itemView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.card_item_detail_transaction_laundry, binding.linearLayoutContainer, false)
+
+            val textName = itemView.findViewById<TextView>(R.id.textName)
+            val textPrice = itemView.findViewById<TextView>(R.id.textPrice)
+            val weightInput = itemView.findViewById<TextInputEditText>(R.id.textWeightItem)
+
+            textName.text = item.name_laundry_item
+            textPrice.text = formatBigDecimalToRupiahWithoutDecimal(item.price_laundry_item ?: BigDecimal.ZERO)
+
+            val watcher = object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    if (weightInput.hasFocus()) {
+                        val newWeight = getBigDecimalFromWeightInput(weightInput)
+                        // Validasi: berat harus > 0 dan tidak kosong
+                        if (weightInput.text.isNullOrEmpty() || newWeight <= BigDecimal.ZERO) {
+                            weightInput.error = "Berat harus diisi dan lebih dari 0"
+                            Toast.makeText(requireContext(), "Berat harus diisi dan lebih dari 0", Toast.LENGTH_SHORT).show()
+                        } else {
+                            weightInput.error = null
+                        }
+                        if (item.weight != newWeight) {
+                            laundryProductViewModel.updateItemWeight(item.id_laundry_item ?: 0, newWeight)
+                            updateTotalPrices()
+                        }
+                    }
+                }
+            }
+            weightInput.addTextChangedListener(watcher)
+
+            val expectedWeight = if (item.weight != null && item.weight != BigDecimal.ZERO) item.weight.toString() else ""
+            if (!weightInput.hasFocus() && weightInput.text?.toString() != expectedWeight) {
+                weightInput.removeTextChangedListener(watcher)
+                weightInput.setText(expectedWeight)
+                weightInput.addTextChangedListener(watcher)
+            }
+
+            weightInputMap[item.id_laundry_item!!] = weightInput
+
+            binding.linearLayoutContainer.addView(itemView)
+        }
+    }
 
     private fun setupSpinner() {
         val adapter = ArrayAdapter(
@@ -246,40 +296,50 @@ class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapte
     private fun createLaundryTransaction() {
         val nameClient = binding.textClient.text.toString().trim()
         if (nameClient.isEmpty()) {
-            Toast.makeText(
-                requireContext(),
-                "Nama pelanggan harus diisi",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "Nama pelanggan harus diisi", Toast.LENGTH_SHORT).show()
+            binding.textClient.error = "Nama pelanggan harus diisi"
             return
+        } else {
+            binding.textClient.error = null
         }
 
         val priceCash = getBigDecimalFromCurrencyInput(binding.textCash)
-        if (priceCash == BigDecimal.ZERO && binding.textCash.text.toString().trim().isEmpty()) {
-            Toast.makeText(
-                requireContext(),
-                "Uang tunai harus diisi",
-                Toast.LENGTH_SHORT
-            ).show()
+        if (binding.textCash.text.toString().trim().isEmpty()) {
+            Toast.makeText(requireContext(), "Uang tunai harus diisi", Toast.LENGTH_SHORT).show()
+            binding.textCash.error = "Uang tunai harus diisi"
             return
+        }
+        if (priceCash <= BigDecimal.ZERO) {
+            Toast.makeText(requireContext(), "Uang tunai harus lebih dari 0", Toast.LENGTH_SHORT).show()
+            binding.textCash.error = "Uang tunai harus lebih dari 0"
+            return
+        } else {
+            binding.textCash.error = null
         }
 
         val selectedItems = laundryProductViewModel.selectedItems.value ?: emptyList()
         if (selectedItems.isEmpty()) {
-            Toast.makeText(
-                requireContext(),
-                "Pilih setidaknya satu item laundry",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "Pilih setidaknya satu item laundry", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Validasi bahwa semua item memiliki berat
+        val itemsWithoutWeight = selectedItems.filter { it.weight == null || it.weight == BigDecimal.ZERO }
+        if (itemsWithoutWeight.isNotEmpty()) {
+            Toast.makeText(requireContext(), "Harap isi berat untuk semua item", Toast.LENGTH_SHORT).show()
             return
         }
 
         val statusTransaction = binding.statusText.selectedItem as? StatusReportLaundry
+        if (statusTransaction == null) {
+            Toast.makeText(requireContext(), "Status transaksi harus dipilih", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val laundryTransactionItems = selectedItems.map { selectedItem ->
             ListTransactionLaundry(
                 id_item_laundry = selectedItem.id_laundry_item,
-                weight_list_transaction_laundry = selectedItem.weight, // Ini sudah BigDecimal
+                weight_list_transaction_laundry = selectedItem.weight,
                 deleted_at = null
             )
         }
@@ -293,7 +353,16 @@ class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapte
         }
         val finalTotalTransaction = totalItemPrice.add(currentAdditionalCost).subtract(currentPromoAmount)
 
-        val returnAmount = priceCash.subtract(finalTotalTransaction) // Hitung kembalian di sini juga
+        val returnAmount = priceCash.subtract(finalTotalTransaction)
+
+        // Validasi uang tunai cukup
+        if (returnAmount < BigDecimal.ZERO) {
+            Toast.makeText(requireContext(), "Uang tunai kurang dari total pembayaran", Toast.LENGTH_SHORT).show()
+            binding.textCash.error = "Uang tunai kurang dari total pembayaran"
+            return
+        } else {
+            binding.textCash.error = null
+        }
 
         val laundryTransactionRequest = TransactionData(
             id_kurir_transaction_laundry = userId,
@@ -301,46 +370,39 @@ class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapte
             name_client_transaction_laundry = nameClient,
             status_transaction_laundry = statusTransaction,
             count_item_laundry_transaction_laundry = selectedItems.size,
-            promo_transaction_laundry = currentPromoAmount, // Sudah BigDecimal
-            additional_cost_transaction_laundry = currentAdditionalCost, // Sudah BigDecimal
-            cash_transaction_laundry = priceCash, // Sudah BigDecimal
+            promo_transaction_laundry = currentPromoAmount,
+            additional_cost_transaction_laundry = currentAdditionalCost,
+            cash_transaction_laundry = priceCash,
             notes_transaction_laundry = currentNotes,
             list_transaction_laundry = laundryTransactionItems,
-            total_price_transaction_laundry = finalTotalTransaction, // Sudah BigDecimal
-            change_money_transaction_laundry = returnAmount, // Tambahkan kembalian
-            total_weight_transaction_laundry = selectedItems.sumOf { it.weight ?: BigDecimal.ZERO }.takeIf { it != BigDecimal.ZERO }, // Total berat dari semua item
-            total_transaction_laundry = finalTotalTransaction // Jika total_transaction_laundry sama dengan total_price_transaction_laundry, gunakan yang ini
+            total_price_transaction_laundry = finalTotalTransaction,
+            change_money_transaction_laundry = returnAmount,
+            total_weight_transaction_laundry = selectedItems.sumOf { it.weight ?: BigDecimal.ZERO }.takeIf { it != BigDecimal.ZERO },
+            total_transaction_laundry = finalTotalTransaction
         )
 
         laundryReportViewModel.createReportLaundry(laundryTransactionRequest)
     }
 
-
     fun showOptionalDialog(
         context: Context,
         initialNotes: String,
-        initialAdditional: BigDecimal, // Ubah parameter ini menjadi BigDecimal
-        initialPromo: BigDecimal, // Ubah parameter ini menjadi BigDecimal
-        onSave: (notes: String, additionalCost: BigDecimal, promoAmount: BigDecimal) -> Unit // Ubah callback
+        initialAdditional: BigDecimal,
+        initialPromo: BigDecimal,
+        onSave: (notes: String, additionalCost: BigDecimal, promoAmount: BigDecimal) -> Unit
     ) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_additional, null)
 
         val editTextNotes = dialogView.findViewById<TextInputEditText>(R.id.editTextNotes)
-        val editTextAdditionalCost =
-            dialogView.findViewById<TextInputEditText>(R.id.editTextAdditionalCost)
-        val editTextPromoAmount =
-            dialogView.findViewById<TextInputEditText>(R.id.editTextPromoAmount)
-        val buttonCancel =
-            dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonCancelDialog)
-        val buttonSave =
-            dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonSaveDialog)
+        val editTextAdditionalCost = dialogView.findViewById<TextInputEditText>(R.id.editTextAdditionalCost)
+        val editTextPromoAmount = dialogView.findViewById<TextInputEditText>(R.id.editTextPromoAmount)
+        val buttonCancel = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonCancelDialog)
+        val buttonSave = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonSaveDialog)
 
         editTextNotes.setText(initialNotes)
-        // Format angka saat mengisi dialog agar tidak ada desimal aneh
         editTextAdditionalCost.setText(formatBigDecimalToRupiahWithoutDecimal(initialAdditional))
         editTextPromoAmount.setText(formatBigDecimalToRupiahWithoutDecimal(initialPromo))
 
-        // Terapkan formatter mata uang ke input di dialog
         setupCurrencyInput(editTextAdditionalCost)
         setupCurrencyInput(editTextPromoAmount)
 
@@ -355,8 +417,24 @@ class LaundryTransactionMenuFragment : Fragment() , LaundryTransactionMenuAdapte
 
         buttonSave.setOnClickListener {
             val notes = editTextNotes.text.toString()
-            val additionalCost = getBigDecimalFromCurrencyInput(editTextAdditionalCost) // Ambil sebagai BigDecimal
-            val promoAmount = getBigDecimalFromCurrencyInput(editTextPromoAmount) // Ambil sebagai BigDecimal
+            val additionalCost = getBigDecimalFromCurrencyInput(editTextAdditionalCost)
+            val promoAmount = getBigDecimalFromCurrencyInput(editTextPromoAmount)
+
+            // Validasi biaya tambahan dan promo tidak negatif
+            if (additionalCost < BigDecimal.ZERO) {
+                editTextAdditionalCost.error = "Biaya tambahan tidak boleh negatif"
+                Toast.makeText(context, "Biaya tambahan tidak boleh negatif", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            } else {
+                editTextAdditionalCost.error = null
+            }
+            if (promoAmount < BigDecimal.ZERO) {
+                editTextPromoAmount.error = "Promo tidak boleh negatif"
+                Toast.makeText(context, "Promo tidak boleh negatif", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            } else {
+                editTextPromoAmount.error = null
+            }
 
             onSave.invoke(notes, additionalCost, promoAmount)
             dialog.dismiss()

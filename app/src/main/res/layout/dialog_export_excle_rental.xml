@@ -39,6 +39,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter_semibold"
             android:text="CETAK LAPORAN"
+             android:textColor="@color/blue900"
             android:textSize="22sp"
             app:layout_constraintStart_toEndOf="@id/guidelineLeft"
             app:layout_constraintTop_toBottomOf="@id/guidelineTop" />
@@ -59,8 +60,10 @@
             android:id="@+id/selectCalender"
             android:layout_width="0dp"
             android:layout_height="0dp"
+             android:textColor="@color/blue900"
             android:layout_marginStart="5dp"
             android:paddingStart="5dp"
+             android:popupBackground="@color/background"
             android:paddingEnd="0dp"
             android:pointerIcon="arrow"
             app:layout_constraintBottom_toBottomOf="@id/outlinedTextCalender"
@@ -96,7 +99,9 @@
             android:layout_height="0dp"
             android:layout_marginStart="5dp"
             android:paddingStart="5dp"
+             android:textColor="@color/blue900"
             android:paddingEnd="0dp"
+             android:popupBackground="@color/background"
             android:pointerIcon="arrow"
             app:layout_constraintBottom_toBottomOf="@id/outlinedTextBranch"
             app:layout_constraintEnd_toEndOf="@id/outlinedTextBranch"
@@ -133,6 +138,8 @@
             android:layout_marginStart="5dp"
             android:paddingStart="5dp"
             android:paddingEnd="0dp"
+             android:textColor="@color/blue900"
+             android:popupBackground="@color/background"
             android:pointerIcon="arrow"
             app:layout_constraintBottom_toBottomOf="@id/outlinedTextDescription"
             app:layout_constraintEnd_toEndOf="@id/outlinedTextDescription"
@@ -165,6 +172,7 @@
                 android:id="@+id/inputTextStock"
                 style="@style/CustomTextInputEditText"
                 android:inputType="number"
+                 android:textColor="@color/blue900"
                 android:fontFamily="@font/inter"
                 android:textSize="12sp" />
 
@@ -196,6 +204,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputTex"
                 style="@style/CustomTextInputEditText"
+                 android:textColor="@color/blue900"
                 android:fontFamily="@font/inter"
                 android:textSize="12sp" />
 

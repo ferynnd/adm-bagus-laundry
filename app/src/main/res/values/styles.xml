@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!-- Custom Style untuk TextInputLayout -->
     <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeWidthFocused">1dp</item>
@@ -60,8 +61,4 @@
         <item name="cornerSize">16dp</item>
     </style>
 
-    <style name="Widget.Theme.BAGUSLAUNDRY.ButtonBar.Fullscreen" parent="">
-        <item name="android:background">@color/black_overlay</item>
-        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
-    </style>
 </resources>

@@ -15,20 +15,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="72dp">
+            android:paddingTop="32dp"
+            android:paddingBottom="32dp">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineLeft"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.04" />
+                app:layout_constraintGuide_percent="0.05" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineRight"
@@ -39,60 +39,45 @@
 
             <ImageView
                 android:id="@+id/arrowBack"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/back"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textHeaderLight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:fontFamily="@font/inter_light"
-                android:padding="0dp"
-                android:paddingEnd="10dp"
-                android:text="@string/create"
-                android:textAllCaps="true"
-                android:textColor="@color/blue900"
-                android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="@+id/arrowBack"
-                app:layout_constraintEnd_toStartOf="@+id/textHeaderBold"
-                app:layout_constraintTop_toTopOf="@+id/arrowBack"
-                tools:ignore="RtlSymmetry" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/blue900"
+                android:contentDescription="Back arrow" />
 
             <TextView
                 android:id="@+id/textHeaderBold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:fontFamily="@font/inter_bold"
-                android:padding="0dp"
-                android:text="@string/transaksi_rental"
+                android:fontFamily="@font/inter_semibold"
+                android:text="TRANSAKSI SEWA"
                 android:textColor="@color/blue900"
                 android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="@+id/textHeaderLight"
+                app:layout_constraintTop_toTopOf="@id/arrowBack"
+                app:layout_constraintBottom_toBottomOf="@id/arrowBack"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
-                app:layout_constraintTop_toTopOf="@+id/textHeaderLight" />
+                tools:layout_editor_absoluteY="30dp" />
 
             <TextView
                 android:id="@+id/title_list_transaksi_rental"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:fontFamily="@font/inter_semibold"
                 android:text="Daftar Pesanan"
                 android:textColor="@color/gray900"
-                android:textSize="12sp"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/arrowBack"
+                android:layout_marginTop="20dp"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/textHeaderBold" />
+                tools:layout_editor_absoluteY="90dp" />
 
             <LinearLayout
                 android:id="@+id/containerRental"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
@@ -102,11 +87,14 @@
                 android:id="@+id/btnAddItem"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:text="Tambah Item Rental"
                 android:textColor="@color/white"
                 app:backgroundTint="@color/primary"
                 app:cornerRadius="10dp"
+                android:paddingVertical="12dp"
+                android:fontFamily="@font/inter_medium"
+                android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@+id/containerRental" />
@@ -115,11 +103,11 @@
                 android:id="@+id/title_nama_kurir"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="24dp"
                 android:fontFamily="@font/inter_semibold"
                 android:text="Nama Kurir"
                 android:textColor="@color/gray900"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@+id/btnAddItem" />
 
@@ -131,25 +119,23 @@
                 android:fontFamily="@font/inter_bold"
                 android:text="-"
                 android:textColor="@color/black"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@+id/title_nama_kurir" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/inputLayoutNamaClient"
-                style="@style/CustomTextInputLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                app:endIconMode="dropdown_menu"
+                android:layout_marginTop="24dp"
                 app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@+id/nama_kurir">
 
                 <AutoCompleteTextView
                     android:id="@+id/inputNamaClient"
-                    style="@style/CustomTextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/inter_medium"
@@ -162,7 +148,7 @@
                 android:id="@+id/title_alamat_klien"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="24dp"
                 android:fontFamily="@font/inter_semibold"
                 android:text="Alamat Klien"
                 android:textColor="@color/gray900"
@@ -175,17 +161,17 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:fontFamily="@font/inter_semibold"
+                android:fontFamily="@font/inter_medium"
                 android:text="-"
                 android:textColor="@color/black"
-                android:textSize="12sp"
+                android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@+id/title_alamat_klien" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/inputLayoutNamaPenerima"
-                style="@style/CustomTextInputLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -195,7 +181,6 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputNamaPenerima"
-                    style="@style/CustomTextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/inter_medium"
@@ -206,7 +191,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/inputLayoutNoteTransaksi"
-                style="@style/CustomTextInputLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -216,12 +201,13 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputNoteTransaksi"
-                    style="@style/CustomTextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/inter_medium"
                     android:hint="Catatan (Opsional)"
-                    android:inputType="none"
+                    android:inputType="textMultiLine"
+                    android:gravity="top"
+                    android:lines="3"
                     android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -229,12 +215,14 @@
                 android:id="@+id/btnSubmit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginTop="32dp"
                 android:text="Kirim Transaksi"
                 android:textColor="@color/white"
                 app:backgroundTint="@color/primary"
                 app:cornerRadius="10dp"
+                android:paddingVertical="12dp"
+                android:fontFamily="@font/inter_medium"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
@@ -249,6 +237,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminate="true"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

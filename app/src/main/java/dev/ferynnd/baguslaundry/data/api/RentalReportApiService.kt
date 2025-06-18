@@ -8,6 +8,8 @@ import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
 import dev.ferynnd.baguslaundry.model.ExportReportRental
 import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
 import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
+import dev.ferynnd.baguslaundry.model.RentalPrintTransaction
+import dev.ferynnd.baguslaundry.model.RentalTransactionData
 import dev.ferynnd.baguslaundry.model.ReportRentalResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -24,11 +26,17 @@ interface RentalReportApiService {
     @GET("api/{role}/transaction_rentals/{id}")
     suspend fun getReportRentalById(@Path("role") role: String,@Path("id") id: Int): DefaultRequest<ReportRental>
 
+//    @POST("api/{role}/create_transaction_rentals")
+//    suspend fun createReportRental(
+//        @Path("role") role: String,
+//        @Body rentalTransactionRequest: RentalTransactionRequest
+//    ): DefaultRequest<RentalTransactionResponse>
+
     @POST("api/{role}/create_transaction_rentals")
     suspend fun createReportRental(
         @Path("role") role: String,
         @Body rentalTransactionRequest: RentalTransactionRequest
-    ): DefaultRequest<RentalTransactionResponse>
+    ): DefaultRequest<RentalTransactionData>
 
     @POST("api/admin/export_transaction_monthly")
     suspend fun exportRentalMonthly(
@@ -47,4 +55,10 @@ interface RentalReportApiService {
 
     @GET("api/{role}/invoice_rentals")
     suspend fun getInvoiceRental(@Path("role") role: String): ApiResponse<InvoiceRentalResponse>
+
+    @GET("api/{role}/transaction_rentals/{id}/list")
+    suspend fun getRentalPrint(
+        @Path("role") role: String,
+        @Path("id") id: Int?
+    ) : DefaultRequestPrint<RentalPrintTransaction>
 }

@@ -38,6 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter_semibold"
+            android:textColor="@color/blue900"
             android:text="CETAK INVOICE"
             android:textSize="22sp"
             app:layout_constraintStart_toEndOf="@id/guidelineLeft"
@@ -60,6 +61,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputTextPayment"
             style="@style/CustomTextInputEditText"
+            android:textColor="@color/blue900"
             android:fontFamily="@font/inter"
             android:textSize="14sp" />
 

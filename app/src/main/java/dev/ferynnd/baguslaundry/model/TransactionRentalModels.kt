@@ -1,6 +1,7 @@
 package dev.ferynnd.baguslaundry.model
 
 data class RentalTransactionRequest(
+    val id_transaction_rental: Int? = null,
     val id_kurir_transaction_rental: Int,
     val id_branch_transaction_rental: Int,
     val id_client_transaction_rental: Int,

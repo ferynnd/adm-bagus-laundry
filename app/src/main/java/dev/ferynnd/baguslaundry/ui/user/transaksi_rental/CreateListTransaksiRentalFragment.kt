@@ -13,10 +13,11 @@ import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import dev.ferynnd.baguslaundry.R
+import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
@@ -26,6 +27,7 @@ import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.KurirFragmentCreateListTransaksiRentalBinding
 import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ProductRental
+import dev.ferynnd.baguslaundry.model.RentalTransactionData
 import dev.ferynnd.baguslaundry.model.RentalTransactionItem
 import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
@@ -85,6 +87,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         _binding = KurirFragmentCreateListTransaksiRentalBinding.inflate(layoutInflater)
+        hideBottomNavigationView()
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
@@ -92,11 +95,40 @@ class CreateListTransaksiRentalFragment : Fragment() {
         if (userId != 0) {
             // Tampilkan loading di awal
             updateLoadingState(true)
-            setupObservers()
+            setupObservers() // Panggil setupObservers di sini untuk menginisialisasi semua observer
             loadInitialData()
         } else {
             Toast.makeText(context, "Data pengguna tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
+
+        // --- Hapus blok observer ini dari sini ---
+        // rentalReportViewModel.createTransactionResponse.observe(viewLifecycleOwner) { response ->
+        //    if (response != null) {
+        //        if (response.success) {
+        //            Toast.makeText(requireContext(), "Data Berhasil Disimpan", Toast.LENGTH_SHORT)
+        //                .show()
+        //           val bundle = Bundle()
+        //            bundle.putInt("transactionId", response.data.data?.id_transaction_rental!!)
+        //
+        //            val fragment = PrintPreviewRentalFragment()
+        //            fragment.arguments = bundle
+        //
+        //            parentFragmentManager.beginTransaction()
+        //                .replace(R.id.host_fragment_user, fragment)
+        //                .addToBackStack(null) // opsional, jika ingin bisa kembali
+        //                .commit()
+        //
+        //        } else {
+        //            Toast.makeText(
+        //                requireContext(),
+        //                response.message ?: "Gagal membuat transaksi.",
+        //                Toast.LENGTH_SHORT
+        //            ).show()
+        //        }
+        //        rentalReportViewModel.clearCreateTransactionResponse()
+        //    }
+        // }
+        // --- Akhir blok yang dihapus ---
 
         setupClickListeners()
         return binding.root
@@ -142,9 +174,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
 
         // Observer untuk create transaction response
         rentalReportViewModel.createTransactionResponse.observe(viewLifecycleOwner) { response ->
-            response?.let {
-                handleTransactionResponse(it)
-            }
+            handleTransactionResponse(response)
         }
     }
 
@@ -280,33 +310,33 @@ class CreateListTransaksiRentalFragment : Fragment() {
         }
     }
 
-    private fun handleTransactionResponse(response: Any) {
+    private fun handleTransactionResponse(response: DefaultRequest<RentalTransactionData>?) {
         try {
-            val successField = response.javaClass.getDeclaredField("success")
-            successField.isAccessible = true
-            val isSuccess = successField.getBoolean(response)
+            if (response != null) {
+                if (response.success) {
+                    Toast.makeText(requireContext(), "Data Berhasil Disimpan", Toast.LENGTH_SHORT)
+                        .show()
+                   val bundle = Bundle()
+                    bundle.putInt("transactionId", response.data.id_transaction_rental)
+                    Log.d("CreateTransaction", "Transaction ID: ${response.data.id_transaction_rental}")
 
-            if (isSuccess) {
-                Toast.makeText(
-                    requireContext(),
-                    "Transaksi berhasil dibuat",
-                    Toast.LENGTH_LONG
-                ).show()
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.host_fragment_user, UserDashboardFragment())
-                    .commit()
-            } else {
-                val errorsField = response.javaClass.getDeclaredField("errors")
-                errorsField.isAccessible = true
-                val errors = errorsField.get(response)
+                    val fragment = PrintPreviewRentalFragment()
+                    fragment.arguments = bundle
 
-                Toast.makeText(
-                    requireContext(),
-                    "Gagal membuat transaksi: $errors",
-                    Toast.LENGTH_LONG
-                ).show()
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_user, fragment)
+                        .addToBackStack(null) // opsional, jika ingin bisa kembali
+                        .commit()
+
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        response.message ?: "Gagal membuat transaksi.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                rentalReportViewModel.resetCreateTransactionResponse()
             }
-            rentalReportViewModel.resetCreateTransactionResponse()
         } catch (e: Exception) {
             Toast.makeText(
                 requireContext(),
@@ -546,6 +576,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
         }
 
         val rentalTransactionRequest = RentalTransactionRequest(
+
             id_kurir_transaction_rental = userId,
             id_branch_transaction_rental = userIdBranch,
             id_client_transaction_rental = clientId,
@@ -555,10 +586,21 @@ class CreateListTransaksiRentalFragment : Fragment() {
         )
 
         rentalReportViewModel.createRentalTransaction(rentalTransactionRequest)
+
     }
 
     private fun updateLoadingState(isLoading: Boolean) {
         binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.scrollView2.visibility = if (isLoading) View.GONE else View.VISIBLE
     }
+
+    private fun hideBottomNavigationView() {
+        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
+    }
+
 }

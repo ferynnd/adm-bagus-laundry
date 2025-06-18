@@ -37,6 +37,7 @@
             android:id="@+id/textHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+             android:textColor="@color/blue900"
             android:fontFamily="@font/inter_semibold"
             android:text="CETAK LAPORAN"
             android:textSize="22sp"
@@ -61,6 +62,8 @@
             android:layout_height="0dp"
             android:layout_marginStart="5dp"
             android:paddingStart="5dp"
+             android:textColor="@color/blue900"
+            android:popupBackground="@color/background"
             android:paddingEnd="0dp"
             android:pointerIcon="arrow"
             app:layout_constraintBottom_toBottomOf="@id/outlinedTextCalender"
@@ -95,8 +98,10 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="5dp"
+             android:textColor="@color/blue900"
             android:paddingStart="5dp"
             android:paddingEnd="0dp"
+             android:popupBackground="@color/background"
             android:pointerIcon="arrow"
             app:layout_constraintBottom_toBottomOf="@id/outlinedTextBranch"
             app:layout_constraintEnd_toEndOf="@id/outlinedTextBranch"
@@ -140,6 +145,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputTex"
                 style="@style/CustomTextInputEditText"
+                 android:textColor="@color/blue900"
                 android:fontFamily="@font/inter"
                 android:textSize="12sp" />
 

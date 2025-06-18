@@ -84,8 +84,6 @@ class AdminDashboardFragment : Fragment() {
             popup.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.menu_setting -> {
-                        // Aksi ke halaman setting
-                        Toast.makeText(requireContext(), "Menu: Setting", Toast.LENGTH_SHORT).show()
                         parentFragmentManager.beginTransaction()
                             .replace(R.id.host_fragment_admin, AdminProfileFragment())
                             .addToBackStack("setting")

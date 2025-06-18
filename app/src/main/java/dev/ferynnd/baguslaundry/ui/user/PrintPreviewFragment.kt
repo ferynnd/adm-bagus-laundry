@@ -33,8 +33,7 @@ import java.util.*
 
 class PrintPreviewFragment : Fragment() {
 
-    private var _binding: FragmentPrintPreviewBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var  binding: FragmentPrintPreviewBinding
 
     private lateinit var laundryReportViewModel: LaundryReportViewModel
     private lateinit var userViewModel: UserViewModel
@@ -49,7 +48,6 @@ class PrintPreviewFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java]
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         branchViewModel = ViewModelProvider(this)[BranchViewModel::class.java]
@@ -64,18 +62,23 @@ class PrintPreviewFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentPrintPreviewBinding.inflate(inflater, container, false)
+        binding = FragmentPrintPreviewBinding.inflate(inflater, container, false)
         sharePreferences = SharePrefrenceHelper(requireContext())
-        hideBottomNavigationView()
+        activity?.findViewById<View>(R.id.bottomNav)?.visibility = View.GONE
         binding.printButton.setOnClickListener {
             printReceiptToThermalPrinter()
+        }
+         binding.backButton.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.host_fragment_user, UserDashboardFragment())
+                .addToBackStack(null) // opsional, jika ingin bisa kembali
+                .commit()
         }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         if (transactionId == null) {
             Snackbar.make(binding.root, "ID transaksi tidak tersedia", Snackbar.LENGTH_LONG).show()
             binding.printButton.isEnabled = false
@@ -225,7 +228,7 @@ class PrintPreviewFragment : Fragment() {
                 return
             }
 
-            val printer = EscPosPrinter(printerConnection, 203, 48f, 32)
+            val printer = EscPosPrinter(printerConnection, 203, 57f, 32)
 
             val previewData = generateReceiptText() // Fungsi untuk buat string preview
             printer.printFormattedText(previewData)
@@ -237,53 +240,48 @@ class PrintPreviewFragment : Fragment() {
     }
 
     private fun generateReceiptText(): String {
-        val data = laundryReportViewModel.printData.value ?: return ""
+    val data = laundryReportViewModel.printData.value ?: return ""
 
-        val storeName = "[C]<b>BAGUS LAUNDRY</b>\n"
-        val storeAddress = "[C]${binding.receiptLayoutInclude.textStoreAddress.text}\n"
-        val invoice = "[L]No. Invoice: ${data.number_transaction_laundry}\n"
-        val client = "[L]Nama: ${data.name_client_transaction_laundry.uppercase()}\n"
-        val date = "[L]Tanggal: ${formatDate(data.first_date_transaction_laundry)}\n"
-        val status = "[L]Status: ${binding.receiptLayoutInclude.textStatus.text}\n"
-        val divider = "------------------------------\n"
+    val storeName = "[C]<b>BAGUS LAUNDRY</b>\n" // Biarkan ini besar jika Anda ingin
+    val storeAddress = "[C]<font size='normal'>${binding.receiptLayoutInclude.textStoreAddress.text}</font>\n" // Pastikan normal
+        val divider1 = "<font size='normal'>------------------------------</font>\n"
+    val invoice = "[L]<font size='normal'>No. Invoice: ${data.number_transaction_laundry}</font>\n"
+    val client = "[L]<font size='normal'>Nama: ${data.name_client_transaction_laundry.uppercase()}</font>\n"
+    val date = "[L]<font size='normal'>Tanggal: ${formatDate(data.first_date_transaction_laundry)}</font>\n"
+    val status = "[L]<font size='normal'>Status: ${binding.receiptLayoutInclude.textStatus.text}</font>\n"
+    val divider = "<font size='normal'>------------------------------</font>\n"
 
-        val items = buildString {
-            data.list_transaction_laundry.forEach {
-                val name = getLaundryServiceItemName(it.id_item_laundry)
-                val line = "[L]$name (${formatWeight(it.weight_list_transaction_laundry)} kg)"
-                val price = "[R]${formatCurrency(it.total_price_list_transaction_laundry)}"
-                append("$line$price\n")
-            }
+    val items = buildString {
+        data.list_transaction_laundry.forEach {
+            val name = getLaundryServiceItemName(it.id_item_laundry)
+            // Pastikan setiap item menggunakan ukuran normal
+            val line = "[L]<font size='normal'>$name (${formatWeight(it.weight_list_transaction_laundry)} kg)</font>"
+            val price = "[R]<font size='normal'>${formatCurrency(it.total_price_list_transaction_laundry)}</font>"
+            append("$line$price\n")
         }
-
-        val subtotal =
-            "[L]Subtotal:              [R]${formatCurrency(data.total_price_transaction_laundry)}\n"
-        val promo =
-            "[L]Promo:                 [R]- ${formatCurrency(data.promo_transaction_laundry)}\n"
-        val addCost =
-            "[L]Biaya Tambahan:        [R]${formatCurrency(data.additional_cost_transaction_laundry)}\n"
-        val total =
-            "[L]<b>Total:              [R]${formatCurrency(data.total_transaction_laundry)}</b>\n"
-        val cash = "[L]Tunai:                 [R]${formatCurrency(data.cash_transaction_laundry)}\n"
-        val change =
-            "[L]Kembalian:             [R]${formatCurrency(data.change_money_transaction_laundry)}\n"
-        val notes = if (!data.notes_transaction_laundry.isNullOrBlank())
-            "[L]Catatan: ${data.notes_transaction_laundry}\n" else ""
-
-        val thanks = "\n[C]--- TERIMA KASIH ---\n"
-
-        return storeName + storeAddress + invoice + client + date + status + divider +
-                items + divider + subtotal + promo + addCost + total + cash + change + notes + thanks
     }
 
+    val subtotal =
+        "[L]<font size='normal'>Subtotal:</font>[R]<font size='normal'>${formatCurrency(data.total_price_transaction_laundry)}</font>\n"
+    val promo =
+        "[L]<font size='normal'>Promo:</font>[R]<font size='normal'>- ${formatCurrency(data.promo_transaction_laundry)}</font>\n"
+    val addCost =
+        "[L]<font size='normal'>Biaya Tambahan:</font>[R]<font size='normal'>${formatCurrency(data.additional_cost_transaction_laundry)}</font>\n"
+    val total =
+        "[L]<b>Total:</b>[R]<b>${formatCurrency(data.total_transaction_laundry)}</b>\n" // Ini mungkin tetap besar
+    val cash = "[L]<font size='normal'>Tunai:</font>[R]<font size='normal'>${formatCurrency(data.cash_transaction_laundry)}</font>\n"
+    val change =
+        "[L]<font size='normal'>Kembalian:</font>[R]<font size='normal'>${formatCurrency(data.change_money_transaction_laundry)}</font>\n"
+    val notes = if (!data.notes_transaction_laundry.isNullOrBlank())
+        "[L]<font size='normal'>Catatan: ${data.notes_transaction_laundry}</font>\n" else ""
 
-    private fun hideBottomNavigationView() {
-        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.GONE
-    }
+    val thanks = "\n[C]<font size='normal'>--- TERIMA KASIH ---</font>\n"
 
+    return storeName + storeAddress + divider1 +  invoice + client + date + status + divider +
+            items + divider + subtotal + promo + addCost + total + cash + change + notes + thanks
+}
     override fun onDestroyView() {
         super.onDestroyView()
-        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
-        _binding = null
+        activity?.findViewById<View>(R.id.bottomNav)?.visibility = View.VISIBLE
     }
 }

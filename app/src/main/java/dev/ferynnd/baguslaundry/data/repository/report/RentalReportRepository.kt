@@ -5,6 +5,7 @@ import android.util.Log
 import dev.ferynnd.baguslaundry.data.api.ApiResponse
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.api.DefaultRequestInvoice
+import dev.ferynnd.baguslaundry.data.api.DefaultRequestPrint
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
@@ -13,6 +14,8 @@ import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
 import dev.ferynnd.baguslaundry.model.ExportReportRental
 import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
 import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
+import dev.ferynnd.baguslaundry.model.RentalPrintTransaction
+import dev.ferynnd.baguslaundry.model.RentalTransactionData
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.ReportRentalResponse
 
@@ -54,16 +57,11 @@ class RentalReportRepository  (context: Context) {
         }
     }
 
-suspend fun createReportRental(rentalTransactionRequest: RentalTransactionRequest): DefaultRequest<RentalTransactionResponse> {
+    suspend fun createReportRental(rentalTransactionRequest: RentalTransactionRequest): DefaultRequest<RentalTransactionData> {
         try {
-            val response = rentalReportApiService.createReportRental(role, rentalTransactionRequest)
-            if (response.success) {
-                return response
-            } else {
-                val errorBody = response.errors
-                Log.e("API_ERROR", errorBody ?: "no body")
-                throw Exception("API request failed")
-            }
+            val response =
+                rentalReportApiService.createReportRental(role, rentalTransactionRequest)
+            return response
         } catch (e: Exception) {
             throw e
         }
@@ -110,6 +108,9 @@ suspend fun createReportRental(rentalTransactionRequest: RentalTransactionReques
         }
     }
 
+    suspend fun getRentalPrint(id: Int?): DefaultRequestPrint<RentalPrintTransaction> {
+        return rentalReportApiService.getRentalPrint(role, id)
+    }
 
     suspend fun getInvoiceRental() : ApiResponse<InvoiceRentalResponse> {
         try {

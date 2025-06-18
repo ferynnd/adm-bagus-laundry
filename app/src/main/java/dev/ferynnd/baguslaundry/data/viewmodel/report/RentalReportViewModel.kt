@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.api.DefaultRequestInvoice
+import dev.ferynnd.baguslaundry.data.api.DefaultRequestPrint
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.repository.UserRepository
 import dev.ferynnd.baguslaundry.data.repository.report.RentalReportRepository
@@ -20,6 +21,8 @@ import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
 import dev.ferynnd.baguslaundry.model.ExportReportRental
 import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
 import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
+import dev.ferynnd.baguslaundry.model.RentalPrintTransaction
+import dev.ferynnd.baguslaundry.model.RentalTransactionData
 import dev.ferynnd.baguslaundry.model.ReportRentalResponse
 import dev.ferynnd.baguslaundry.model.User
 import kotlinx.coroutines.launch
@@ -35,8 +38,11 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
     private val _rentalReports = MutableLiveData<List<ReportRental>>()
     val rentalReports: LiveData<List<ReportRental>> get() = _rentalReports
 
-    private val _createTransactionResponse = MutableLiveData<DefaultRequest<RentalTransactionResponse>?>()
-    val createTransactionResponse: LiveData<DefaultRequest<RentalTransactionResponse>?> get() = _createTransactionResponse
+    private val _createTransactionResponse = MutableLiveData<DefaultRequest<RentalTransactionData>?>()
+    val createTransactionResponse: LiveData<DefaultRequest<RentalTransactionData>?> get() = _createTransactionResponse
+
+    private val _printData = MutableLiveData<RentalPrintTransaction>()
+    val printData: LiveData<RentalPrintTransaction> get() = _printData
 
     private val _invoiceRental = MutableLiveData<List<InvoiceRentalResponse>>()
     val invoiceRental: LiveData<List<InvoiceRentalResponse>> get() = _invoiceRental
@@ -163,6 +169,44 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    suspend fun getRentalPrint(id: Int): DefaultRequestPrint<RentalPrintTransaction> {
+        _loading.postValue(true)
+        _error.postValue("") // Reset error message
+
+        var result: DefaultRequestPrint<RentalPrintTransaction> =
+        // Anda mungkin perlu memberikan nilai default awal atau membuatnya nullable
+            // Berikan nilai default yang sesuai atau jadikan result nullable
+            DefaultRequestPrint( // Contoh nilai default, sesuaikan dengan konstruktor DefaultRequestPrint
+                data = null, // Atau DefaultRequestPrint() jika konstruktornya tanpa argumen
+                message = "Initial",
+                success = false
+            )
+
+        try {
+            val response = rentalReportRepository.getRentalPrint(id)
+            Log.d("RentalReportViewModel", "Response: ${response}")
+
+            // === BAGIAN YANG DIPERBAIKI DI SINI ===
+            result = response // <--- Ubah dari response.data menjadi response
+            // =====================================
+
+        } catch (e: Exception) {
+            val errorMessage = e.message ?: "Terjadi kesalahan yang tidak diketahui."
+            _error.postValue(errorMessage)
+            // Jika terjadi kesalahan, Anda mungkin ingin mengembalikan DefaultRequestPrint yang menandakan error
+            result = DefaultRequestPrint(
+                data = null, // Data akan null saat error
+                message = errorMessage,
+                success = false
+            )
+        } finally {
+            _loading.postValue(false)
+        }
+
+        return result
+    }
+
+
     suspend fun getReportRentalById(id: Int): DefaultRequest<ReportRental> {
         _loading.postValue(true) // Set loading to true
         _error.postValue("") // Reset error message
@@ -177,28 +221,48 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun createRentalTransaction(rentalTransactionRequest: RentalTransactionRequest) {
-        _loading.postValue(true) // Set loading to true
-        _error.postValue("") // Reset error message
+        _loading.postValue(true)
+        _error.postValue("")
+        _createTransactionResponse.postValue(null) // Reset response
         viewModelScope.launch {
             try {
-                val response = rentalReportRepository.createReportRental(rentalTransactionRequest)
-                _createTransactionResponse.postValue(response) // Gunakan postValue
-                if (!response.success) {
-                    Log.e("API_ERROR", "Error: ${response.errors}")
-                    _error.postValue(response.message ?: "Gagal membuat transaksi rental.")
-                } else {
-                    // Refresh data setelah transaksi berhasil
-                    getAllReportRental()
-                    getAllInvoiceRental()
-                }
+                val response =
+                    rentalReportRepository.createReportRental(rentalTransactionRequest)
+                _createTransactionResponse.postValue(response)
+                // Logic error di sini akan ditangani oleh observer _error atau _createTransactionResponse
             } catch (e: Exception) {
-                Log.e("RentalReportViewModel", "Error creating rental transaction", e)
-                _error.postValue(e.message ?: "Terjadi kesalahan saat membuat transaksi rental.")
+                _error.postValue(e.message ?: "Terjadi kesalahan saat membuat transaksi laundry.")
             } finally {
-                _loading.postValue(false) // Always set loading to false
+                _loading.postValue(false)
             }
         }
     }
+
+//    fun createRentalTransaction(rentalTransactionRequest: RentalTransactionRequest) {
+//        _loading.postValue(true) // Set loading to true
+//        _error.postValue("") // Reset error message
+//        _createTransactionResponse.postValue(null) // Reset response
+//        viewModelScope.launch {
+//            try {
+//                val response = rentalReportRepository.createReportRental(rentalTransactionRequest)
+//                _createTransactionResponse.postValue(response) // Gunakan postValue
+//                if (!response.success) {
+//                    Log.e("API_ERROR", "Error: ${response.errors}")
+//                    _error.postValue(response.message ?: "Gagal membuat transaksi rental.")
+//                } else {
+//                    // Refresh data setelah transaksi berhasil
+//                    getAllReportRental()
+//                    getAllInvoiceRental()
+//                }
+//            } catch (e: Exception) {
+//                Log.e("RentalReportViewModel", "Error creating rental transaction", e)
+//                _error.postValue(e.message ?: "Terjadi kesalahan saat membuat transaksi rental.")
+//                _createTransactionResponse.postValue(null)
+//            } finally {
+//                _loading.postValue(false) // Always set loading to false
+//            }
+//        }
+//    }
 
     fun resetCreateTransactionResponse() {
         _createTransactionResponse.value = null
@@ -299,6 +363,15 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
 
     fun setUsers(data: List<User>) {
         users = data
+    }
+
+      fun postPrintData(data: RentalPrintTransaction) {
+        _printData.postValue(data)
+    }
+
+        // Fungsi untuk clear/reset data
+    fun clearCreateTransactionResponse() {
+        _createTransactionResponse.value = null
     }
 
     fun searchRentalReports(query: String) {

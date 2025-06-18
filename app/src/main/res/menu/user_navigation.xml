@@ -4,7 +4,6 @@
         android:id="@+id/transactionMenu"
         android:title="TRANSAKSI"
         android:icon="@drawable/dashboard"/>
-
     <item
         android:id="@+id/itemMenu"
         android:title="BARANG"

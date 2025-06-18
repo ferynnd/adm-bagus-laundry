@@ -59,16 +59,16 @@ class LaundryTransactionMenuAdapter :
             textName.text = product.name_laundry_item
             textPrice.text = numberFormatter.format(product.price_laundry_item ?: 0.0)
 
-            val currentWeightText = product.weight?.toString() ?: ""
-            if (textWeightItem.text.toString() != currentWeightText) {
-                textWeightItem.setText(currentWeightText)
-            }
-
-            textWeightItem.tag?.let {
-                if (it is TextWatcher) {
-                    textWeightItem.removeTextChangedListener(it)
-                }
-            }
+//            val currentWeightText = product.weight?.toString() ?: ""
+//            if (textWeightItem.text.toString() != currentWeightText) {
+//                textWeightItem.setText(currentWeightText)
+//            }
+//
+//            textWeightItem.tag?.let {
+//                if (it is TextWatcher) {
+//                    textWeightItem.removeTextChangedListener(it)
+//                }
+//            }
 
             var isEditing = false
             val watcher = object : TextWatcher {
@@ -92,8 +92,8 @@ class LaundryTransactionMenuAdapter :
                 }
             }
 
-            textWeightItem.addTextChangedListener(watcher)
-            textWeightItem.tag = watcher
+//            textWeightItem.addTextChangedListener(watcher)
+//            textWeightItem.tag = watcher
         }
     }
 

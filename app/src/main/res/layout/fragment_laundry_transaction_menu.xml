@@ -160,12 +160,12 @@
                     android:id="@+id/statusText"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_marginHorizontal="5dp"
                     android:layout_marginVertical="4dp"
                     android:layout_weight="1"
-                    android:textAlignment="center"
-                    android:layout_marginHorizontal="5dp"
                     android:background="@drawable/spinner_background"
-                    android:fontFamily="@font/inter_semibold" />
+                    android:fontFamily="@font/inter_semibold"
+                    android:textAlignment="center" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonOptional"
@@ -173,8 +173,8 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:fontFamily="@font/inter_semibold"
-                    android:text="Pilih Opsi"
                     android:paddingVertical="10dp"
+                    android:text="Pilih Opsi"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     app:backgroundTint="@color/blue500"
@@ -310,16 +310,16 @@
                 android:layout_weight="1"
                 android:orientation="horizontal">
 
-<!--                <TextView-->
-<!--                    android:id="@+id/textPrice"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_marginStart="3dp"-->
-<!--                    android:fontFamily="@font/inter_semibold"-->
-<!--                    android:padding="3dp"-->
-<!--                    android:textColor="@color/blue500"-->
-<!--                    android:textSize="14sp"-->
-<!--                    android:text="Rp" />-->
+                <!--                <TextView-->
+                <!--                    android:id="@+id/textPrice"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:layout_marginStart="3dp"-->
+                <!--                    android:fontFamily="@font/inter_semibold"-->
+                <!--                    android:padding="3dp"-->
+                <!--                    android:textColor="@color/blue500"-->
+                <!--                    android:textSize="14sp"-->
+                <!--                    android:text="Rp" />-->
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/textCash"
@@ -369,18 +369,27 @@
         app:layout_constraintTop_toTopOf="@id/layoutListItem" />
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <!--    <androidx.recyclerview.widget.RecyclerView-->
+    <!--        android:id="@+id/recyclerView"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:layout_marginTop="10dp"-->
+    <!--        android:translationZ="10dp"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/textHeaderPembayaran"-->
+    <!--        app:layout_constraintEnd_toStartOf="@id/guidelineRight"-->
+    <!--        app:layout_constraintStart_toEndOf="@id/guidelineLeft"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/textHeaderList"-->
+    <!--        tools:listitem="@layout/card_item_detail_transaction_laundry" />-->
+
+    <LinearLayout
+        android:id="@+id/linearLayoutContainer"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:translationZ="10dp"
-        app:layout_constraintBottom_toTopOf="@id/textHeaderPembayaran"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="14dp"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-        app:layout_constraintTop_toBottomOf="@id/textHeaderList"
-        tools:listitem="@layout/card_item_detail_transaction_laundry" />
-
+        app:layout_constraintTop_toBottomOf="@id/textHeaderList" />
 
     <TextView
         android:id="@+id/textHeaderPembayaran"
@@ -392,9 +401,9 @@
         android:textColor="@color/blue900"
         android:textSize="14sp"
         android:translationZ="10dp"
-        app:layout_constraintBottom_toTopOf="@id/tableLayoutPembayaran"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-        app:layout_constraintStart_toEndOf="@id/guidelineLeft" />
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutContainer" />
 
     <TableLayout
         android:id="@+id/tableLayoutPembayaran"
@@ -402,9 +411,9 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="10dp"
         android:translationZ="10dp"
-        app:layout_constraintBottom_toTopOf="@id/btnSubmit"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-        app:layout_constraintStart_toEndOf="@id/guidelineLeft">
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@+id/textHeaderPembayaran">
 
         <TableRow>
 

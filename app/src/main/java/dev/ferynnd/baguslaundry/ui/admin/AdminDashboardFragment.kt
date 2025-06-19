@@ -23,9 +23,12 @@ import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.controller.DashboardAdapter
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_NAME
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.DashboardViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminDashboardBinding
+import dev.ferynnd.baguslaundry.model.Client
+import dev.ferynnd.baguslaundry.model.User
 import dev.ferynnd.baguslaundry.ui.LoginActivity
 import dev.ferynnd.baguslaundry.ui.admin.product.laundry.AdminListProductLaundryFragment
 import dev.ferynnd.baguslaundry.ui.admin.product.rental.AdminListProductRentalFragment
@@ -38,14 +41,18 @@ class AdminDashboardFragment : Fragment() {
     private lateinit var binding: FragmentAdminDashboardBinding
     private lateinit var sharePreferences: SharePrefrenceHelper
     private lateinit var userViewModel: UserViewModel
+    private lateinit var clientViewModel: ClientViewModel
 
     private val viewModel: DashboardViewModel by viewModels()
     private lateinit var dashboardAdapter: DashboardAdapter
 
+    private var clientList : List<Client>? = null
+    private var userList : List<User>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
+        clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java].apply {init(requireContext())}
     }
 
     override fun onCreateView(
@@ -62,7 +69,18 @@ class AdminDashboardFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = dashboardAdapter
         }
+
+        clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
+            clientList = clients
+            dashboardAdapter.setClient(clients)
+        }
+
         // Observe the latestTransactions LiveData
+        viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            // Opsional: Sembunyikan atau tampilkan RecyclerView saat loading
+            binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+        }
         viewModel.latestTransactions.observe(viewLifecycleOwner) { transactions ->
             dashboardAdapter.submitList(transactions)
         }

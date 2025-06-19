@@ -17,6 +17,7 @@ import dev.ferynnd.baguslaundry.model.RentalTransactionResponse
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
 import dev.ferynnd.baguslaundry.model.Branch
+import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
 import dev.ferynnd.baguslaundry.model.ExportReportRental
 import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
@@ -38,7 +39,8 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
     private val _rentalReports = MutableLiveData<List<ReportRental>>()
     val rentalReports: LiveData<List<ReportRental>> get() = _rentalReports
 
-    private val _createTransactionResponse = MutableLiveData<DefaultRequest<RentalTransactionData>?>()
+    private val _createTransactionResponse =
+        MutableLiveData<DefaultRequest<RentalTransactionData>?>()
     val createTransactionResponse: LiveData<DefaultRequest<RentalTransactionData>?> get() = _createTransactionResponse
 
     private val _printData = MutableLiveData<RentalPrintTransaction>()
@@ -87,7 +89,9 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
                     _error.postValue("Gagal memuat laporan rental awal: ${response.message ?: "Pesan tidak tersedia"}")
                 }
             } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan saat memuat data laporan rental awal.")
+                _error.postValue(
+                    e.message ?: "Terjadi kesalahan saat memuat data laporan rental awal."
+                )
             } finally {
                 _loading.postValue(false) // Always set loading to false
             }
@@ -108,14 +112,16 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
                     _error.postValue("Gagal memuat invoice rental awal: ${response.message ?: "Pesan tidak tersedia"}")
                 }
             } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan saat memuat data invoice rental awal.")
+                _error.postValue(
+                    e.message ?: "Terjadi kesalahan saat memuat data invoice rental awal."
+                )
             } finally {
                 _loading.postValue(false) // Always set loading to false
             }
         }
     }
 
-    suspend fun getReportRental(){
+    suspend fun getReportRental() {
         _loading.postValue(true) // Set loading to true
         _error.postValue("") // Reset error message
         try {
@@ -135,7 +141,8 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
             val response = rentalReportRepository.getReportRental()
             if (response.success) {
                 val rentalReports = response.data
-                val filteredList = rentalReports.filter { it.id_branch_transaction_rental == branchId }
+                val filteredList =
+                    rentalReports.filter { it.id_branch_transaction_rental == branchId }
                 _rentalReports.postValue(filteredList)
                 _filteredRentalReports.postValue(filteredList) // Update filtered list as well
             } else {
@@ -162,7 +169,9 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
                     _error.postValue("API request gagal saat mengambil laporan rental: ${response.message ?: "Pesan tidak tersedia"}")
                 }
             } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil data laporan rental.")
+                _error.postValue(
+                    e.message ?: "Terjadi kesalahan saat mengambil data laporan rental."
+                )
             } finally {
                 _loading.postValue(false) // Always set loading to false
             }
@@ -213,7 +222,9 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         return try {
             rentalReportRepository.getReportRentalById(id)
         } catch (e: Exception) {
-            _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil laporan rental berdasarkan ID.")
+            _error.postValue(
+                e.message ?: "Terjadi kesalahan saat mengambil laporan rental berdasarkan ID."
+            )
             DefaultRequest(success = false, message = e.message.toString(), data = null)
         } finally {
             _loading.postValue(false) // Always set loading to false
@@ -274,7 +285,9 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         return try {
             rentalReportRepository.exportRentalMonthly(exportReport)
         } catch (e: Exception) {
-            _error.postValue(e.message ?: "Terjadi kesalahan saat mengekspor laporan rental bulanan.")
+            _error.postValue(
+                e.message ?: "Terjadi kesalahan saat mengekspor laporan rental bulanan."
+            )
             DefaultRequest(success = false, message = e.message.toString(), data = null)
         } finally {
             _loading.postValue(false) // Always set loading to false
@@ -329,9 +342,11 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
                     _error.postValue("API request gagal saat mengambil invoice rental: ${response.message ?: "Pesan tidak tersedia"}")
                 }
             } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil data invoice rental.")
+                _error.postValue(
+                    e.message ?: "Terjadi kesalahan saat mengambil data invoice rental."
+                )
             } finally {
-                    _loading.postValue(false) // Always set loading to false
+                _loading.postValue(false) // Always set loading to false
             }
         }
     }
@@ -355,21 +370,26 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private var branches: List<Branch> = emptyList()
+    private var client: List<Client> = emptyList()
     private var users: List<User> = emptyList()
 
     fun setBranches(data: List<Branch>) {
         branches = data
     }
 
+    fun setClient(data: List<Client>) {
+        client = data
+    }
+
     fun setUsers(data: List<User>) {
         users = data
     }
 
-      fun postPrintData(data: RentalPrintTransaction) {
+    fun postPrintData(data: RentalPrintTransaction) {
         _printData.postValue(data)
     }
 
-        // Fungsi untuk clear/reset data
+    // Fungsi untuk clear/reset data
     fun clearCreateTransactionResponse() {
         _createTransactionResponse.value = null
     }

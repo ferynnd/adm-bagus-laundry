@@ -76,31 +76,33 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
                 is ReportLaundryViewHolder -> {
                     val transactionReportLaundry = item as ReportLaundry
 
-                    val branchName = branches.find { it.id_branch == transactionReportLaundry.id_branch_transaction_laundry }?.name_branch ?: "Unknown"
-                    val userName = users.find { it.id_user == transactionReportLaundry.id_kurir_transaction_laundry }?.fullname_user ?: "Unknown"
+                    val branchName = branches.find { it.id_branch == transactionReportLaundry.id_branch_transaction_laundry }?.name_branch ?: "-"
+                    val userName = users.find { it.id_user == transactionReportLaundry.id_kurir_transaction_laundry }?.fullname_user ?: "-"
 
                     holder.binding.apply {
-                        idTransactionLaundry.text = transactionReportLaundry.number_transaction_laundry.toString()
-                        inputBranch.text = branchName
+                        numberTransaction.text = transactionReportLaundry.number_transaction_laundry.toString()
+                        cabangTransaksiLaundry.text = branchName
                         val dataStatus = when (transactionReportLaundry.status_transaction_laundry) {
                             StatusReportLaundry.paid -> "Sudah Dibayar"
                             StatusReportLaundry.unpaid -> "Belum Dibayar"
                             StatusReportLaundry.completed -> "Selesai"
                             StatusReportLaundry.cancelled -> "Dibatalkan"
                         }
-                        inputStatus.text = dataStatus
-                        inputEmployment.text = userName
-                        inputCustommer.text = transactionReportLaundry.name_client_transaction_laundry.toString()
-                        inputWeight.text = transactionReportLaundry.total_weight_transaction_laundry.toString()
-                        inputCountItem.text = transactionReportLaundry.count_item_transaction_laundry.toString()
+                        statusTransaksiLaundry.text = dataStatus
+                        tanggalMasukTransaksiLaundry.text = transactionReportLaundry.first_date_transaction_laundry ?: "-"
+                        tanggalKeluarTransaksiLaundry.text = transactionReportLaundry.last_date_transaction_laundry ?: "-"
+                        karyawanTransaksiLaundry.text = userName
+                        namaPelangganTransaksiLaundry.text = transactionReportLaundry.name_client_transaction_laundry.toString()
+                        beratTransaksiLaundry.text = transactionReportLaundry.total_weight_transaction_laundry.toString() + " Kg"
+                        pcsTransaksiLaundry.text = transactionReportLaundry.count_item_transaction_laundry.toString() + " Pcs"
                         val localeID = Locale("in", "ID")
                         val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 
-                        val hargaTotal = transactionReportLaundry.total_price_transaction_laundry
-                        inputTotalPrice.text = formatRupiah.format(hargaTotal)
-                        inputNotes.text = transactionReportLaundry.notes_transaction_laundry
+                        val hargaTotal = transactionReportLaundry.total_price_transaction_laundry ?: "-"
+                        totalHargaTransaksiLaundry.text = formatRupiah.format(hargaTotal) ?: "-"
+                        noteTransaksiLaundry.text = transactionReportLaundry.notes_transaction_laundry ?: "-"
 
-                        buttonDetail.setOnClickListener {
+                        container.setOnClickListener {
                             onDetail(transactionReportLaundry)
                         }
                     }

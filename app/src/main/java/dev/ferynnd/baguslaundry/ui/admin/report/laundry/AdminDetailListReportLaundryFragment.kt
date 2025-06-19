@@ -76,7 +76,7 @@ class AdminDetailListReportLaundryFragment : Fragment() {
 
         transactionReportID = arguments?.getInt("transactionLaundryID")
 
-        binding.recyclerViewListItem.apply {
+        binding.recyclerViewTransaksiLaundry.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = detailLaundryReportAdapter
             setOnTouchListener { _, _ -> true }
@@ -95,7 +95,10 @@ class AdminDetailListReportLaundryFragment : Fragment() {
                         viewLifecycleOwner
                     ) { listTransactionItem ->
                         listTransactionItem?.let {
-                            detailLaundryReportAdapter.submitList(listTransactionItem)
+                            val filteredList = listTransactionItem.filter { item ->
+                                item.id_transaction_laundry == transactionReportID
+                            }
+                            detailLaundryReportAdapter.submitList(filteredList)
                         }
                     }
 
@@ -112,40 +115,41 @@ class AdminDetailListReportLaundryFragment : Fragment() {
 
 
                     binding.apply {
-                        inputEmployment.text = dataReport.id_kurir_transaction_laundry.toString()
-                        inputBranch.text = dataReport.id_branch_transaction_laundry.toString()
-                        inputCustommer.text = dataReport.name_client_transaction_laundry
-                        inputNotes.text = dataReport.notes_transaction_laundry
-                        inputWeight.text = dataReport.total_weight_transaction_laundry.toString()
-                        inputIsActive.text = dataReport.is_active_transaction_laundry.toString()
+//                        namaKaryawanTransaksiLaundry.text = dataReport.id_kurir_transaction_laundry.toString()
+//                        cabangTransaksiLaundry.text = dataReport.id_branch_transaction_laundry.toString()
+                        noTransaksiLaundry.text = dataReport.number_transaction_laundry.toString() ?: "-"
+                        namaPelangganTransaksiLaundry.text = dataReport.name_client_transaction_laundry
+                        noteTransaksiLaundry.text = dataReport.notes_transaction_laundry
+                        beratTransaksiLaundry.text = dataReport.total_weight_transaction_laundry.toString()
+//                         inputIsActive.text = dataReport.is_active_transaction_laundry.toString()
                         val localeID = Locale("in", "ID")
                         val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 
-                        inputCountItem.text =
+                        pcsTransaksiLaundry.text =
                             dataReport.count_item_transaction_laundry.toString()
-                        inputCash.text = formatRupiah.format(dataReport.cash_transaction_laundry)
-                        inputTotalPrice.text =
+                        titleCashHargaTransaksiLaundry.text = formatRupiah.format(dataReport.cash_transaction_laundry)
+                        tunaiTransaksiLaundry.text =
                             formatRupiah.format(dataReport.total_price_transaction_laundry)
-                        inputTotalPriceTransaction.text =
+                        totalHargaTransaksiLaundry.text =
                             formatRupiah.format(dataReport.total_transaction_laundry)
 
                         val branchName =
                             branches.find { it.id_branch == dataReport.id_branch_transaction_laundry }?.name_branch
                                 ?: "Unknown"
-                        inputBranch.text = branchName
+                        cabangTransaksiLaundry.text = branchName
                         val employeeName =
                             users.find { it.id_user == dataReport.id_kurir_transaction_laundry }?.fullname_user
                                 ?: "Unknown"
-                        inputEmployment.text = employeeName
+                        namaKaryawanTransaksiLaundry.text = employeeName
                         val dataStatus = when (dataReport.status_transaction_laundry) {
                             StatusReportLaundry.paid -> "Sudah Bayar"
                             StatusReportLaundry.unpaid -> "Belum Bayar"
                             StatusReportLaundry.completed -> "Selesai"
                             StatusReportLaundry.cancelled -> "DiBatalkan"
                         }
-                        inputStatus.text = dataStatus
-                        inputTimeIn.text = dataReport.first_date_transaction_laundry
-                        inputTimeOut.text = dataReport.last_date_transaction_laundry
+                        statusTransaksiLaundry.text = dataStatus
+                        tanggalMasukTransaksiLaundry.text = dataReport.first_date_transaction_laundry
+                        tanggalKeluarTransaksiLaundry.text = dataReport.last_date_transaction_laundry
 
 
                     }

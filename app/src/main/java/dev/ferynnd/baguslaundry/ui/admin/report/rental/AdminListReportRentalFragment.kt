@@ -57,10 +57,10 @@ class AdminListReportRentalFragment : Fragment() {
         super.onCreate(savedInstanceState)
         rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java]
         rentalReportViewModel.init(requireContext())
-        branchViewModel = ViewModelProvider(this).get(BranchViewModel::class.java)
+        branchViewModel = ViewModelProvider(this)[BranchViewModel::class.java]
         branchViewModel.init(requireContext())
-        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
-        clientViewModel = ViewModelProvider(this).get(ClientViewModel::class.java)
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java].apply { init(requireContext()) }
     }
 
 
@@ -131,6 +131,7 @@ class AdminListReportRentalFragment : Fragment() {
                 }
                 clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
                     rentalReportAdapter.setClient(clients)
+                    rentalReportViewModel.setClient(clients)
                 }
                 rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { products ->
                     setReportRental(products)

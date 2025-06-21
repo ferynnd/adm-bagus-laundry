@@ -19,7 +19,7 @@ import java.util.Locale
 class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
 
     private var branches: List<Branch> = emptyList()
-       private var users : List<User> = emptyList()
+    private var users : List<User> = emptyList()
 
 
     fun setBranches(branchList: List<Branch>) {
@@ -64,61 +64,59 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
             is ReportLaundry -> TYPE_VIEW.CONTENT.ordinal
-              is String -> TYPE_VIEW.HEADER.ordinal
+            is String -> TYPE_VIEW.HEADER.ordinal
             else -> throw IllegalArgumentException("Unknown item type")
         }
     }
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            val item = getItem(position)
-            when (holder) {
-                is ReportLaundryViewHolder -> {
-                    val transactionReportLaundry = item as ReportLaundry
+        val item = getItem(position)
+        when (holder) {
+            is ReportLaundryViewHolder -> {
+                val transactionReportLaundry = item as ReportLaundry
 
-                    val branchName = branches.find { it.id_branch == transactionReportLaundry.id_branch_transaction_laundry }?.name_branch ?: "-"
-                    val userName = users.find { it.id_user == transactionReportLaundry.id_kurir_transaction_laundry }?.fullname_user ?: "-"
+                val branchName = branches.find { it.id_branch == transactionReportLaundry.id_branch_transaction_laundry }?.name_branch ?: "Unknown"
+                val userName = users.find { it.id_user == transactionReportLaundry.id_kurir_transaction_laundry }?.fullname_user ?: "Unknown"
 
-                    holder.binding.apply {
-                        numberTransaction.text = transactionReportLaundry.number_transaction_laundry.toString()
-                        cabangTransaksiLaundry.text = branchName
-                        val dataStatus = when (transactionReportLaundry.status_transaction_laundry) {
-                            StatusReportLaundry.paid -> "Sudah Dibayar"
-                            StatusReportLaundry.unpaid -> "Belum Dibayar"
-                            StatusReportLaundry.completed -> "Selesai"
-                            StatusReportLaundry.cancelled -> "Dibatalkan"
-                        }
-                        statusTransaksiLaundry.text = dataStatus
-                        tanggalMasukTransaksiLaundry.text = transactionReportLaundry.first_date_transaction_laundry ?: "-"
-                        tanggalKeluarTransaksiLaundry.text = transactionReportLaundry.last_date_transaction_laundry ?: "-"
-                        karyawanTransaksiLaundry.text = userName
-                        namaPelangganTransaksiLaundry.text = transactionReportLaundry.name_client_transaction_laundry.toString()
-                        beratTransaksiLaundry.text = transactionReportLaundry.total_weight_transaction_laundry.toString() + " Kg"
-                        pcsTransaksiLaundry.text = transactionReportLaundry.count_item_transaction_laundry.toString() + " Pcs"
-                        val localeID = Locale("in", "ID")
-                        val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
+                holder.binding.apply {
+                    idTransactionLaundry.text = transactionReportLaundry.number_transaction_laundry.toString()
+                    inputBranch.text = branchName
+                    val dataStatus = when (transactionReportLaundry.status_transaction_laundry) {
+                        StatusReportLaundry.paid -> "Sudah Dibayar"
+                        StatusReportLaundry.unpaid -> "Belum Dibayar"
+                        StatusReportLaundry.completed -> "Selesai"
+                        StatusReportLaundry.cancelled -> "Dibatalkan"
+                    }
+                    inputStatus.text = dataStatus
+                    inputEmployment.text = userName
+                    inputCustommer.text = transactionReportLaundry.name_client_transaction_laundry.toString()
+                    inputWeight.text = transactionReportLaundry.total_weight_transaction_laundry.toString()
+                    inputCountItem.text = transactionReportLaundry.count_item_transaction_laundry.toString()
+                    val localeID = Locale("in", "ID")
+                    val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 
-                        val hargaTotal = transactionReportLaundry.total_price_transaction_laundry ?: "-"
-                        totalHargaTransaksiLaundry.text = formatRupiah.format(hargaTotal) ?: "-"
-                        noteTransaksiLaundry.text = transactionReportLaundry.notes_transaction_laundry ?: "-"
+                    val hargaTotal = transactionReportLaundry.total_price_transaction_laundry
+                    inputTotalPrice.text = formatRupiah.format(hargaTotal)
+                    inputNotes.text = transactionReportLaundry.notes_transaction_laundry
 
-                        container.setOnClickListener {
-                            onDetail(transactionReportLaundry)
-                        }
+                    buttonDetail.setOnClickListener {
+                        onDetail(transactionReportLaundry)
                     }
                 }
-                is HeaderViewHolder -> {
-                    val header = item as String
-                    holder.binding.inputNameBranch.text = header
-                    val context = holder.binding.root.context
-                    val color = ContextCompat.getColor(context, R.color.greenDark) // pastikan 'orange' benar ada di colors.xml
-                    holder.binding.root.setCardBackgroundColor(color)
-                }
+            }
+            is HeaderViewHolder -> {
+                val header = item as String
+                holder.binding.inputNameBranch.text = header
+                val context = holder.binding.root.context
+                val color = ContextCompat.getColor(context, R.color.greenDark) // pastikan 'orange' benar ada di colors.xml
+                holder.binding.root.setCardBackgroundColor(color)
             }
         }
+    }
 
 
-      class DiffCallback : DiffUtil.ItemCallback<Any>() {
+    class DiffCallback : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
             return when ( oldItem) {
                 is ReportLaundry -> {

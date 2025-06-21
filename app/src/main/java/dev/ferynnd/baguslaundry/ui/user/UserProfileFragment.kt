@@ -21,7 +21,7 @@ class UserProfileFragment : Fragment() {
     private lateinit var sharePrefrenceHelper: SharePrefrenceHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
     }
 
     override fun onCreateView(

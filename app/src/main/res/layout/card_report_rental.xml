@@ -1,294 +1,359 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardTransaksiRental"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="6dp"
-    app:cardCornerRadius="10dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="@android:color/white">
+    android:layout_marginVertical="5dp"
+    android:id="@+id/cardReportRental"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/container"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardBackground"
         android:layout_width="match_parent"
+        android:layout_height="500dp"
+        app:cardBackgroundColor="@color/blueGray"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardForeground"
+        android:layout_width="match_parent"
+        android:layout_height="445dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp"
+        app:layout_constraintStart_toStartOf="@id/cardBackground"
+        app:layout_constraintEnd_toEndOf="@id/cardBackground"
+        app:layout_constraintBottom_toBottomOf="@id/cardBackground"
+        />
+
+    <TextView
+        android:id="@+id/idTransactionRental"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        tools:text="CAB001234"
+        android:fontFamily="@font/inter_medium"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:layout_marginStart="20dp"
+        app:layout_constraintBottom_toTopOf="@id/cardForeground"
+        app:layout_constraintStart_toStartOf="@id/cardBackground"
+        app:layout_constraintTop_toTopOf="@id/cardBackground"
+        android:translationZ="2dp"
+        />
 
-        <!-- Header: No Resi | Tipe Transaksi -->
-        <TextView
-            android:id="@+id/no_resi_transaksi_rental"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="TRX2321"
-            android:paddingVertical="6dp"
-            android:textColor="@color/blue900"
-            android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:id="@+id/buttonDetail"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/detail"
+        android:translationZ="2dp"
+        app:tint="@color/white"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toTopOf="@id/cardForeground"
+        app:layout_constraintTop_toTopOf="@id/cardBackground"
+        app:layout_constraintEnd_toEndOf="@id/cardBackground" />
 
+    <TableLayout
+        android:id="@+id/tableLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@id/cardForeground"
+        app:layout_constraintEnd_toEndOf="@id/cardForeground"
+        app:layout_constraintTop_toTopOf="@id/cardForeground"
+        >
 
-        <!-- Status Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/wadah_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardBackgroundColor="@color/blueGray"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/no_resi_transaksi_rental"
-            app:layout_constraintBottom_toBottomOf="@id/no_resi_transaksi_rental"
-            android:gravity="end">
+        <TableRow>
 
             <TextView
-                android:id="@+id/nama_client_transaksi_rental"
+                android:text="WAKTU"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/blue900"
+                android:textAlignment="textStart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_semibold"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="6dp"
-                android:text="PRAKASA FITNES"
-                android:textAllCaps="true"
-                android:textColor="@color/white"
-                android:textSize="13sp" />
-        </androidx.cardview.widget.CardView>
-
-        <!-- Detail Informasi (Grouped) -->
-        <LinearLayout
-            android:id="@+id/layout_details"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/wadah_status">
-
-            <!-- Tanggal -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
-
-                <TextView
-                    android:id="@+id/title_tanggal_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_medium"
-                    android:text="TANGGAL"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tanggal_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="27 April 2025, 17:18"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Nama Penerima -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
-
-                <TextView
-                    android:id="@+id/title_cabang_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_medium"
-                    android:text="CABANG"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/cabang_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="Madiun"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Nama Penerima -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
-
-                <TextView
-                    android:id="@+id/title_nama_penerima_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_medium"
-                    android:text="PENERIMA"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/nama_penerima_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="Piky"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Nama Kurir -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
-
-                <TextView
-                    android:id="@+id/title_nama_kurir_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_medium"
-                    android:text="KURIR"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/nama_kurir_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="Mamang"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Jumlah Item -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
-
-                <TextView
-                    android:id="@+id/title_jumlah_item_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_medium"
-                    android:text="JUMLAH"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/jumlah_item_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="10 pcs"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Harga Per Kg -->
-
-            <!-- Total Berat -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
-
-                <TextView
-                    android:id="@+id/title_total_berat_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_medium"
-                    android:text="TOTAL BERAT"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/total_berat_transaksi_rental"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="12.6 Kg"
-                    android:textColor="@color/gray900"
-                    android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Promo -->
-
-            <!-- Tambahan -->
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/title_note_transaksi_rental"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/inter_semibold"
-            android:text="CATATAN"
-            android:textColor="@color/gray900"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_details" />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/wadah_note"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/blueBase"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title_note_transaksi_rental">
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
 
             <TextView
-                android:id="@+id/note_transaksi_rental"
-                android:layout_width="match_parent"
+                android:id="@+id/inputTime"
+                tools:text="NamaKu"
+                android:padding="10dp"
+                android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:fontFamily="@font/inter_medium"
-                android:maxLines="3"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="8dp"
-                android:singleLine="false"
-                android:text="Ini adalah catatan panjang mengenai transaksi rental ini. Mungkin ada detail khusus tentang item atau permintaan pelanggan. Pastikan untuk membacanya dengan teliti. Ini hanya contoh catatan. "
-                android:textColor="@color/gray900"
-                android:textSize="12sp" />
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:text="CABANG"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/blue900"
+                android:textAlignment="textStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
 
-        </androidx.cardview.widget.CardView>
+            <TextView
+                android:id="@+id/inputBranch"
+                tools:text="CABANG"
+                android:padding="10dp"
+                android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+        </TableRow>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.cardview.widget.CardView>
+        <TableRow>
+            <TextView
+                android:text="KLIEN"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/blue900"
+                android:textAlignment="textStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
+
+            <TextView
+                android:id="@+id/inputCLient"
+                tools:text="ERA PHONE"
+                android:padding="10dp"
+                android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="PENERIMA"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/blue900"
+                android:textAlignment="textStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
+
+            <TextView
+                android:id="@+id/inputRecipient"
+                tools:text="NANDOO"
+                android:padding="10dp"
+                android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:text="KURIR"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/blue900"
+                android:textAlignment="textStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                /> <!-- kasih lebar minimum -->
+
+            <TextView
+                android:id="@+id/inputSender"
+                tools:text="KAKAKA"
+                android:padding="10dp"
+                android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+        </TableRow>
+
+
+        <TableRow>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+                <TextView
+                    android:text="BERAT"
+                    android:padding="10dp"
+                    android:textSize="12sp"
+                    android:layout_marginStart="10dp"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/blue900"
+                    android:textAlignment="textStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+                <TextView
+                    android:text="@string/berat"
+                    android:padding="10dp"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/primary"
+                    android:textAlignment="textStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/inputWeight"
+                tools:text="10,15"
+                android:padding="10dp"
+                android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+        </TableRow>
+
+
+
+        <TableRow>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+                <TextView
+                    android:text="JUMLAH"
+                    android:padding="10dp"
+                    android:textSize="12sp"
+                    android:layout_marginStart="10dp"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/blue900"
+                    android:textAlignment="textStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+                <TextView
+                    android:text="@string/pcs"
+                    android:padding="10dp"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/primary"
+                    android:textAlignment="textStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/inputPcs"
+                tools:text="10"
+                android:padding="10dp"
+                android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/blue900"
+                android:textAlignment="textEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+        </TableRow>
+
+
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/titleNotes"
+        android:text="CATATAN"
+        android:padding="10dp"
+        android:textSize="12sp"
+        android:layout_marginStart="10dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/blue900"
+        android:textAlignment="textStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tableLayout"
+        app:layout_constraintStart_toStartOf="@id/cardForeground"
+        />
+
+    <TextView
+        android:id="@+id/inputNotes"
+        tools:text=" Ini catatan Ku "
+        android:padding="10dp"
+        android:textSize="12sp"
+        android:translationZ="20dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/gray900"
+        android:textAlignment="textStart"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/cardNotes"
+        app:layout_constraintEnd_toEndOf="@id/cardNotes"
+        app:layout_constraintTop_toTopOf="@id/cardNotes"
+        />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardNotes"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        app:cardBackgroundColor="@color/blueBase"
+        app:cardCornerRadius="10dp"
+        android:layout_marginHorizontal="15dp"
+        app:cardElevation="0dp"
+        android:maxLines="3"
+        app:layout_constraintTop_toBottomOf="@+id/titleNotes"
+        app:layout_constraintStart_toStartOf="@id/cardForeground"
+        app:layout_constraintEnd_toEndOf="@id/cardForeground"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

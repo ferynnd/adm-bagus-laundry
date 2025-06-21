@@ -90,7 +90,7 @@ class AdminListReportLaundryFragment : Fragment() {
             }
         }
 
-         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let { laundryReportViewModel.searchLaundryReports(it) }
                 return true

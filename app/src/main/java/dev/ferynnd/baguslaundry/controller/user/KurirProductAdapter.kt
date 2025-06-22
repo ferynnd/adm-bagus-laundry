@@ -83,6 +83,29 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
         }
     }
 
+    private var originalList = listOf<Any>()
+    
+    override fun submitList(list: List<Any>?) {
+        originalList = list ?: emptyList()
+        super.submitList(list)
+    }
+
+    fun filter(query: String) {
+        if (query.isEmpty()) {
+            super.submitList(originalList)
+            return
+        }
+
+        val filteredList = originalList.filter { item ->
+            when (item) {
+                is ProductLaundry -> item.name_laundry_item?.contains(query, ignoreCase = true) == true
+                is ProductRental -> item.name_rental_item?.contains(query, ignoreCase = true) == true
+                else -> false
+            }
+        }
+        super.submitList(filteredList)
+    }
+
     class DiffCallback : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
             return when ( oldItem) {

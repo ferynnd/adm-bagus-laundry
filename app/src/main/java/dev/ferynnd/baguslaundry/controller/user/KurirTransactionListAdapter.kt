@@ -95,8 +95,7 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
                 holder.binding.tanggalKeluarTransaksiLaundry.text = if( laundryReport.last_date_transaction_laundry == null ) "Tidak ada tanggal keluar" else laundryReport.last_date_transaction_laundry.toString()
                 holder.binding.pcsTransaksiLaundry.text =  if ( laundryReport.count_item_transaction_laundry == null ) "0" else laundryReport.count_item_transaction_laundry.toString()
                 holder.binding.statusTransaksiLaundry.text = laundryReport.status_transaction_laundry.toString()
-                holder.binding.hargaTransaksiLaundry.text =  numberFormatter.format(laundryReport.total_transaction_laundry?.toDouble() ?: 0.0)
-                holder.binding.beratTransaksiLaundry.text = laundryReport.total_weight_transaction_laundry.toString()
+                holder.binding.beratTransaksiLaundry.text = "${laundryReport.total_weight_transaction_laundry.toString()} + Kg"
                 holder.binding.totalHargaTransaksiLaundry.text =  numberFormatter.format(laundryReport.total_price_transaction_laundry?.toDouble() ?: 0.0)
                 holder.binding.tunaiTransaksiLaundry.text =  numberFormatter.format(laundryReport.cash_transaction_laundry?.toDouble() ?: 0.0)
                 holder.binding.kembalianTransaksiLaundry.text =  numberFormatter.format(laundryReport.change_money_transaction_laundry?.toDouble() ?: 0.0)

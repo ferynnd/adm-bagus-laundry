@@ -27,40 +27,42 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/harga_transaksi_laundry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Rp 100.000"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/wadah_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             app:cardBackgroundColor="@color/pink500"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/numberTransaction">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/status_transaksi_laundry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_semibold"
-                android:paddingHorizontal="12dp"
+                android:paddingHorizontal="14dp"
                 android:paddingVertical="4dp"
                 android:text="tersedia"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
-                android:textSize="11sp" />
+                android:textSize="14sp" />
         </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/title_nama_pelanggan_transaksi_laundry"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Nama Pelanggan"
+            android:textColor="@color/gray900"
+            android:gravity="end"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wadah_status" />
 
         <TextView
             android:id="@+id/nama_pelanggan_transaksi_laundry"
@@ -72,10 +74,10 @@
             android:textColor="@color/gray900"
             android:gravity="end"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@+id/wadah_status"
+            app:layout_constraintBottom_toBottomOf="@+id/title_nama_pelanggan_transaksi_laundry"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/wadah_status"
-            app:layout_constraintTop_toTopOf="@+id/wadah_status" />
+            app:layout_constraintStart_toEndOf="@+id/title_nama_pelanggan_transaksi_laundry"
+            app:layout_constraintTop_toTopOf="@+id/title_nama_pelanggan_transaksi_laundry" />
 
         <LinearLayout
             android:id="@+id/layout_details"
@@ -85,7 +87,7 @@
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/wadah_status">
+            app:layout_constraintTop_toBottomOf="@+id/title_nama_pelanggan_transaksi_laundry">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

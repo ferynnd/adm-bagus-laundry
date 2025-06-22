@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -64,6 +65,19 @@ class KurirProductFragment : Fragment() {
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
 
+        // Ganti listener pencarian ke SearchView
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                kurirProductAdapter.filter(query.orEmpty())
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                kurirProductAdapter.filter(newText.orEmpty())
+                return true
+            }
+        })
+
         // Observer produk laundry
         laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { products ->
             if (isLaundryTabSelected()) {
@@ -115,6 +129,9 @@ class KurirProductFragment : Fragment() {
     }
 
     private fun fetchDataForTab(position: Int) {
+        // Reset pencarian setiap kali tab berpindah
+        binding.searchView.setQuery("", false)
+        binding.searchView.clearFocus()
         when (position) {
             0 -> {
                 viewLifecycleOwner.lifecycleScope.launch {

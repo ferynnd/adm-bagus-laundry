@@ -26,6 +26,8 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
     private var clients : List<Client> = emptyList()
     private var users : List<User> = emptyList()
 
+    private var originalList: List<Any> = emptyList()
+
     fun setClients(clientList : List<Client>) {
         clients = clientList
         notifyDataSetChanged()
@@ -36,7 +38,7 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
         notifyDataSetChanged()
     }
 
-      // Formatter untuk mata uang (sama seperti di Fragment)
+    // Formatter untuk mata uang (sama seperti di Fragment)
     private val numberFormatter: NumberFormat =
         NumberFormat.getCurrencyInstance(Locale("in", "ID")).apply {
             isGroupingUsed = true // Untuk pemisah ribuan (titik)
@@ -115,6 +117,32 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
                 holder.binding.noteTransaksiRental.text = if( rentalReport.notes_transaction_rental == null ) "Tidak ada catatan" else rentalReport.notes_transaction_rental.toString()
             }
         }
+    }
+
+    override fun submitList(list: List<Any>?) {
+        originalList = list ?: emptyList()
+        super.submitList(list)
+    }
+
+    fun filter(query: String) {
+        if (query.isEmpty()) {
+            super.submitList(originalList)
+            return
+        }
+        val filteredList = originalList.filter { item ->
+            when (item) {
+                is ReportLaundry -> {
+                    item.name_client_transaction_laundry?.contains(query, ignoreCase = true) == true
+                }
+                is ReportRental -> {
+                    val clientName = clients.find { it.id_client == item.id_client_transaction_rental }?.name_client ?: ""
+                    (item.recipient_name_transaction_rental?.contains(query, ignoreCase = true) == true) ||
+                    (clientName.contains(query, ignoreCase = true))
+                }
+                else -> false
+            }
+        }
+        super.submitList(filteredList)
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Any>() {

@@ -31,6 +31,7 @@ import dev.ferynnd.baguslaundry.ui.admin.product.laundry.AdminListProductLaundry
 import dev.ferynnd.baguslaundry.ui.admin.product.rental.AdminListProductRentalFragment
 import dev.ferynnd.baguslaundry.ui.admin.report.laundry.AdminListReportLaundryFragment
 import dev.ferynnd.baguslaundry.ui.admin.report.rental.AdminListReportRentalFragment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AdminDashboardFragment : Fragment() {
@@ -62,10 +63,6 @@ class AdminDashboardFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = dashboardAdapter
         }
-        // Observe the latestTransactions LiveData
-        viewModel.latestTransactions.observe(viewLifecycleOwner) { transactions ->
-            dashboardAdapter.submitList(transactions)
-        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -73,6 +70,26 @@ class AdminDashboardFragment : Fragment() {
                 binding.headerName.text = nameUser
             } catch (e: Exception) {
                 throw e
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // Observe loading state
+            viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
+
+            viewModel.latestTransactions.observe(viewLifecycleOwner) { transactions ->
+                transactions?.let {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        if (it.isNotEmpty()) { // Gunakan 'it' untuk data LiveData
+                             dashboardAdapter.submitList(transactions)
+                        } else {
+                            dashboardAdapter.submitList(emptyList())
+                        }
+                    }
+                }
             }
         }
 

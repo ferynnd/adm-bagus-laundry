@@ -154,18 +154,37 @@
 
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/outlinedTextNotes"
+        android:id="@+id/outlinedTextDiskon"
         style="@style/CustomTextInputLayout"
         android:layout_width="0dp"
         android:layout_height="55dp"
         android:layout_marginTop="5dp"
-        android:hint="CATATAN"
+        android:hint="DISKON"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
         app:layout_constraintTop_toBottomOf="@+id/outlinedTextDate">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputTextNotes"
+            android:id="@+id/inputTextDiskon"
+            style="@style/CustomTextInputEditText"
+            android:fontFamily="@font/inter"
+            android:textSize="12sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/outlinedTextAdditional"
+        style="@style/CustomTextInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="5dp"
+        android:hint="BIAYA TAMBAHAN"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@+id/outlinedTextDiskon">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputTextAdditional"
             style="@style/CustomTextInputEditText"
             android:fontFamily="@font/inter"
             android:textSize="12sp" />
@@ -181,7 +200,7 @@
         app:layout_constraintBottom_toTopOf="@+id/guidelineBottom"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-        app:layout_constraintTop_toBottomOf="@id/outlinedTextNotes" />
+        app:layout_constraintTop_toBottomOf="@id/outlinedTextAdditional" />
 
 
     <com.google.android.material.card.MaterialCardView

@@ -45,7 +45,7 @@ enum class IsActiveReportLaundry {
 
 data class ExportReportLaundry(
     val month: String,
-    val location: Int,
+    val id_branch : Int,
     val notes: List<String>
 )
 

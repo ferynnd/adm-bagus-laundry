@@ -86,9 +86,6 @@ class AdminListInvoiceRentalFragment : Fragment() {
                 binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
                 binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
             }
-            reportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
-            }
             reportViewModel.filteredInvoices.observe(viewLifecycleOwner) { filteredReports ->
                 invoiceAdapter.submitList(filteredReports)
             }
@@ -137,20 +134,17 @@ class AdminListInvoiceRentalFragment : Fragment() {
         dialog.show()
 
         val inputNotes = dialog.findViewById<TextInputEditText>(R.id.inputTextNotes)
-        val inputPayment = dialog.findViewById<TextInputEditText>(R.id.inputTextPayment)
         val buttonCetak = dialog.findViewById<Button>(R.id.buttonCetak)
         val buttonBack = dialog.findViewById<Button>(R.id.buttonBack)
 
         buttonCetak.setOnClickListener {
-            if (inputNotes.text.toString().isNotEmpty() && inputPayment.text.toString()
-                    .isNotEmpty()
+            if (inputNotes.text.toString().isNotEmpty()
             ) {
                 val notes = inputNotes.text.toString()
-                val payment = inputPayment.text.toString()
+
                 val dataRequest = ExportInvoicePdfRentalRequest(
                     id_invoice_rental = invoice.id_invoice_rental,
                     note = notes,
-                    payment = payment
                 )
                 lifecycleScope.launch {
                     try {

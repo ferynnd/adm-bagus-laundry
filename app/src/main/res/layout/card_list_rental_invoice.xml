@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardForeground"
     android:layout_width="match_parent"
-    android:layout_height="210dp"
+    android:layout_height="80dp"
     android:layout_marginVertical="5dp"
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="10dp"
@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.92" />
+            app:layout_constraintGuide_percent="0.9" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineLeft"
@@ -29,134 +29,44 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.07" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guidelineTop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.1" />
+
 
 
         <TextView
-            android:id="@+id/inputIdTransaction"
+            android:id="@+id/inputIdProduct"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
+            android:fontFamily="@font/inter_semibold"
             android:textColor="@color/blue900"
             android:textSize="18sp"
             app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-            app:layout_constraintTop_toBottomOf="@id/guidelineTop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/inputPrice"
             tools:text="124785798837" />
 
         <CheckBox
             android:id="@+id/iconRadio"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:buttonTint="@color/primary"
             android:checked="true"
             app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-            app:layout_constraintTop_toBottomOf="@id/guidelineTop"
-            app:tint="@color/blue900" />
+            app:layout_constraintTop_toTopOf="@id/inputIdProduct"
+            app:layout_constraintBottom_toBottomOf="@id/inputPrice"/>
 
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/layoutStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="10dp"
-            app:cardBackgroundColor="@color/primary"
-            app:cardCornerRadius="5dp"
-            app:layout_constraintBottom_toBottomOf="@id/inputIdTransaction"
-            app:layout_constraintStart_toEndOf="@id/inputIdTransaction"
-            app:layout_constraintTop_toTopOf="@id/inputIdTransaction">
-
-            <TextView
-                android:id="@+id/inputStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:fontFamily="@font/inter_semibold"
-                android:paddingHorizontal="10dp"
-                android:textAllCaps="true"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@id/guidelineTop"
-                tools:text="KELUAR" />
-        </androidx.cardview.widget.CardView>
 
         <TextView
-            android:id="@+id/inputDate"
+            android:id="@+id/inputPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:fontFamily="@font/inter"
-            android:textColor="@color/gray900"
-            android:textSize="12sp"
+            android:fontFamily="@font/inter_semibold"
+            android:textColor="@color/blue500"
+            android:textSize="16sp"
             app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-            app:layout_constraintTop_toBottomOf="@id/inputIdTransaction"
-            tools:text="28 MARET 2025 - 10:30:59" />
+            app:layout_constraintTop_toBottomOf="@id/inputIdProduct"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Rp. 10.000" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/outlinedTextStatus"
-            android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:layout_marginTop="5dp"
-            app:cardBackgroundColor="@color/background"
-            app:cardCornerRadius="5dp"
-            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-            app:layout_constraintTop_toBottomOf="@id/inputDate"
-            app:strokeWidth="0dp" />
-
-        <Spinner
-            android:id="@+id/selectStatus"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="5dp"
-            android:paddingStart="5dp"
-            android:paddingEnd="0dp"
-            android:pointerIcon="arrow"
-            app:layout_constraintBottom_toBottomOf="@id/outlinedTextStatus"
-            app:layout_constraintEnd_toEndOf="@id/outlinedTextStatus"
-            app:layout_constraintStart_toEndOf="@id/iconStatusList"
-            app:layout_constraintTop_toTopOf="@id/outlinedTextStatus" />
-
-        <ImageView
-            android:id="@+id/iconStatusList"
-            android:layout_width="20dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="10dp"
-            android:src="@drawable/active"
-            app:layout_constraintBottom_toBottomOf="@id/outlinedTextStatus"
-            app:layout_constraintStart_toStartOf="@id/outlinedTextStatus"
-            app:layout_constraintTop_toTopOf="@id/outlinedTextStatus" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/outlinedTextNotes"
-            style="@style/CustomTextInputLayout"
-            android:layout_width="0dp"
-            android:layout_height="70dp"
-            android:layout_marginTop="5dp"
-            android:hint="CATATAN"
-            app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-
-            app:layout_constraintTop_toBottomOf="@id/outlinedTextStatus">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/inputTextNotes"
-                style="@style/CustomTextInputEditText"
-                android:layout_height="match_parent"
-                android:background="@null"
-                android:fontFamily="@font/inter"
-                android:gravity="top"
-                android:inputType="textMultiLine"
-                android:overScrollMode="always"
-                android:scrollbarStyle="insideInset"
-                android:textSize="12sp" />
-
-        </com.google.android.material.textfield.TextInputLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

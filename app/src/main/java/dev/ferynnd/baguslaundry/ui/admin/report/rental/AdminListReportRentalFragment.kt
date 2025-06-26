@@ -5,10 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
@@ -29,10 +31,12 @@ import dev.ferynnd.baguslaundry.controller.RentalReportAdapter
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
+import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminListReportRentalBinding
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ExportReportRental
+import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.ui.admin.AdminDashboardFragment
 import kotlinx.coroutines.launch
@@ -48,6 +52,7 @@ class AdminListReportRentalFragment : Fragment() {
     private lateinit var rentalReportViewModel: RentalReportViewModel
     private lateinit var rentalReportAdapter: RentalReportAdapter
     private lateinit var branchViewModel: BranchViewModel
+    private lateinit var rentalProductViewModel : RentalProductViewModel
 
     private lateinit var userViewModel: UserViewModel
     private lateinit var clientViewModel: ClientViewModel
@@ -61,6 +66,7 @@ class AdminListReportRentalFragment : Fragment() {
         branchViewModel.init(requireContext())
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java].apply { init(requireContext()) }
+        rentalProductViewModel = ViewModelProvider(this)[RentalProductViewModel::class.java].apply { init(requireContext()) }
     }
 
 
@@ -244,6 +250,7 @@ class AdminListReportRentalFragment : Fragment() {
 
         val notesList = mutableListOf<String>()
         val branchList = mutableListOf<Branch>()
+        val productList = mutableListOf<ProductRental>()
 
         val months = listOf(
             "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
@@ -279,11 +286,51 @@ class AdminListReportRentalFragment : Fragment() {
             branchList.addAll(branches)
 
             val branchNames = branches.map { it.name_branch }
-            spinnerBranch.adapter =
-                ArrayAdapter(context, android.R.layout.simple_spinner_item, branchNames).apply {
-                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinnerBranch.adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                branchNames
+            ).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+
+            spinnerBranch.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selectedBranch = branches[position]
+
+                   rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { products ->
+                        val filteredProducts = products.filter { product ->
+                            product.id_branch_rental_item == selectedBranch.id_branch
+                        }
+
+                        // Tambahkan ke list global
+                        productList.clear()
+                        productList.addAll(filteredProducts)
+
+                        val productNames = filteredProducts.map { it.name_rental_item }
+                        spinnerDescription.adapter = ArrayAdapter(
+                            requireContext(),
+                            android.R.layout.simple_spinner_item,
+                            productNames
+                        ).apply {
+                            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                        }
+                    }
+
                 }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Optional: Do nothing or clear the spinnerDescription
+                    spinnerDescription.adapter = null
+                }
+            }
         }
+
 
         // Tombol tambah catatan
         addButton.setOnClickListener {
@@ -295,13 +342,6 @@ class AdminListReportRentalFragment : Fragment() {
                     notesList.mapIndexed { i, v -> "${i + 1}. $v" }.joinToString("\n")
             }
         }
-
-        val description = listOf("bath towel", "hand towel", "gorden", "keset")
-
-        spinnerDescription.adapter =
-            ArrayAdapter(context, android.R.layout.simple_spinner_item, description).apply {
-                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            }
 
         // Tombol Cetak
         cetakButton.setOnClickListener {
@@ -321,15 +361,19 @@ class AdminListReportRentalFragment : Fragment() {
             val formattedMonth = String.format("%02d", monthNumber)
             val formattedDate = "$year-$formattedMonth"
 
+            val productRental = productList.find { it.name_rental_item == selectedDescription }?.id_rental_item ?: 0
+
             val branchId = branchList.find { it.name_branch == selectedBranch }?.id_branch ?: 0
 
             val requestData = ExportReportRental(
                 month = formattedDate,
                 location = branchId,
-                description = selectedDescription,
+                id_item_rental = productRental ,
+                notes = notesList,
                 initial_stock = stock,
-                notes = notesList
             )
+
+            Log.d("Request Data", requestData.toString())
 
             viewLifecycleOwner.lifecycleScope.launch {
                 try {

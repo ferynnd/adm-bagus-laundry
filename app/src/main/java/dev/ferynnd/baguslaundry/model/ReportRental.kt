@@ -37,9 +37,9 @@ enum class IsActiveTransactionRental {
 data class ExportReportRental(
     val month: String,
     val location: Int,
-    val description: String,
+    val id_item_rental : Int,
+    val notes: List<String>,
     val initial_stock: Int,
-    val notes: List<String>
 )
 
 data class ReportRentalResponse(

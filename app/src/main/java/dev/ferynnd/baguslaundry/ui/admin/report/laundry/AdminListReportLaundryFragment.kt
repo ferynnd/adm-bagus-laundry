@@ -302,7 +302,7 @@ class AdminListReportLaundryFragment : Fragment() {
 
             val requestData = ExportReportLaundry(
                 month = formattedDate,
-                location = branchId,
+                id_branch =  branchId,
                 notes = notesList
             )
 

@@ -18,12 +18,14 @@ import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.controller.RentalInvoiceAdapter
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
+import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminInvoiceRentalBinding
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ListInvoiceRentalItem
 import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
+import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.ReportRental
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -37,14 +39,16 @@ class AdminInvoiceRentalFragment : Fragment() {
     private lateinit var clientViewModel: ClientViewModel
     private lateinit var rentalReportViewModel: RentalReportViewModel
     private lateinit var rentalInvoiceAdapter: RentalInvoiceAdapter
+    private lateinit var rentalProductViewModel: RentalProductViewModel
 
     private val branchList = mutableListOf<Branch>()
     private val clientList = mutableListOf<Client>()
-    private lateinit var allReports: List<ReportRental>
+    private lateinit var allProducts : List<ProductRental>
 
     private var selectedBranchId: Int? = null
     private var selectedClientId: Int? = null
     private var selectedMonth: Int? = null // format: 1 - 12
+    private var selectedMonthString: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +59,8 @@ class AdminInvoiceRentalFragment : Fragment() {
         clientViewModel.init(requireContext())
         rentalReportViewModel = ViewModelProvider(this).get(RentalReportViewModel::class.java)
         rentalReportViewModel.init(requireContext())
+        rentalProductViewModel = ViewModelProvider(this).get(RentalProductViewModel::class.java)
+        rentalProductViewModel.init(requireContext())
     }
 
     override fun onCreateView(
@@ -100,25 +106,6 @@ class AdminInvoiceRentalFragment : Fragment() {
                 Log.d("SpinnerLog", "Data klien dimuat ke Spinner. Jumlah: ${clients.size}")
             }
         }
-
-//        binding.selectBranch.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(
-//                parent: AdapterView<*>, view: View?, position: Int, id: Long
-//            ) {
-//                val selectedBranch = parent.getItemAtPosition(position) as String
-//                val branchId = branchList.find { it.name_branch == selectedBranch }?.id_branch ?: 0
-//
-//                rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { transactions ->
-//                    val dataRental = transactions.filter { it.id_branch_transaction_rental == branchId }
-//                    allReports = dataRental
-//                    rentalInvoiceAdapter.submitList(dataRental)
-//                }
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>) {
-//                rentalInvoiceAdapter.submitList(emptyList())
-//            }
-//        }
 
         binding.selectBranch.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -194,7 +181,22 @@ class AdminInvoiceRentalFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
+
                 val selectedDate = parent?.getItemAtPosition(position) as String
+                val parts = selectedDate.split(" - ")
+                if (parts.size == 2) {
+                    val monthString = parts[0]
+                    val yearString = parts[1]
+
+                    selectedMonth = months.indexOf(monthString) + 1 // untuk filter laporan
+
+                    // ✅ Format sesuai backend: "2025-06"
+                    val paddedMonth = selectedMonth.toString().padStart(2, '0')
+                    selectedMonthString = "$yearString-$paddedMonth"
+
+                    Log.d("SpinnerLog", "Bulan dipilih: $selectedMonthString, Nomor: $selectedMonth")
+                }
+
                 val monthString = selectedDate.split(" - ")[0]
                 selectedMonth = months.indexOf(monthString) + 1
                 Log.d("SpinnerLog", "Bulan dipilih: $monthString, Nomor: $selectedMonth")
@@ -212,34 +214,47 @@ class AdminInvoiceRentalFragment : Fragment() {
             val branchId = branchList.find { it.name_branch == selectedBranch }?.id_branch ?: 0
             val selectedClient = binding.selectClient.selectedItem as String
             val clientId = clientList.find { it.name_client == selectedClient }?.id_client ?: 0
-            val note = binding.inputTextNotes.text.toString()
+            val diskon = binding.inputTextDiskon.text.toString().toDoubleOrNull() ?: 0.0
+            val additionalCost = binding.inputTextAdditional.text.toString().toDoubleOrNull() ?: 0.0
 
             val selectedInvoices = rentalInvoiceAdapter.getSelectedInvoiceData()
 
-            // Hitung total weight dari ID yang dipilih
-//            val selectedReports = allReports.filter { report ->
-//                selectedInvoices.any { it.id_rental_transaction == report.id_transaction_rental }
-//            }
+            Log.d("SpinnerLog", "Selected Invoices: $selectedInvoices")
 
             val invoiceItems = selectedInvoices.map {
                 ListInvoiceRentalItem(
-                    id_rental_transaction = it.id_rental_transaction,
-                    status_list_invoice_rental = it.status_list_invoice_rental,
-                    note_list_invoice_rental = it.note_list_invoice_rental
+                    id_item_rental_invoice = it.id_item_rental_invoice
                 )
             }
+
+            Log.d("SpinnerLog", "Invoice Item : $invoiceItems")
 
             val request = PostInvoiceRentalRequest(
                 id_branch_invoice = branchId,
                 id_client_invoice = clientId,
-                notes_invoice_rental = note,
+                month_invoice_rental = selectedMonthString ?: "" ,
+                promo_invoice_rental = diskon ,
+                additional_cost_invoice_rental = additionalCost,
                 list_invoice_rentals = invoiceItems
             )
+
+            Log.d("SpinnerLog", "Data Invoice Rental: $request")
 
             lifecycleScope.launch {
                 try {
                     if (selectedInvoices.isNotEmpty()) {
-                        rentalReportViewModel.createInvoiceRental(request)
+                            val result = rentalReportViewModel.createInvoiceRental(request)
+
+                            if (result.success) {
+                                Toast.makeText(requireContext(), "Invoice berhasil dibuat!", Toast.LENGTH_SHORT).show()
+
+                                // Navigasi ke daftar invoice
+                                parentFragmentManager.beginTransaction()
+                                    .replace(R.id.host_fragment_admin, AdminListInvoiceRentalFragment())
+                                    .commit()
+                            } else {
+                                Toast.makeText(requireContext(), "Gagal membuat invoice: ${result.message}", Toast.LENGTH_SHORT).show()
+                            }
                     }
                 } catch (e: Exception) {
                     Toast.makeText(
@@ -268,21 +283,15 @@ class AdminInvoiceRentalFragment : Fragment() {
         val month = selectedMonth
 
         if (branchId != null && clientId != null && month != null) {
-            rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { transactions ->
-                val filtered = transactions.filter { report ->
-                    report.id_branch_transaction_rental == branchId &&
-                            report.id_client_transaction_rental == clientId &&
-                            isInMonth(report.time_transaction_rental, month)
+            rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { products ->
+                val filtered = products.filter { rental ->
+                    rental.id_branch_rental_item == branchId
                 }
-                allReports = filtered
+                allProducts = filtered
                 rentalInvoiceAdapter.submitList(filtered)
             }
         } else {
-            Toast.makeText(
-                requireContext(),
-                "Pilih cabang, klien, dan bulan terlebih dahulu",
-                Toast.LENGTH_SHORT
-            ).show()
+            null
         }
     }
 

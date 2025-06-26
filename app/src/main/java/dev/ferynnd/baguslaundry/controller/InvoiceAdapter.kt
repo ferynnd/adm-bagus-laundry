@@ -51,7 +51,7 @@ class InvoiceAdapter(private val onPrint: (InvoiceRentalResponse) -> Unit) :
         val invoice = getItem(position)
 
         holder.binding.apply {
-            numberInvoice.text = invoice.number_invoice
+            numberInvoice.text = invoice.number_invoice_rental
             inputDate.text = formatMonthYear(invoice.time_invoice_rental)
 
 

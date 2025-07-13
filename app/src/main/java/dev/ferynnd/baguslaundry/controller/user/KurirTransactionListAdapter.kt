@@ -1,10 +1,13 @@
 package dev.ferynnd.baguslaundry.controller.user
 
 import android.content.Intent
+import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -17,11 +20,15 @@ import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import dev.ferynnd.baguslaundry.model.User
+import dev.ferynnd.baguslaundry.ui.user.PrintPreviewFragment
+import dev.ferynnd.baguslaundry.ui.user.transaksi_rental.PrintPreviewRentalFragment
 import java.text.NumberFormat
 import java.util.Locale
 
 
-class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()){
+class KurirTransactionListAdapter(
+    private val fragmentManager: FragmentManager
+) : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()){
 
     private var clients : List<Client> = emptyList()
     private var users : List<User> = emptyList()
@@ -60,14 +67,14 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
                     LayoutInflater.from(parent.context), parent, false
                 )
                 return TransactionLaundryViewHolder(binding)
-                }
+            }
             TYPE_VIEW.RENTAL.ordinal -> {
                 val binding = KurirCardTransaksiRentalBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
                 return TransactionRentalViewHolder(binding)
             }
-             else -> throw IllegalArgumentException("Invalid view type")
+            else -> throw IllegalArgumentException("Invalid view type")
         }
     }
 
@@ -88,9 +95,9 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
                 holder.binding.numberTransaction.text = laundryReport.number_transaction_laundry.toString()
                 if (laundryReport.status_transaction_laundry == StatusReportLaundry.completed) {
                     holder.binding.wadahStatus.setCardBackgroundColor(ContextCompat.getColor(
-                                context,
-                                R.color.greenBlueLight
-                            ))
+                        context,
+                        R.color.greenBlueLight
+                    ))
                 }
                 holder.binding.namaPelangganTransaksiLaundry.text = laundryReport.name_client_transaction_laundry.toString()
                 holder.binding.tanggalMasukTransaksiLaundry.text = laundryReport.first_date_transaction_laundry.toString()
@@ -102,6 +109,20 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
                 holder.binding.tunaiTransaksiLaundry.text =  numberFormatter.format(laundryReport.cash_transaction_laundry?.toDouble() ?: 0.0)
                 holder.binding.kembalianTransaksiLaundry.text =  numberFormatter.format(laundryReport.change_money_transaction_laundry?.toDouble() ?: 0.0)
                 holder.binding.noteTransaksiLaundry.text = if ( laundryReport.notes_transaction_laundry == null ) "Tidak ada catatan" else laundryReport.notes_transaction_laundry.toString()
+
+                holder.binding.wadahButtonCetak.setOnClickListener {
+                    val bundle = Bundle()
+                    bundle.putInt("transactionId", laundryReport.id_transaction_laundry?.toInt() ?: 0)
+                    Log.d("CreateTransaction", "Transaction ID: ${laundryReport.id_transaction_laundry}")
+
+                    val fragment = PrintPreviewFragment()
+                    fragment.arguments = bundle
+
+                    fragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_user, fragment)
+                        .addToBackStack(null) // opsional, jika ingin bisa kembali
+                        .commit()
+                }
             }
             is TransactionRentalViewHolder -> {
                 val rentalReport = item as ReportRental
@@ -115,6 +136,20 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
                 holder.binding.jumlahItemTransaksiRental.text = rentalReport.total_pcs_transaction_rental.toString()
                 holder.binding.totalBeratTransaksiRental.text = rentalReport.total_weight_transaction_rental.toString()
                 holder.binding.noteTransaksiRental.text = if( rentalReport.notes_transaction_rental == null ) "Tidak ada catatan" else rentalReport.notes_transaction_rental.toString()
+
+                holder.binding.wadahCetak.setOnClickListener {
+                    val bundle = Bundle()
+                    bundle.putInt("transactionId", rentalReport.id_transaction_rental ?: 0)
+                    Log.d("CreateTransaction", "Transaction ID: ${rentalReport.id_transaction_rental}")
+
+                    val fragment = PrintPreviewRentalFragment()
+                    fragment.arguments = bundle
+
+                    fragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_user, fragment)
+                        .addToBackStack(null) // opsional, jika ingin bisa kembali
+                        .commit()
+                }
             }
         }
     }
@@ -137,7 +172,7 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
                 is ReportRental -> {
                     val clientName = clients.find { it.id_client == item.id_client_transaction_rental }?.name_client ?: ""
                     (item.recipient_name_transaction_rental?.contains(query, ignoreCase = true) == true) ||
-                    (clientName.contains(query, ignoreCase = true))
+                            (clientName.contains(query, ignoreCase = true))
                 }
                 else -> false
             }
@@ -184,5 +219,4 @@ class KurirTransactionListAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(
             }
         }
     }
-
 }

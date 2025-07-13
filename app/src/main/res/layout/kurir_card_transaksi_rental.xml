@@ -23,7 +23,6 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter_bold"
             android:text="TRX2321"
-            android:paddingVertical="6dp"
             android:textColor="@color/blue900"
             android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -31,27 +30,64 @@
 
 
         <!-- Status Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/wadah_status"
-            android:layout_width="wrap_content"
+<!--        <androidx.cardview.widget.CardView-->
+<!--            android:id="@+id/wadah_status"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:gravity="end"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            app:cardBackgroundColor="@color/blueGray"-->
+<!--            app:cardCornerRadius="8dp"-->
+<!--            app:cardElevation="0dp"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/no_resi_transaksi_rental">-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/nama_client_transaksi_rental"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:fontFamily="@font/inter_semibold"-->
+<!--                android:paddingHorizontal="14dp"-->
+<!--                android:paddingVertical="6dp"-->
+<!--                android:text="PRAKASA FITNES"-->
+<!--                android:textAllCaps="true"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="13sp" />-->
+<!--        </androidx.cardview.widget.CardView>-->
+
+        <TextView
+            android:id="@+id/nama_client_transaksi_rental"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            app:cardBackgroundColor="@color/blueGray"
+            android:fontFamily="@font/inter_semibold"
+            android:text="PRAKASA FITNES"
+            android:textAllCaps="true"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wadah_cetak" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/wadah_cetak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/primary"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/no_resi_transaksi_rental"
-            app:layout_constraintBottom_toBottomOf="@id/no_resi_transaksi_rental"
             android:gravity="end">
 
             <TextView
-                android:id="@+id/nama_client_transaksi_rental"
+                android:id="@+id/cetak_transaksi_rental"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_semibold"
                 android:paddingHorizontal="14dp"
                 android:paddingVertical="6dp"
-                android:text="PRAKASA FITNES"
+                android:text="Cetak Struk"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
                 android:textSize="13sp" />
@@ -66,7 +102,7 @@
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/wadah_status">
+            app:layout_constraintTop_toBottomOf="@+id/nama_client_transaksi_rental">
 
             <!-- Tanggal -->
             <androidx.constraintlayout.widget.ConstraintLayout

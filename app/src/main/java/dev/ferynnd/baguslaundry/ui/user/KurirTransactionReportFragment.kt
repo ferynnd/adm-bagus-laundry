@@ -61,7 +61,7 @@ class KurirTransactionReportFragment : Fragment() {
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)?.toIntOrNull() ?: 0
 
-        kurirTransactionListAdapter = KurirTransactionListAdapter()
+        kurirTransactionListAdapter = KurirTransactionListAdapter(parentFragmentManager)
         binding.recyclerViewTransaksiLaundry.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = kurirTransactionListAdapter

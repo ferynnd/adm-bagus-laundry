@@ -7,7 +7,7 @@ import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.model.ProductRental
 
-class RentalProductRepository (context: Context) {
+class RentalProductRepository(context: Context) {
 
     private val retrofitHelper = RetrofitHelper(context)
     private val rentalProductApiService = retrofitHelper.rentalProductApiService
@@ -25,7 +25,7 @@ class RentalProductRepository (context: Context) {
 
     suspend fun getProductRental(): ApiResponse<ProductRental> {
         try {
-            val response = rentalProductApiService.getProductRental(role, )
+            val response = rentalProductApiService.getProductRental(role)
             if (response.success) {
                 return response
             } else {
@@ -35,8 +35,6 @@ class RentalProductRepository (context: Context) {
             throw e
         }
     }
-
-
 
     suspend fun getProductRentalById(id: Int): DefaultRequest<ProductRental> {
         try {
@@ -51,5 +49,20 @@ class RentalProductRepository (context: Context) {
 
         }
     }
+
+    suspend fun createProductRental(productRental: ProductRental): DefaultRequest<ProductRental> {
+        try {
+            val response = rentalProductApiService.createProductRental(role, productRental)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+
+        }
+    }
+
 
 }

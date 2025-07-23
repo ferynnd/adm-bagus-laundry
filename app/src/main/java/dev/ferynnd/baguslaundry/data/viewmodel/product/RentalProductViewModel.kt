@@ -136,4 +136,8 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
             }
         }
     }
+
+    suspend fun createProductRental(client: ProductRental) {
+        rentalProductRepository.createProductRental(client)
+    }
 }

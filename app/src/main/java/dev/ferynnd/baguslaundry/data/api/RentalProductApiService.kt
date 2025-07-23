@@ -12,11 +12,30 @@ import retrofit2.http.Path
 interface RentalProductApiService {
 
     @GET("api/{role}/rental_items")
-    suspend fun getProductRental(@Path("role") role : String ): ApiResponse<ProductRental>
+    suspend fun getProductRental(@Path("role") role: String): ApiResponse<ProductRental>
 
     @GET("api/{role}/rental_items/{id}")
-    suspend fun getProductRentalById(@Path("role") role : String, @Path("id") id: Int): DefaultRequest<ProductRental>
+    suspend fun getProductRentalById(
+        @Path("role") role: String,
+        @Path("id") id: Int
+    ): DefaultRequest<ProductRental>
 
+    @POST("api/{role}/create_rental_items")
+    suspend fun createProductRental(
+        @Path("role") role: String,
+        @Body productRental: ProductRental
+    ): DefaultRequest<ProductRental>
 
+    @DELETE("api/{role}/delete_rental_items/{id}")
+    suspend fun deleteProductRental(
+        @Path("role") role: String,
+        @Path("id") id: Int
+    ): DefaultRequest<ProductRental>
 
+    @PUT("api/{role}/edit_rental_items/{id}")
+    suspend fun updateProductRental(
+        @Path("role") role : String,
+        @Path("id") id: Int,
+        @Body productRental: ProductRental
+    ): DefaultRequest<ProductRental>
 }

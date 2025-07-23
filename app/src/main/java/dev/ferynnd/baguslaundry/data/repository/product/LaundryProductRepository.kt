@@ -7,7 +7,7 @@ import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 
-class LaundryProductRepository (context: Context) {
+class LaundryProductRepository(context: Context) {
 
     private val retrofitHelper = RetrofitHelper(context)
     private val laundryProductApiService = retrofitHelper.laundryProductApiService
@@ -17,7 +17,6 @@ class LaundryProductRepository (context: Context) {
 
     private val role: String
         get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
-
 
 
     suspend fun getProductLaundry(): ApiResponse<ProductLaundry> {
@@ -36,7 +35,21 @@ class LaundryProductRepository (context: Context) {
 
     suspend fun getProductLaundryById(id: Int): DefaultRequest<ProductLaundry> {
         try {
-            val response = laundryProductApiService.getProductLaundryById(role,id)
+            val response = laundryProductApiService.getProductLaundryById(role, id)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+
+        }
+    }
+
+    suspend fun createProductLaundry(productLaundry: ProductLaundry): DefaultRequest<ProductLaundry> {
+        try {
+            val response = laundryProductApiService.createProductLaundry(role, productLaundry)
             if (response.success) {
                 return response
             } else {

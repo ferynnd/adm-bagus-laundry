@@ -130,12 +130,13 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/layoutButton"
-        android:layout_width="80dp"
+        android:layout_width="65dp"
         android:layout_height="55dp"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="5dp"
         app:cardBackgroundColor="@color/blue600"
         app:cardCornerRadius="10dp"
-        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintEnd_toStartOf="@id/layoutButtonAdd"
         app:layout_constraintTop_toBottomOf="@id/layoutListItem">
 
         <LinearLayout
@@ -167,6 +168,24 @@
 
     </androidx.cardview.widget.CardView>
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/layoutButtonAdd"
+        android:layout_width="65dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="10dp"
+        app:cardBackgroundColor="@color/blue600"
+        app:cardCornerRadius="10dp"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintTop_toBottomOf="@id/layoutListItem">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/addpolos"
+            tools:ignore="ContentDescription" />
+
+    </androidx.cardview.widget.CardView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewProductLaundry"
         android:layout_width="0dp"
@@ -184,11 +203,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        app:trackColor="@color/blue500"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guidelineTop" />
+        app:layout_constraintTop_toTopOf="@+id/guidelineTop"
+        app:trackColor="@color/blue500" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.controller.user.KurirProductAdapter
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
@@ -83,6 +84,12 @@ class KurirProductFragment : Fragment() {
             if (isLaundryTabSelected()) {
                 updateProductList(products)
                 updateCounter(products?.size ?: 0, "Laundry")
+                binding.layoutButtonAdd.setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_user, CreateItemLaundryFragment())
+                        .addToBackStack("laundry")
+                        .commit()
+                }
             }
         }
 
@@ -91,6 +98,12 @@ class KurirProductFragment : Fragment() {
             if (isRentalTabSelected()) {
                 updateProductList(products)
                 updateCounter(products?.size ?: 0, "Persewaan")
+                binding.layoutButtonAdd.setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_user, CreateItemRentalFragment())
+                        .addToBackStack("laundry")
+                        .commit()
+                }
             }
         }
 

@@ -232,4 +232,8 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
     fun clearSelectedItems() {
         _selectedItems.postValue(emptyList())
     }
+
+    suspend fun createProductLaundry(productLaundry: ProductLaundry) {
+        laundryProductRepository.createProductLaundry(productLaundry)
+    }
 }

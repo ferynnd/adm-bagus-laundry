@@ -140,4 +140,10 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
     suspend fun createProductRental(client: ProductRental) {
         rentalProductRepository.createProductRental(client)
     }
+
+    suspend fun updateProductRental(client: ProductRental) {
+        client.id_rental_item?.let {
+            rentalProductRepository.updateProductRental(it,client)
+        }
+    }
 }

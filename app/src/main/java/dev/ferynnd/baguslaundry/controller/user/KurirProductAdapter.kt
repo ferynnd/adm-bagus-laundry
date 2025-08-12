@@ -1,17 +1,23 @@
 package dev.ferynnd.baguslaundry.controller.user
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.databinding.KurirCardProductLaundryBinding
 import dev.ferynnd.baguslaundry.databinding.KurirCardProductRentalBinding
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.ProductRental
+import dev.ferynnd.baguslaundry.ui.user.CreateItemLaundryFragment
+import dev.ferynnd.baguslaundry.ui.user.CreateItemRentalFragment
 
 
 class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()){
@@ -72,6 +78,34 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
                 holder.nama_laundry.text = laundryItem.name_laundry_item.toString()
                 holder.harga.text = "Rp $harga_laundry"
                 holder.waktu.text = laundryItem.time_laundry_item.toString()
+
+                // Add edit button click listener
+                holder.binding.layoutButtonEdit.setOnClickListener {
+                    val fragment = CreateItemLaundryFragment().apply {
+                        arguments = Bundle().apply {
+                            putInt("productLaundryID", laundryItem.id_laundry_item!!)
+                        }
+                    }
+                    
+                    val fragmentManager = (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
+                    fragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_user, fragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+
+                // Add delete button click listener
+                holder.binding.layoutButtonDelete.setOnClickListener {
+                    AlertDialog.Builder(holder.itemView.context)
+                        .setTitle("Konfirmasi Hapus")
+                        .setMessage("Apakah Anda yakin ingin menghapus item ini?")
+                        .setPositiveButton("Ya") { _, _ ->
+                            // TODO: Implement delete functionality for laundry item
+                            Toast.makeText(holder.itemView.context, "Menghapus item laundry...", Toast.LENGTH_SHORT).show()
+                        }
+                        .setNegativeButton("Tidak", null)
+                        .show()
+                }
             }
             is ProductRentalViewHolder -> {
                 val rentalItem = item as ProductRental
@@ -79,6 +113,34 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
                 holder.id_nama_rental.text = rentalItem.name_rental_item.toString()
                 holder.status.text = branchName
                 holder.price.text = rentalItem.price_rental_item.toString()
+
+                // Add edit button click listener
+                holder.binding.layoutButtonEdit.setOnClickListener {
+                    val fragment = CreateItemRentalFragment().apply {
+                        arguments = Bundle().apply {
+                            putInt("productRentalID", rentalItem.id_rental_item!!)
+                        }
+                    }
+                    
+                    val fragmentManager = (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
+                    fragmentManager.beginTransaction()
+                        .replace(R.id.host_fragment_user, fragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+
+                // Add delete button click listener
+                holder.binding.layoutButtonDelete.setOnClickListener {
+                    AlertDialog.Builder(holder.itemView.context)
+                        .setTitle("Konfirmasi Hapus")
+                        .setMessage("Apakah Anda yakin ingin menghapus item ini?")
+                        .setPositiveButton("Ya") { _, _ ->
+                            // TODO: Implement delete functionality for rental item
+                            Toast.makeText(holder.itemView.context, "Menghapus item rental...", Toast.LENGTH_SHORT).show()
+                        }
+                        .setNegativeButton("Tidak", null)
+                        .show()
+                }
             }
         }
     }

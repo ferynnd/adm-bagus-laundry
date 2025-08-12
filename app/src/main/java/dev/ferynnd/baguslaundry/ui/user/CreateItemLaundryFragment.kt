@@ -28,6 +28,7 @@ class CreateItemLaundryFragment : Fragment() {
 
     private var userId: Int = 0
     private var userIdBranch: Int = 0
+    private var productLaundryId : Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,13 +45,32 @@ class CreateItemLaundryFragment : Fragment() {
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
+        productLaundryId = arguments?.getInt("productLaundryID")
 
         viewLifecycleOwner.lifecycleScope.launch {
             loadUserData()
         }
 
+        if (productLaundryId != null) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val product = laundryProductViewModel.getProductLaundryById(productLaundryId!!)
+                binding.inputNamaItem.setText(product.data.name_laundry_item)
+                binding.inputHargaItem.setText(product.data.price_laundry_item.toString())
+                binding.inputTimeItem.setText(product.data.time_laundry_item)
+                binding.textHeaderBold.text = "Update Item Laundry"
+                binding.btnSubmit.text = "Update"
+            }
+        } else {
+            binding.textHeaderBold.text = "Create Item Laundry"
+            binding.btnSubmit.text = "Create"
+        }
+
         binding.btnSubmit.setOnClickListener {
-            createProductLaundry()
+            if (productLaundryId != null) {
+                updateProductLaundry()
+            } else {
+                createProductLaundry()
+            }
         }
 
         binding.arrowBack.setOnClickListener {
@@ -115,6 +135,42 @@ class CreateItemLaundryFragment : Fragment() {
                     .commit()
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Gagal membuat cabang: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun updateProductLaundry() {
+
+        val name = binding.inputNamaItem.text.toString()
+        val price = binding.inputHargaItem.text.toString()
+        val time = binding.inputTimeItem.text.toString()
+
+        if (name.isBlank() || price.isBlank() || time.isBlank()) {
+            Toast.makeText(requireContext(), "Lengkapi semua inputan", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+
+        val dataProductLaundry = ProductLaundry(
+            id_laundry_item = productLaundryId,
+            id_branch_laundry_item = userIdBranch,
+            price_laundry_item = price.toBigDecimalOrNull(),
+            name_laundry_item = name,
+            time_laundry_item = time,
+            is_active_laundry_item = IsActiveLaundryItem.active,
+        )
+
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                laundryProductViewModel.updateProductLaundry(dataProductLaundry)
+                Toast.makeText(requireContext(), "Cabang berhasil diupdate", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.host_fragment_user, KurirProductFragment())
+                    .commit()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Gagal mengupdate cabang: ${e.message}", Toast.LENGTH_LONG).show()
+
             }
         }
     }

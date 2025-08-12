@@ -30,6 +30,7 @@ class CreateItemRentalFragment : Fragment() {
 
     private var userId: Int = 0
     private var userIdBranch: Int = 0
+    private var productRentalId : Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,8 +52,27 @@ class CreateItemRentalFragment : Fragment() {
             loadUserData()
         }
 
+        productRentalId = arguments?.getInt("productRentalID")
+
+        if (productRentalId != null) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val client = rentalProductViewModel.getProductRentalById(productRentalId!!)
+                binding.inputNamaItem.setText(client.data.name_rental_item)
+                binding.inputHargaItem.setText(client.data.price_rental_item.toString())
+                binding.textHeaderBold.text = "UPDATE PRODUK RENTAL"
+                binding.btnSubmit.text = "UPDATE"
+            }
+        } else {
+            binding.textHeaderBold.text = "UPDATE PRODUK RENTAL"
+            binding.btnSubmit.text = "CREATE"
+        }
+
         binding.btnSubmit.setOnClickListener {
+            if (productRentalId != null) {
+                updateProductRental()
+            } else {
                 createProductRental()
+            }
         }
 
         binding.arrowBack.setOnClickListener {
@@ -106,7 +126,7 @@ class CreateItemRentalFragment : Fragment() {
             is_active_rental_item = IsActiveRental.active,
         )
 
-        Log.d("CreateEditProductRentalFragment", "Data Product Rental: $dataProductRental")
+//        Log.d("CreateEditProductRentalFragment", "Data Product Rental: $dataProductRental")
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -117,6 +137,39 @@ class CreateItemRentalFragment : Fragment() {
                     .commit()
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Gagal membuat cabang: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun updateProductRental() {
+        val name = binding.inputNamaItem.text.toString()
+        val price = binding.inputHargaItem.text.toString()
+
+        val productRentalId = arguments?.getInt("productRentalID") ?: 0
+
+        if (name.isBlank() || price.isBlank()) {
+            Toast.makeText(requireContext(), "Lengkapi semua inputan", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val dataProductRental = ProductRental(
+            id_rental_item = productRentalId,
+            id_branch_rental_item = userIdBranch,
+            price_rental_item = price.toIntOrNull(),
+            name_rental_item = name,
+            is_active_rental_item = IsActiveRental.active,
+        )
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                rentalProductViewModel.updateProductRental(dataProductRental)
+                Toast.makeText(requireContext(), "Cabang berhasil diupdate", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.host_fragment_user, KurirProductFragment())
+                    .commit()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Gagal mengupdate cabang: ${e.message}", Toast.LENGTH_LONG).show()
+
             }
         }
     }

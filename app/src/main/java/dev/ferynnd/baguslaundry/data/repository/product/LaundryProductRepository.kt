@@ -61,4 +61,16 @@ class LaundryProductRepository(context: Context) {
         }
     }
 
+    suspend fun updateProductLaundry(id: Int, productLaundry : ProductLaundry): DefaultRequest<ProductLaundry> {
+        try {
+            val response = laundryProductApiService.updateProductLaundry(role, id, productLaundry )
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+    }
 }

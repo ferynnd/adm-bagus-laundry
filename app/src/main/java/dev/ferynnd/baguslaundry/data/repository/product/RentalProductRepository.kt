@@ -64,5 +64,16 @@ class RentalProductRepository(context: Context) {
         }
     }
 
-
+    suspend fun updateProductRental(id: Int, productRental : ProductRental): DefaultRequest<ProductRental> {
+        try {
+            val response = rentalProductApiService.updateProductRental(role, id, productRental )
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+    }
 }

@@ -20,7 +20,10 @@ import dev.ferynnd.baguslaundry.ui.user.CreateItemLaundryFragment
 import dev.ferynnd.baguslaundry.ui.user.CreateItemRentalFragment
 
 
-class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()){
+class KurirProductAdapter(
+    private val onDeleteLaundry: (ProductLaundry) -> Unit,
+    private val onDeleteRental: (ProductRental) -> Unit
+) : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
 
     private var branches: List<Branch> = emptyList()
 
@@ -34,6 +37,7 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
         val status = binding.branchProductRental
         val price = binding.priceProductRental
     }
+
     inner class ProductLaundryViewHolder(val binding: KurirCardProductLaundryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         val nama_laundry = binding.namaProductLaundry
@@ -50,14 +54,14 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
                     LayoutInflater.from(parent.context), parent, false
                 )
                 return ProductLaundryViewHolder(binding)
-                }
+            }
             TYPE_VIEW.RENTAL.ordinal -> {
                 val binding = KurirCardProductRentalBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
                 return ProductRentalViewHolder(binding)
             }
-             else -> throw IllegalArgumentException("Invalid view type")
+            else -> throw IllegalArgumentException("Invalid view type")
         }
     }
 
@@ -86,7 +90,7 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
                             putInt("productLaundryID", laundryItem.id_laundry_item!!)
                         }
                     }
-                    
+
                     val fragmentManager = (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
                     fragmentManager.beginTransaction()
                         .replace(R.id.host_fragment_user, fragment)
@@ -94,14 +98,14 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
                         .commit()
                 }
 
-                // Add delete button click listener
+                // Add delete button click listener with ViewModel integration
                 holder.binding.layoutButtonDelete.setOnClickListener {
                     AlertDialog.Builder(holder.itemView.context)
                         .setTitle("Konfirmasi Hapus")
-                        .setMessage("Apakah Anda yakin ingin menghapus item ini?")
+                        .setMessage("Apakah Anda yakin ingin menghapus item laundry '${laundryItem.name_laundry_item}'?")
                         .setPositiveButton("Ya") { _, _ ->
-                            // TODO: Implement delete functionality for laundry item
-                            Toast.makeText(holder.itemView.context, "Menghapus item laundry...", Toast.LENGTH_SHORT).show()
+                            // Call the delete function passed from Fragment
+                            onDeleteLaundry(laundryItem)
                         }
                         .setNegativeButton("Tidak", null)
                         .show()
@@ -121,7 +125,7 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
                             putInt("productRentalID", rentalItem.id_rental_item!!)
                         }
                     }
-                    
+
                     val fragmentManager = (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
                     fragmentManager.beginTransaction()
                         .replace(R.id.host_fragment_user, fragment)
@@ -129,14 +133,14 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
                         .commit()
                 }
 
-                // Add delete button click listener
+                // Add delete button click listener with ViewModel integration
                 holder.binding.layoutButtonDelete.setOnClickListener {
                     AlertDialog.Builder(holder.itemView.context)
                         .setTitle("Konfirmasi Hapus")
-                        .setMessage("Apakah Anda yakin ingin menghapus item ini?")
+                        .setMessage("Apakah Anda yakin ingin menghapus item rental '${rentalItem.name_rental_item}'?")
                         .setPositiveButton("Ya") { _, _ ->
-                            // TODO: Implement delete functionality for rental item
-                            Toast.makeText(holder.itemView.context, "Menghapus item rental...", Toast.LENGTH_SHORT).show()
+                            // Call the delete function passed from Fragment
+                            onDeleteRental(rentalItem)
                         }
                         .setNegativeButton("Tidak", null)
                         .show()
@@ -146,7 +150,7 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
     }
 
     private var originalList = listOf<Any>()
-    
+
     override fun submitList(list: List<Any>?) {
         originalList = list ?: emptyList()
         super.submitList(list)
@@ -170,7 +174,7 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
 
     class DiffCallback : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
-            return when ( oldItem) {
+            return when (oldItem) {
                 is ProductLaundry -> {
                     if (newItem is ProductLaundry) {
                         (oldItem.id_laundry_item) == (newItem.id_laundry_item)
@@ -178,18 +182,19 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
                         false
                     }
                 }
-                else -> {
-                    if (newItem is ProductLaundry) {
-                        false
+                is ProductRental -> {
+                    if (newItem is ProductRental) {
+                        (oldItem.id_rental_item) == (newItem.id_rental_item)
                     } else {
-                        (oldItem) == (newItem)
+                        false
                     }
                 }
+                else -> false
             }
         }
 
         override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
-            return when ( oldItem) {
+            return when (oldItem) {
                 is ProductLaundry -> {
                     if (newItem is ProductLaundry) {
                         (oldItem) == (newItem)
@@ -197,15 +202,15 @@ class KurirProductAdapter() : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCall
                         false
                     }
                 }
-                else -> {
-                    if (newItem is ProductLaundry) {
-                        false
-                    } else {
+                is ProductRental -> {
+                    if (newItem is ProductRental) {
                         (oldItem) == (newItem)
+                    } else {
+                        false
                     }
                 }
+                else -> false
             }
         }
     }
-
 }

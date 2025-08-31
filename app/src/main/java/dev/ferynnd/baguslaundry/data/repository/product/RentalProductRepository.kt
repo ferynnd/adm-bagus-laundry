@@ -76,4 +76,17 @@ class RentalProductRepository(context: Context) {
             throw e
         }
     }
+
+    suspend fun deleteProductRental(id: Int): DefaultRequest<ProductRental> {
+        try {
+            val response = rentalProductApiService.deleteProductRental(role, id)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+    }
 }

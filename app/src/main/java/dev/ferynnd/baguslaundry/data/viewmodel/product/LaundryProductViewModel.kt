@@ -240,4 +240,8 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
     suspend fun updateProductLaundry(productLaundry: ProductLaundry) {
         productLaundry.id_laundry_item?.let { laundryProductRepository.updateProductLaundry(it,productLaundry) }
     }
+
+    suspend fun deleteProductLaundry(productLaundry: ProductLaundry) {
+        productLaundry.id_laundry_item?.let { laundryProductRepository.deleteProductLaundry(it) }
+    }
 }

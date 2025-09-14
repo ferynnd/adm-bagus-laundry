@@ -104,7 +104,7 @@ class RentalReportAdapter ( private val onDetail : (ReportRental) -> Unit) : Lis
 
                     inputTime.text = transactionReportRental.time_transaction_rental
 
-                    idTransactionRental.text = transactionReportRental.id_transaction_rental.toString()
+                    idTransactionRental.text = transactionReportRental.number_transaction_rental.toString()
 
 
                     buttonDetail.setOnClickListener {

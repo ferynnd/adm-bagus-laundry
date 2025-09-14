@@ -473,6 +473,11 @@ class CreateListTransaksiRentalFragment : Fragment() {
             return false
         }
 
+        if (binding.inputNomorNota.text.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "Masukkan nomor nota", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
         if (binding.inputNamaPenerima.text.isNullOrEmpty()) {
             Toast.makeText(requireContext(), "Masukkan nama penerima", Toast.LENGTH_SHORT).show()
             return false
@@ -552,6 +557,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
             id_branch_transaction_rental = userIdBranch,
             id_client_transaction_rental = clientId,
             recipient_name_transaction_rental = binding.inputNamaPenerima.text.toString(),
+            number_transaction_rental = binding.inputNomorNota.text.toString().toInt(),
             notes_transaction_rental = binding.inputNoteTransaksi.text.toString(),
             list_transaction_rentals = rentalTransactionItems
         )

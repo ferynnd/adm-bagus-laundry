@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Spinner
@@ -35,6 +36,7 @@ import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminListReportRentalBinding
 import dev.ferynnd.baguslaundry.model.Branch
+import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ExportReportRental
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.ReportRental
@@ -47,16 +49,19 @@ import java.util.Locale
 
 class AdminListReportRentalFragment : Fragment() {
 
-
     private lateinit var binding: FragmentAdminListReportRentalBinding
     private lateinit var rentalReportViewModel: RentalReportViewModel
     private lateinit var rentalReportAdapter: RentalReportAdapter
     private lateinit var branchViewModel: BranchViewModel
     private lateinit var rentalProductViewModel : RentalProductViewModel
-
     private lateinit var userViewModel: UserViewModel
     private lateinit var clientViewModel: ClientViewModel
 
+    // Variables to store filter values
+    private var selectedFilterBranch: Branch? = null
+    private var selectedFilterClient: Client? = null
+    private var selectedFilterMonth: String? = null
+    private var isFirstLoad = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,13 +74,12 @@ class AdminListReportRentalFragment : Fragment() {
         rentalProductViewModel = ViewModelProvider(this)[RentalProductViewModel::class.java].apply { init(requireContext()) }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAdminListReportRentalBinding.inflate(layoutInflater)
-        // Inflate the layout for this fragment
+
         rentalReportAdapter = RentalReportAdapter(
             onDetail = { transactionReport ->
                 onDetail(transactionReport)
@@ -87,19 +91,14 @@ class AdminListReportRentalFragment : Fragment() {
             adapter = rentalReportAdapter
         }
 
+        // Updated filter button to show new filter bottom sheet
         binding.btnRoutes.setOnClickListener {
-            branchViewModel.branches.value?.let { branches ->
-                showFilterBottomSheet(requireContext(), branches) { selectedBranch ->
-                    if (selectedBranch.id_branch == -1) {
-                        rentalReportViewModel.filterClient(null) // Semua Cabang
-                    } else {
-                        rentalReportViewModel.filterClient(selectedBranch.id_branch)
-                    }
-                }
+            showFilterBottomSheet(requireContext()) { selectedBranch, selectedClient, selectedMonth ->
+                filterReports(selectedBranch, selectedClient, selectedMonth)
             }
         }
 
-         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let { rentalReportViewModel.searchRentalReports(it) }
                 return true
@@ -110,7 +109,6 @@ class AdminListReportRentalFragment : Fragment() {
                 return true
             }
         })
-
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -125,11 +123,24 @@ class AdminListReportRentalFragment : Fragment() {
                     }
                 }
                 rentalReportViewModel.filteredRentalReports.observe(viewLifecycleOwner) { filteredReports ->
-                    rentalReportAdapter.submitList(filteredReports)
+                    // Only show reports if client is selected
+                    if (selectedFilterClient != null) {
+                        rentalReportAdapter.submitList(filteredReports)
+                    } else {
+                        rentalReportAdapter.submitList(emptyList())
+                    }
                 }
                 branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
                     rentalReportAdapter.setBranches(branches)
                     rentalReportViewModel.setBranches(branches)
+
+                    // Show filter dialog on first load after branches are loaded
+                    if (isFirstLoad && branches.isNotEmpty()) {
+                        isFirstLoad = false
+                        showFilterBottomSheet(requireContext()) { selectedBranch, selectedClient, selectedMonth ->
+                            filterReports(selectedBranch, selectedClient, selectedMonth)
+                        }
+                    }
                 }
                 userViewModel.users.observe(viewLifecycleOwner) { users ->
                     rentalReportAdapter.setSender(users)
@@ -140,19 +151,31 @@ class AdminListReportRentalFragment : Fragment() {
                     rentalReportViewModel.setClient(clients)
                 }
                 rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { products ->
-                    setReportRental(products)
+                    // Only set reports if client is selected
+                    if (selectedFilterClient != null) {
+                        setReportRental(products)
+                    } else {
+                        rentalReportAdapter.submitList(emptyList())
+                    }
                 }
             } catch (e: Exception) {
                 throw e
             }
-
         }
 
         binding.iconExel.setOnClickListener {
+            if (selectedFilterClient == null) {
+                Toast.makeText(requireContext(), "Silakan pilih klien terlebih dahulu", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             showCetakDialog(requireContext())
         }
 
         binding.iconPdf.setOnClickListener {
+            if (selectedFilterClient == null) {
+                Toast.makeText(requireContext(), "Silakan pilih klien terlebih dahulu", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.host_fragment_admin, AdminListInvoiceRentalFragment())
                 .commit()
@@ -192,12 +215,10 @@ class AdminListReportRentalFragment : Fragment() {
         val localeID = Locale("id", "ID")
         val parser = SimpleDateFormat("yyyy-MM-dd", localeID)
         val monthFormatter = SimpleDateFormat("MMMM yyyy", localeID)
-        val monthKeyFormatter = SimpleDateFormat("yyyy-MM", localeID) // untuk sorting bulan
+        val monthKeyFormatter = SimpleDateFormat("yyyy-MM", localeID)
 
-        // Step 1: Urutkan berdasarkan tanggal DESCENDING
         val sortedReports = newReportRentals.sortedByDescending { it.time_transaction_rental }
 
-        // Step 2: Group berdasarkan bulan (pakai kunci yyyy-MM untuk sorting)
         val groupedByMonth: Map<String, List<ReportRental>> = sortedReports.groupBy { report ->
             report.time_transaction_rental?.let { dateStr ->
                 try {
@@ -209,10 +230,8 @@ class AdminListReportRentalFragment : Fragment() {
             } ?: "0000-00"
         }
 
-        // Step 3: Urutkan kunci bulan dari terbaru → lama
         val sortedMonthKeys = groupedByMonth.keys.sortedDescending()
 
-        // Step 4: Tambahkan Header + Items
         for (monthKey in sortedMonthKeys) {
             val readableMonth = try {
                 val date = monthKeyFormatter.parse(monthKey)
@@ -221,13 +240,53 @@ class AdminListReportRentalFragment : Fragment() {
                 "Unknown Date"
             }
 
-            tempGroupedData.add(readableMonth) // Header
-            tempGroupedData.addAll(groupedByMonth[monthKey] ?: emptyList()) // Data
+            tempGroupedData.add(readableMonth)
+            tempGroupedData.addAll(groupedByMonth[monthKey] ?: emptyList())
         }
 
         rentalReportAdapter.submitList(tempGroupedData)
     }
 
+    // Updated filter function that handles branch, client, and month filtering
+    private fun filterReports(selectedBranch: Branch?, selectedClient: Client?, selectedMonth: String?) {
+        // Update stored filter values
+        selectedFilterBranch = selectedBranch
+        selectedFilterClient = selectedClient
+        selectedFilterMonth = selectedMonth
+
+        if (selectedClient == null) {
+            // If no client selected, show empty list
+            rentalReportAdapter.submitList(emptyList())
+            return
+        }
+
+        val clientId = selectedClient.id_client
+        val monthYear = selectedMonth?.let { convertMonthYearToFormat(it) }
+
+        // Call the ViewModel to filter by client and month
+        rentalReportViewModel.filterByClientAndMonth(clientId, monthYear)
+    }
+
+    private fun convertMonthYearToFormat(monthYearString: String): String {
+        return try {
+            val parts = monthYearString.split(" - ")
+            if (parts.size == 2) {
+                val monthName = parts[0]
+                val year = parts[1]
+                val months = listOf(
+                    "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
+                    "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
+                )
+                val monthNumber = months.indexOf(monthName) + 1
+                val formattedMonth = String.format("%02d", monthNumber)
+                "$year-$formattedMonth"
+            } else {
+                ""
+            }
+        } catch (e: Exception) {
+            ""
+        }
+    }
 
     private fun showCetakDialog(context: Context) {
         val dialog = Dialog(context)
@@ -257,7 +316,6 @@ class AdminListReportRentalFragment : Fragment() {
             "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
         )
 
-        // Generate list bulan-tahun
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH)
@@ -270,17 +328,14 @@ class AdminListReportRentalFragment : Fragment() {
             }
         }
 
-        // Set adapter ke spinner kalender
         spinnerCalendar.adapter =
             ArrayAdapter(context, android.R.layout.simple_spinner_item, items).apply {
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             }
 
-        // Default pilih bulan sekarang
         val currentItem = "${months[currentMonth]} - $currentYear"
         spinnerCalendar.setSelection(items.indexOf(currentItem))
 
-        // Ambil data branch
         branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
             branchList.clear()
             branchList.addAll(branches)
@@ -295,20 +350,13 @@ class AdminListReportRentalFragment : Fragment() {
             }
 
             spinnerBranch.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>,
-                    view: View,
-                    position: Int,
-                    id: Long
-                ) {
+                override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                     val selectedBranch = branches[position]
-
-                   rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { products ->
+                    rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { products ->
                         val filteredProducts = products.filter { product ->
                             product.id_branch_rental_item == selectedBranch.id_branch
                         }
 
-                        // Tambahkan ke list global
                         productList.clear()
                         productList.addAll(filteredProducts)
 
@@ -321,18 +369,14 @@ class AdminListReportRentalFragment : Fragment() {
                             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                         }
                     }
-
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>) {
-                    // Optional: Do nothing or clear the spinnerDescription
                     spinnerDescription.adapter = null
                 }
             }
         }
 
-
-        // Tombol tambah catatan
         addButton.setOnClickListener {
             val note = inputNote.text.toString().trim()
             if (note.isNotEmpty()) {
@@ -343,7 +387,6 @@ class AdminListReportRentalFragment : Fragment() {
             }
         }
 
-        // Tombol Cetak
         cetakButton.setOnClickListener {
             val selectedDate = spinnerCalendar.selectedItem.toString()
             val selectedBranch = spinnerBranch.selectedItem.toString()
@@ -351,8 +394,7 @@ class AdminListReportRentalFragment : Fragment() {
             val stock = inputStock.text.toString().toInt()
 
             if (selectedDate.isEmpty() || selectedBranch.isEmpty()) {
-                Toast.makeText(context, "Pastikan semua pilihan telah dipilih.", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, "Pastikan semua pilihan telah dipilih.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -362,13 +404,12 @@ class AdminListReportRentalFragment : Fragment() {
             val formattedDate = "$year-$formattedMonth"
 
             val productRental = productList.find { it.name_rental_item == selectedDescription }?.id_rental_item ?: 0
-
             val branchId = branchList.find { it.name_branch == selectedBranch }?.id_branch ?: 0
 
             val requestData = ExportReportRental(
                 month = formattedDate,
                 location = branchId,
-                id_item_rental = productRental ,
+                id_item_rental = productRental,
                 notes = notesList,
                 initial_stock = stock,
             )
@@ -382,27 +423,18 @@ class AdminListReportRentalFragment : Fragment() {
                         val downloadUrl = response.data?.download_url.orEmpty()
                         if (downloadUrl.isNotEmpty()) {
                             context.startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse(downloadUrl)
-                                )
+                                Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl))
                             )
-                            Toast.makeText(
-                                context,
-                                "File berhasil dibuat dan sedang diunduh.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(context, "File berhasil dibuat dan sedang diunduh.", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(context, "Download URL kosong.", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(context, "Download URL kosong.", Toast.LENGTH_SHORT).show()
                         }
                         dialog.dismiss()
                     } else {
                         Toast.makeText(context, "Gagal cetak laporan.", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(context, "Terjadi kesalahan: ${e.message}", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(context, "Terjadi kesalahan: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -411,31 +443,123 @@ class AdminListReportRentalFragment : Fragment() {
         dialog.show()
     }
 
+    // Updated filter bottom sheet with client and month-year filtering
     private fun showFilterBottomSheet(
         context: Context,
-        items: List<Branch>,
-        onBranchSelected: (Branch) -> Unit
+        onFilterSelected: (Branch?, Client?, String?) -> Unit
     ) {
         val bottomSheetDialog = BottomSheetDialog(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.dialog_filter_branch, null)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_filter_rental_report, null)
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewFilterBranch)
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        // Month-Year Spinner
+        val spinnerMonthYear = view.findViewById<AutoCompleteTextView>(R.id.inputBulanTahun)
+        val spinnerBranch = view.findViewById<AutoCompleteTextView>(R.id.inputNamaCabang)
+        val spinnerClient = view.findViewById<AutoCompleteTextView>(R.id.inputNamaClient)
+        val applyButton = view.findViewById<Button>(R.id.buttonApply)
+        val exitButton = view.findViewById<ImageView>(R.id.btnExit)
 
-        val adapter = FilterBranchAdapter { selectedBranch ->
-            onBranchSelected(selectedBranch)
+        var tempSelectedBranch: Branch? = selectedFilterBranch
+        var tempSelectedClient: Client? = selectedFilterClient
+        var tempSelectedMonth: String? = selectedFilterMonth
+
+        // Restore previous selections
+        selectedFilterBranch?.let { branch ->
+            spinnerBranch.setText(branch.name_branch, false)
+        }
+        selectedFilterClient?.let { client ->
+            spinnerClient.setText(client.name_client, false)
+        }
+        selectedFilterMonth?.let { month ->
+            spinnerMonthYear.setText(month, false)
+        }
+
+        // Setup Month-Year options
+        val months = listOf(
+            "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
+            "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
+        )
+
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+
+        val monthYearItems = mutableListOf<String>()
+        for (year in 2025..currentYear) {
+            val maxMonth = if (year == currentYear) currentMonth else 11
+            for (monthIndex in 0..maxMonth) {
+                monthYearItems.add("${months[monthIndex]} - $year")
+            }
+        }
+
+        val monthYearAdapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, monthYearItems)
+        spinnerMonthYear.setAdapter(monthYearAdapter)
+        spinnerMonthYear.setOnItemClickListener { _, _, position, _ ->
+            tempSelectedMonth = monthYearItems[position]
+        }
+
+        // Setup Branch options
+        branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
+            val branchAdapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, branches)
+            spinnerBranch.setAdapter(branchAdapter)
+            spinnerBranch.setOnItemClickListener { _, _, position, _ ->
+                tempSelectedBranch = branches[position]
+
+                // Filter clients by selected branch
+                clientViewModel.clients.observe(viewLifecycleOwner) { allClients ->
+                    val filteredClients = allClients.filter { client ->
+                        client.id_branch_client == tempSelectedBranch?.id_branch
+                    }
+
+                    val clientAdapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line,
+                        filteredClients.map { it.name_client ?: "" })
+                    spinnerClient.setAdapter(clientAdapter)
+
+                    // Clear client selection if branch changed
+                    if (tempSelectedBranch?.id_branch != selectedFilterBranch?.id_branch) {
+                        spinnerClient.text?.clear()
+                        tempSelectedClient = null
+                    }
+                }
+            }
+        }
+
+        // Setup Client selection
+        clientViewModel.clients.observe(viewLifecycleOwner) { allClients ->
+            spinnerClient.setOnItemClickListener { _, _, position, _ ->
+                val filteredClients = allClients.filter { client ->
+                    client.id_branch_client == tempSelectedBranch?.id_branch
+                }
+                if (position < filteredClients.size) {
+                    tempSelectedClient = filteredClients[position]
+                }
+            }
+        }
+
+        applyButton?.setOnClickListener {
+            if (tempSelectedClient == null) {
+                Toast.makeText(context, "Klien wajib dipilih!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            onFilterSelected(tempSelectedBranch, tempSelectedClient, tempSelectedMonth)
             bottomSheetDialog.dismiss()
         }
 
-        recyclerView.adapter = adapter
-        adapter.submitList(items)
+        exitButton?.setOnClickListener {
+            // Only allow closing if client is selected (except for first time)
+            if (selectedFilterClient != null || isFirstLoad) {
+                bottomSheetDialog.dismiss()
+            } else {
+                Toast.makeText(context, "Klien wajib dipilih sebelum menutup filter!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Make dialog non-cancelable for first load
+        bottomSheetDialog.setCancelable(selectedFilterClient != null)
 
         bottomSheetDialog.setContentView(view)
-        // Menentukan tinggi bottom sheet menjadi sepertiga dari tinggi layar perangkat
         val layoutParams = bottomSheetDialog.window?.attributes
         layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
         bottomSheetDialog.window?.attributes = layoutParams
-
 
         bottomSheetDialog.show()
     }

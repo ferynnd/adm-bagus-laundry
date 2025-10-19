@@ -19,34 +19,18 @@
             app:titleTextColor="?attr/colorOnPrimary" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Gunakan FrameLayout untuk menumpuk konten dan ProgressBar -->
+<!--     Gunakan FrameLayout untuk menumpuk konten dan ProgressBar-->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <ScrollView
-            android:id="@+id/scrollView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/background"
-            android:padding="16dp">
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/receipt_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:maxWidth="400dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="4dp">
-
-                <include
-                    android:id="@+id/receipt_layout_include"
-                    layout="@layout/layout_receipt_preview" />
-            </com.google.android.material.card.MaterialCardView>
-        </ScrollView>
+        <WebView
+        android:id="@+id/receiptWebView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="#FFFFFF" />
 
         <!-- PROGRESS BAR -->
         <ProgressBar

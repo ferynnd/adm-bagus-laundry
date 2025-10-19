@@ -1,6 +1,8 @@
 package dev.ferynnd.baguslaundry.ui.user
 
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -27,10 +29,19 @@ import dev.ferynnd.baguslaundry.model.LaundryPrintTransaction
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import android.util.Base64
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import com.dantsu.escposprinter.EscPosPrinterCommands
+import com.dantsu.escposprinter.textparser.PrinterTextParserImg
+
 
 class PrintPreviewFragment : Fragment() {
 
@@ -67,11 +78,16 @@ class PrintPreviewFragment : Fragment() {
         sharePreferences = SharePrefrenceHelper(requireContext())
         activity?.findViewById<View>(R.id.bottomNav)?.visibility = View.GONE
         binding.printButton.setOnClickListener {
-            printReceiptToThermalPrinter()
-        }
+                if (transactionId != null) {
+                     printReceiptFromWebView()
+                } else {
+                    Snackbar.make(binding.root, "ID transaksi tidak tersedia", Snackbar.LENGTH_LONG).show()
+                }
+            }
+
          binding.backButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, UserDashboardFragment())
+                .replace(R.id.host_fragment_user, KurirTransactionReportFragment())
                 .addToBackStack(null) // opsional, jika ingin bisa kembali
                 .commit()
         }
@@ -81,11 +97,6 @@ class PrintPreviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 //        Toast.makeText(
-//            requireContext(),
-//            transactionId.toString(),
-//            Toast.LENGTH_SHORT
-//        ).show()
-
         if (transactionId == null) {
             Snackbar.make(binding.root, "ID transaksi tidak tersedia", Snackbar.LENGTH_LONG).show()
             binding.printButton.isEnabled = false
@@ -116,7 +127,9 @@ class PrintPreviewFragment : Fragment() {
                 val result = laundryReportViewModel.getLaundryPrint(id)
                 if (result.success && result.data != null) {
                     laundryReportViewModel.postPrintData(result.data)
-                    populateReceiptData(result.data)
+                      val htmlContent = generateReceiptHtml(result.data)
+                      setupReceiptPreview(htmlContent)
+
                 } else {
                     Snackbar.make(
                         binding.root,
@@ -136,61 +149,12 @@ class PrintPreviewFragment : Fragment() {
         }
     }
 
-    private fun populateReceiptData(data: LaundryPrintTransaction) =
-        with(binding.receiptLayoutInclude) {
-            textStoreName.text = "BAGUS LAUNDRY"
-
-            val idUser = sharePreferences.getString("PREF_USER_ID")
-            viewLifecycleOwner.lifecycleScope.launch {
-                val userData = userViewModel.getUserById(idUser?.toInt() ?: 0)
-                val filterBranch =
-                    branchViewModel.branches.value?.find { it.id_branch == userData.data.id_branch_user }
-                textStoreAddress.text = filterBranch?.full_address_branch ?: "Alamat tidak tersedia"
-            }
-
-            textInvoiceNumber.text = data.number_transaction_laundry.toString()
-            textClientName.text =
-                data.name_client_transaction_laundry.uppercase(Locale.getDefault())
-            textOrderDate.text = formatDate(data.first_date_transaction_laundry)
-
-            textStatus.text = when (data.status_transaction_laundry?.uppercase()) {
-                StatusReportLaundry.completed.name.uppercase() -> "Selesai"
-                StatusReportLaundry.unpaid.name.uppercase() -> "Belum Bayar"
-                StatusReportLaundry.paid.name.uppercase() -> "Sudah Bayar"
-                StatusReportLaundry.cancelled.name.uppercase() -> "Dibatalkan"
-                else -> "Status Tidak Diketahui"
-            }
-
-            layoutItemList.removeAllViews()
-            data.list_transaction_laundry.forEach { item ->
-                val itemView = LayoutInflater.from(requireContext())
-                    .inflate(R.layout.item_receipt_row, layoutItemList, false)
-                val name = getLaundryServiceItemName(item.id_item_laundry)
-                itemView.findViewById<TextView>(R.id.text_item_name_and_calc).text =
-                    "$name (${formatWeight(item.weight_list_transaction_laundry)} kg)"
-                itemView.findViewById<TextView>(R.id.text_item_total_price).text =
-                    formatCurrency(item.total_price_list_transaction_laundry)
-                layoutItemList.addView(itemView)
-            }
-
-            textSubtotalPrice.text = formatCurrency(data.total_price_transaction_laundry)
-            textPromo.text = "- ${formatCurrency(data.promo_transaction_laundry)}"
-            textAdditionalCost.text = formatCurrency(data.additional_cost_transaction_laundry)
-            textTotalPayment.text = formatCurrency(data.total_transaction_laundry)
-            textCashPaid.text = formatCurrency(data.cash_transaction_laundry)
-            textChangeMoney.text = formatCurrency(data.change_money_transaction_laundry)
-
-            if (!data.notes_transaction_laundry.isNullOrBlank()) {
-                layoutNotes.visibility = View.VISIBLE
-                textNotesLabel.visibility = View.VISIBLE
-                textNotes.visibility = View.VISIBLE
-                textNotes.text = data.notes_transaction_laundry
-            } else {
-                layoutNotes.visibility = View.GONE
-                textNotesLabel.visibility = View.GONE
-                textNotes.visibility = View.GONE
-            }
-        }
+    private fun bitmapToBase64(bitmap: Bitmap): String {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        val byteArray = outputStream.toByteArray()
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP)
+    }
 
     private fun getLaundryServiceItemName(itemId: Int): String {
         return productLaundryList.find { it.id_laundry_item == itemId }?.name_laundry_item
@@ -221,72 +185,166 @@ class PrintPreviewFragment : Fragment() {
     }
 
 
-    private fun printReceiptToThermalPrinter() {
-        try {
-            val printerConnection: DeviceConnection? =
-                BluetoothPrintersConnections.selectFirstPaired()
 
-            if (printerConnection == null) {
-                Snackbar.make(
-                    binding.root,
-                    "Tidak ada printer yang terhubung",
-                    Snackbar.LENGTH_LONG
-                ).show()
-                return
-            }
+private suspend fun generateReceiptHtml(data: LaundryPrintTransaction): String {
+    val idUser = sharePreferences.getString("PREF_USER_ID")
+    val userData = userViewModel.getUserById(idUser?.toInt() ?: 0)
+    val filterBranch = branchViewModel.branches.value
+        ?.find { it.id_branch == userData.data.id_branch_user }
+    val storeAddress = filterBranch?.full_address_branch ?: "Alamat tidak tersedia"
 
-            val printer = EscPosPrinter(printerConnection, 203, 57f, 32)
+    // Ambil logo dan convert ke Base64
+    val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logobgs)
+    val scaledLogo = Bitmap.createScaledBitmap(
+        logoBitmap,
+        200,
+        (200.0 / logoBitmap.width * logoBitmap.height).toInt(),
+        true
+    )
+    val logoBase64 = bitmapToBase64(scaledLogo)
 
-            val previewData = generateReceiptText() // Fungsi untuk buat string preview
-            printer.printFormattedText(previewData)
+    return buildString {
+        append("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+                    body { background-color:white; color:black; line-height:1.4; padding:10px; }
+                    .invoice-container { width:100%; margin:0 auto; }
+                    .header { text-align:center; margin-bottom:10px; border-bottom:2px solid black; padding-bottom:5px; }
+                    .header img { max-width:100px; margin-bottom:5px; }
+                    .invoice-info { display:grid; grid-template-columns:1fr 1fr; gap:5px; font-size:14px; margin-bottom:10px; }
+                    .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; font-size:14px; }
+                    .items-table th { border-bottom:2px solid black; padding:5px; text-align:left; }
+                    .items-table td { padding:5px; border-bottom:1px solid #ddd; }
+                    .item-price { text-align:right; }
+                    .summary-row { display:flex; justify-content:space-between; margin-bottom:3px; }
+                    .summary-total { border-top:2px solid black; font-weight:bold; font-size:16px; padding-top:5px; margin-top:5px; }
+                    .payment-info { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:10px; }
+                    .payment-item { border:1px solid black; padding:5px; }
+                    .notes { border:1px solid black; padding:5px; margin-bottom:10px; font-size:12px; }
+                    .footer { text-align:center; border-top:2px solid black; font-weight:bold; padding-top:5px; }
+                </style>
+            </head>
+            <body>
+        """.trimIndent())
 
-        } catch (e: Exception) {
-            Snackbar.make(binding.root, "Gagal mencetak: ${e.message}", Snackbar.LENGTH_LONG).show()
-            Log.e("PrinterError", e.stackTraceToString())
+        append("""<div class="invoice-container">""")
+        append("""<div class="header">
+                      <img src="data:image/png;base64,$logoBase64"/>
+                      <p>Telp/WA : 082329197772</p>
+                  </div>""")
+
+        append("""<div class="invoice-info">
+                    <div><b>No. Invoice:</b><br>${data.number_transaction_laundry}</div>
+                    <div><b>Nama:</b><br>${data.name_client_transaction_laundry.uppercase()}</div>
+                    <div><b>Tanggal:</b><br>${formatDate(data.first_date_transaction_laundry)}</div>
+                    <div><b>Status:</b><br>${data.status_transaction_laundry}</div>
+                  </div>""")
+
+        append("""<table class="items-table">
+                  <thead><tr><th>Layanan</th><th>Harga</th></tr></thead><tbody>""")
+        data.list_transaction_laundry.forEach { item ->
+            val name = getLaundryServiceItemName(item.id_item_laundry)
+            append("""<tr>
+                        <td>${name}<br><small>${formatWeight(item.weight_list_transaction_laundry)}</small></td>
+                        <td class="item-price">${formatCurrency(item.total_price_list_transaction_laundry)}</td>
+                     </tr>""")
         }
-    }
+        append("</tbody></table>")
 
-    private fun generateReceiptText(): String {
-    val data = laundryReportViewModel.printData.value ?: return ""
+        append("""<div class="summary">
+                    <div class="summary-row"><span>Subtotal</span><span>${formatCurrency(data.total_price_transaction_laundry)}</span></div>
+                    <div class="summary-row"><span>Promo</span><span>- ${formatCurrency(data.promo_transaction_laundry)}</span></div>
+                    <div class="summary-row"><span>Biaya Tambahan</span><span>${formatCurrency(data.additional_cost_transaction_laundry)}</span></div>
+                    <div class="summary-row summary-total"><span>Total</span><span>${formatCurrency(data.total_transaction_laundry)}</span></div>
+                  </div>""")
 
-    val storeName = "[C]<b>BAGUS LAUNDRY</b>\n" // Biarkan ini besar jika Anda ingin
-    val storeAddress = "[C]<font size='normal'>${binding.receiptLayoutInclude.textStoreAddress.text}</font>\n" // Pastikan normal
-        val divider1 = "<font size='normal'>------------------------------</font>\n"
-    val invoice = "[L]<font size='normal'>No. Invoice: ${data.number_transaction_laundry}</font>\n"
-    val client = "[L]<font size='normal'>Nama: ${data.name_client_transaction_laundry.uppercase()}</font>\n"
-    val date = "[L]<font size='normal'>Tanggal: ${formatDate(data.first_date_transaction_laundry)}</font>\n"
-    val status = "[L]<font size='normal'>Status: ${binding.receiptLayoutInclude.textStatus.text}</font>\n"
-    val divider = "<font size='normal'>------------------------------</font>\n"
+        append("""<div class="payment-info">
+                    <div class="payment-item"><b>Tunai</b><br>${formatCurrency(data.cash_transaction_laundry)}</div>
+                    <div class="payment-item"><b>Kembalian</b><br>${formatCurrency(data.change_money_transaction_laundry)}</div>
+                  </div>""")
 
-    val items = buildString {
-        data.list_transaction_laundry.forEach {
-            val name = getLaundryServiceItemName(it.id_item_laundry)
-            // Pastikan setiap item menggunakan ukuran normal
-            val line = "[L]<font size='normal'>$name (${formatWeight(it.weight_list_transaction_laundry)} kg)</font>"
-            val price = "[R]<font size='normal'>${formatCurrency(it.total_price_list_transaction_laundry)}</font>"
-            append("$line$price\n")
+        if (!data.notes_transaction_laundry.isNullOrBlank()) {
+            append("""<div class="notes"><b>Catatan:</b> ${data.notes_transaction_laundry}</div>""")
         }
+
+        append("""<div class="notes">
+                    <b>PERHATIAN:</b><br>
+                    1 Cucian rusak karena sifat bahan/kain bukan tanggung jawab kami<br>
+                    2 Cucian luntur yang tidak diberitahukan kepada kami diluar tanggung jawab kami<br>
+                    3 Apabila konsumen tidak menghitung cucian, jumlah yang kami hitung kami anggap benar<br>
+                    4 Pengajuan klaim tidak lebih dari 24 jam setelah diterima<br>
+                    5 Benda berharga/barang yang tertinggal dalam cucian apabila hilang/rusak bukan tanggung jawab kami<br>
+                    6 Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami
+                  </div>""")
+
+        append("""<div class="footer">— TERIMA KASIH —</div></div></body></html>""")
     }
-
-    val subtotal =
-        "[L]<font size='normal'>Subtotal:</font>[R]<font size='normal'>${formatCurrency(data.total_price_transaction_laundry)}</font>\n"
-    val promo =
-        "[L]<font size='normal'>Promo:</font>[R]<font size='normal'>- ${formatCurrency(data.promo_transaction_laundry)}</font>\n"
-    val addCost =
-        "[L]<font size='normal'>Biaya Tambahan:</font>[R]<font size='normal'>${formatCurrency(data.additional_cost_transaction_laundry)}</font>\n"
-    val total =
-        "[L]<b>Total:</b>[R]<b>${formatCurrency(data.total_transaction_laundry)}</b>\n" // Ini mungkin tetap besar
-    val cash = "[L]<font size='normal'>Tunai:</font>[R]<font size='normal'>${formatCurrency(data.cash_transaction_laundry)}</font>\n"
-    val change =
-        "[L]<font size='normal'>Kembalian:</font>[R]<font size='normal'>${formatCurrency(data.change_money_transaction_laundry)}</font>\n"
-    val notes = if (!data.notes_transaction_laundry.isNullOrBlank())
-        "[L]<font size='normal'>Catatan: ${data.notes_transaction_laundry}</font>\n" else ""
-
-    val thanks = "\n[C]<font size='normal'>--- TERIMA KASIH ---</font>\n"
-
-    return storeName + storeAddress + divider1 +  invoice + client + date + status + divider +
-            items + divider + subtotal + promo + addCost + total + cash + change + notes + thanks
 }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupReceiptPreview(htmlContent: String) {
+    binding.receiptWebView.settings.javaScriptEnabled = true
+    binding.receiptWebView.settings.loadWithOverviewMode = true
+    binding.receiptWebView.settings.useWideViewPort = true
+    binding.receiptWebView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+
+    // tombol hanya aktif setelah WebView selesai render
+    binding.receiptWebView.webViewClient = object : WebViewClient() {
+        override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            binding.printButton.isEnabled = true
+        }
+    }
+}
+
+
+private fun printReceiptFromWebView() {
+    try {
+        val printerConnection: DeviceConnection? =
+            BluetoothPrintersConnections.selectFirstPaired()
+
+        if (printerConnection == null) {
+            Snackbar.make(binding.root, "Tidak ada printer yang terhubung", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
+        // Ambil screenshot dari WebView yang sudah ditampilkan di layar
+        val bitmap = captureWebView(binding.receiptWebView)
+
+        val escposPrinter = EscPosPrinter(printerConnection, 203, 57f, 32)
+        val hexImage = PrinterTextParserImg.bitmapToHexadecimalString(
+            escposPrinter,
+            bitmap,
+            false
+        )
+        escposPrinter.printFormattedText("[C]<img>$hexImage</img>\n")
+
+    } catch (e: Exception) {
+        Snackbar.make(binding.root, "Gagal mencetak: ${e.message}", Snackbar.LENGTH_LONG).show()
+        Log.e("PrinterError", e.stackTraceToString())
+    }
+}
+
+private fun captureWebView(webView: WebView): Bitmap {
+    val specWidth = View.MeasureSpec.makeMeasureSpec(webView.width, View.MeasureSpec.EXACTLY)
+    val specHeight = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+    webView.measure(specWidth, specHeight)
+    webView.layout(0, 0, webView.measuredWidth, webView.measuredHeight)
+
+    val bitmap = Bitmap.createBitmap(
+        webView.measuredWidth,
+        webView.measuredHeight,
+        Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(bitmap)
+    webView.draw(canvas)
+    return bitmap
+}
+
     override fun onDestroyView() {
         super.onDestroyView()
         activity?.findViewById<View>(R.id.bottomNav)?.visibility = View.VISIBLE

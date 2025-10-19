@@ -1,5 +1,8 @@
 package dev.ferynnd.baguslaundry.ui.user.transaksi_rental
 
+import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -24,12 +27,22 @@ import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentPrintPreviewRentalBinding
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.RentalPrintTransaction
+import dev.ferynnd.baguslaundry.ui.user.KurirTransactionReportFragment
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.*
+import android.util.Base64
+import android.graphics.Canvas
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import com.dantsu.escposprinter.EscPosPrinterCommands
+import com.dantsu.escposprinter.textparser.PrinterTextParserImg
+
 
 class PrintPreviewRentalFragment : Fragment() {
 
@@ -71,11 +84,11 @@ class PrintPreviewRentalFragment : Fragment() {
         sharePreferences = SharePrefrenceHelper(requireContext())
         hideBottomNavigationView()
         binding.printButton.setOnClickListener {
-            printReceiptToThermalPrinter()
+               printReceiptFromWebView()
         }
         binding.backButton.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, UserDashboardFragment())
+                .replace(R.id.host_fragment_user, KurirTransactionReportFragment())
                 .addToBackStack(null) // opsional, jika ingin bisa kembali
                 .commit()
         }
@@ -84,12 +97,6 @@ class PrintPreviewRentalFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-//        Toast.makeText(
-//            requireContext(),
-//            transactionId.toString(),
-//            Toast.LENGTH_SHORT
-//        ).show()
 
         if (transactionId == null) {
             Snackbar.make(binding.root, "ID transaksi tidak tersedia", Snackbar.LENGTH_LONG).show()
@@ -118,7 +125,8 @@ class PrintPreviewRentalFragment : Fragment() {
                 val result = rentalReportViewModel.getRentalPrint(id)
                 if (result.success && result.data != null) {
                     rentalReportViewModel.postPrintData(result.data)
-                    populateReceiptData(result.data)
+                      val htmlContent = generateReceiptHtml(result.data)
+                      setupReceiptPreview(htmlContent)
                 } else {
                     Snackbar.make(
                         binding.root,
@@ -142,81 +150,97 @@ class PrintPreviewRentalFragment : Fragment() {
         }
     }
 
-    private fun populateReceiptData(data: RentalPrintTransaction) =
-        with(binding.receiptLayoutInclude) {
-            // Header Section
-            textStoreName.text = "BAGUS LAUNDRY"
 
-            // Menggunakan lifecycleScope.launchWhenStarted untuk menghindari crash jika fragment/activity sudah dihancurkan
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                try {
-                    val idUser = sharePreferences.getString("PREF_USER_ID")
-                    val userDataResponse = userViewModel.getUserById(idUser?.toInt() ?: 0)
-                    if (userDataResponse.success && userDataResponse.data != null) {
-                        val filterBranch =
-                            branchViewModel.branches.value?.find { it.id_branch == userDataResponse.data.id_branch_user }
-                        textStoreAddress.text =
-                            filterBranch?.full_address_branch ?: "Alamat tidak tersedia"
-                    } else {
-                        textStoreAddress.text = "Alamat tidak tersedia"
-                    }
-                } catch (e: Exception) {
-                    Log.e("PopulateData", "Error fetching user/branch data: ${e.message}")
-                    textStoreAddress.text = "Alamat tidak tersedia (Error)"
-                }
-            }
+    private suspend fun generateReceiptHtml(data: RentalPrintTransaction): String {
+        val idUser = sharePreferences.getString("PREF_USER_ID")
+        val userData = userViewModel.getUserById(idUser?.toInt() ?: 0)
+        val filterBranch = branchViewModel.branches.value
+            ?.find { it.id_branch == userData.data.id_branch_user }
+        val storeAddress = filterBranch?.full_address_branch ?: "Alamat tidak tersedia"
 
-            // Invoice Information Section
-            // Menggunakan ID baru text_invoice_number
-            textInvoiceNumber.text =
-                data.number_transaction_rental.toString() // Hanya nomor invoice, tanpa label "Invoice #:"
-            textClientName.text =
-                getClientName(data.id_client_transaction_rental!!)
+        // Ambil logo dan convert ke Base64
+        val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logobgs)
+        val scaledLogo = Bitmap.createScaledBitmap(
+            logoBitmap,
+            200,
+            (200.0 / logoBitmap.width * logoBitmap.height).toInt(),
+            true
+        )
+        val logoBase64 = bitmapToBase64(scaledLogo)
 
-            // Menambahkan text_penerima sesuai layout baru
-            // Asumsi recipient_name_transaction_rental adalah nama penerima
-            // Jika ada data klien terpisah, Anda perlu sesuaikan
-            textPenerima.text =
-                data.recipient_name_transaction_rental?.uppercase(Locale.getDefault())
+    return buildString {
+        append("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+                    body { background-color:white; color:black; line-height:1.4; padding:10px; }
+                    .invoice-container { width:100%; margin:0 auto; }
+                    .header { text-align:center; margin-bottom:10px; border-bottom:2px solid black; padding-bottom:5px; }
+                    .header img { max-width:100px; margin-bottom:5px; }
+                    .invoice-info { display:grid; grid-template-columns:1fr 1fr; gap:5px; font-size:14px; margin-bottom:10px; }
+                    .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; font-size:14px; }
+                    .items-table th { border-bottom:2px solid black; padding:5px; text-align:left; }
+                    .items-table td { padding:5px; border-bottom:1px solid #ddd; }
+                    .item-price { text-align:right; }
+                    .summary-row { display:flex; justify-content:space-between; margin-bottom:3px; }
+                    .summary-total { border-top:2px solid black; font-weight:bold; font-size:16px; padding-top:5px; margin-top:5px; }
+                    .payment-info { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:10px; }
+                    .payment-item { border:1px solid black; padding:5px; }
+                    .notes { border:1px solid black; padding:5px; margin-bottom:10px; font-size:12px; }
+                    .footer { text-align:center; border-top:2px solid black; font-weight:bold; padding-top:5px; }
+                </style>
+            </head>
+            <body>
+        """.trimIndent())
 
-            // Menggunakan formatDate dan menyesuaikan label "WAKTU"
-            textOrderDate.text =
-                formatDate(data.time_transaction_rental.toString()) // formatDate harus mengembalikan format yang diinginkan
+        append("""<div class="invoice-container">""")
+        append("""<div class="header">
+                      <img src="data:image/png;base64,$logoBase64"/>
+                      <p>Telp/WA : 082329197772</p>
+                  </div>""")
 
-            // Items List Container
-            layoutItemList.removeAllViews() // Gunakan layout_item_list sesuai layout XML
+        append("""<div class="invoice-info">
+                    <div><b>No. Invoice:</b><br>${data.number_transaction_rental}</div>
+                    <div><b>Klien:</b><br>${getClientName(data.id_client_transaction_rental!!)}</div>
+                    <div><b>Penerima:</b><br>${data.recipient_name_transaction_rental?.uppercase(Locale.getDefault())}</div>
+                    <div><b>Tanggal:</b><br>${formatDate(data.time_transaction_rental.toString()) }</div>
+                  </div>""")
 
-            data.list_transaction_rentals.forEach { item ->
-                // Menggunakan layout item yang lebih sederhana, sesuai layout XML terbaru
-                val itemView = LayoutInflater.from(requireContext())
-                    .inflate(
-                        R.layout.item_receipt_row_rental,
-                        layoutItemList,
-                        false
-                    ) // Misalkan nama layoutnya receipt_item_row_simple
-
-                val itemNameTextView =
-                    itemView.findViewById<TextView>(R.id.text_item_name) // ID TextView di layout item baru
-                itemNameTextView.text = getRentalServiceItemName(item.id_item_rental!!)
-
-                val itemCount = itemView.findViewById<TextView>(R.id.text_item_quantity)
-                itemCount.text = "Jumlah: ${item.count_list_transaction_rental} PCS"
-                val itemWeight = itemView.findViewById<TextView>(R.id.text_item_weight)
-                itemWeight.text = "Berat: ${formatWeight(item.weight_list_transaction_rental)} Kg"
-
-                layoutItemList.addView(itemView)
-            }
-
-            // Notes Section
-            val layoutNotes = binding.receiptLayoutInclude.layoutNotes // Akses layout_notes
-            if (!data.notes_transaction_rental.isNullOrBlank()) {
-                textNotes.text = data.notes_transaction_rental
-                layoutNotes.visibility = View.VISIBLE // Mengubah visibilitas LinearLayout induk
-            } else {
-                layoutNotes.visibility = View.GONE
-            }
-
+        append("""<table class="items-table">
+                  <thead><tr><th>Layanan</th><th>Berat</th><th>Jumlah</th></tr></thead><tbody>""")
+        data.list_transaction_rentals.forEach { item ->
+            val name = getRentalServiceItemName(item.id_item_rental!!)
+            append("""<tr>
+                        <td>${name}</td>
+                        <td>${formatWeight(item.weight_list_transaction_rental)} Kg</td>
+                        <td>${item.count_list_transaction_rental} PCS</td>
+                     </tr>""")
         }
+        append("</tbody></table>")
+
+        if (!data.notes_transaction_rental.isNullOrBlank()) {
+            append("""<div class="notes"><b>Catatan:</b> ${data.notes_transaction_rental}</div>""")
+        }
+
+        append("""<div class="notes">
+                    <b>PERHATIAN:</b><br>
+                    1 Cucian rusak karena sifat bahan/kain bukan tanggung jawab kami<br>
+                    2 Cucian luntur yang tidak diberitahukan kepada kami diluar tanggung jawab kami<br>
+                    3 Apabila konsumen tidak menghitung cucian, jumlah yang kami hitung kami anggap benar<br>
+                    4 Pengajuan klaim tidak lebih dari 24 jam setelah diterima<br>
+                    5 Benda berharga/barang yang tertinggal dalam cucian apabila hilang/rusak bukan tanggung jawab kami<br>
+                    6 Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami
+                  </div>""")
+
+        append("""<div class="footer">— TERIMA KASIH —</div></div></body></html>""")
+    }
+}
+
+
+
 
     // --- Helper function untuk menerjemahkan kondisi item ---
     private fun translateCondition(condition: String?): String {
@@ -263,82 +287,80 @@ class PrintPreviewRentalFragment : Fragment() {
         }
     }
 
-    private fun printReceiptToThermalPrinter() {
-        try {
-            val printerConnection: DeviceConnection? =
-                BluetoothPrintersConnections.selectFirstPaired()
 
-            if (printerConnection == null) {
-                Snackbar.make(
-                    binding.root,
-                    "Tidak ada printer yang terhubung",
-                    Snackbar.LENGTH_LONG
-                ).show()
-                return
-            }
-
-            val printer = EscPosPrinter(printerConnection, 203, 57f, 32)
-
-            val previewData = generateReceiptText()
-            printer.printFormattedText(previewData)
-            printer.disconnectPrinter()
-
-        } catch (e: Exception) {
-            Snackbar.make(binding.root, "Gagal mencetak: ${e.message}", Snackbar.LENGTH_LONG).show()
-            Log.e("PrinterError", e.stackTraceToString())
-        }
-    }
-
-    private fun generateReceiptText(): String {
-        val data = rentalReportViewModel.printData.value ?: return ""
-
-        val storeName = "[C]<b>BAGUS LAUNDRY</b>\n"
-        val storeAddress = "[C]<font size='normal'>${binding.receiptLayoutInclude.textStoreAddress.text}</font>\n"
-        val dividerSolid = "--------------------------------\n"
-        val dividerDashed = "--------------------------------\n"
-
-        val header = buildString {
-            append(storeName)
-            append(storeAddress)
-            append(dividerSolid)
-            append("[L]<font size='normal'>INVOICE      : ${data.number_transaction_rental}</font>\n")
-            append("[L]<font size='normal'>KLIEN        : ${getClientName(data.id_client_transaction_rental!!)}</font>\n")
-            append("[L]<font size='normal'>PENERIMA     : ${data.recipient_name_transaction_rental?.uppercase() ?: "-"}</font>\n")
-            append("[L]<font size='normal'>WAKTU        : ${formatDate(data.time_transaction_rental.toString())}</font>\n")
-            append(dividerDashed)
-            append("[L]<b>ITEM</b>\n\n")
-        }
-
-        val items = buildString {
-            data.list_transaction_rentals.forEach { item ->
-                val itemName = getRentalServiceItemName(item.id_item_rental!!)
-                append("[L]$itemName\n")
-                append("[L]<font size='normal'> Jumlah : ${item.count_list_transaction_rental} PCS</font>\n")
-                append("[L]<font size='normal'> Berat  : ${formatWeight(item.weight_list_transaction_rental)} Kg</font>\n")
-                append("[L]<font size='normal'> Kondisi: ${translateCondition(item.condition_list_transaction_rental)}</font>\n")
-                append("[L]<font size='normal'> Status : ${translateItemStatus(item.status_list_transaction_rental)}</font>\n")
-                append("[L]--------------------------------\n")
-            }
-        }
-
-        val summary = buildString {
-            append("[L]<font size='normal'><b>TOTAL PCS   : ${data.total_pcs_transaction_rental}</font>\n")
-            append("[L]<font size='normal'><b>TOTAL BERAT : ${formatWeight(data.total_weight_transaction_rental)} Kg</font>\n")
-            if (!data.notes_transaction_rental.isNullOrBlank()) {
-                append("[L]<font size='normal'>CATATAN     : ${data.notes_transaction_rental}</font>\n")
-            }
-            append(dividerSolid)
-            append("\n[C]<b>Terima Kasih</b>\n")
-            append("[C]Telah Mempercayakan\n")
-            append("[C]Laundry'an Anda Kepada Kami\n\n")
-        }
-
-        return header + items + summary
-    }
 
      private fun getClientName(itemId: Int): String {
         val clients = clientViewModel.clients.value ?: return "Layanan Tidak Dikenal ($itemId)"
         return clients.find { it.id_client == itemId }?.name_client ?: "Layanan Tidak Dikenal ($itemId)"
+    }
+
+
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupReceiptPreview(htmlContent: String) {
+    binding.receiptWebView.settings.javaScriptEnabled = true
+    binding.receiptWebView.settings.loadWithOverviewMode = true
+    binding.receiptWebView.settings.useWideViewPort = true
+    binding.receiptWebView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+
+    // tombol hanya aktif setelah WebView selesai render
+    binding.receiptWebView.webViewClient = object : WebViewClient() {
+        override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            binding.printButton.isEnabled = true
+        }
+    }
+}
+
+
+private fun printReceiptFromWebView() {
+    try {
+        val printerConnection: DeviceConnection? =
+            BluetoothPrintersConnections.selectFirstPaired()
+
+        if (printerConnection == null) {
+            Snackbar.make(binding.root, "Tidak ada printer yang terhubung", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
+        // Ambil screenshot dari WebView yang sudah ditampilkan di layar
+        val bitmap = captureWebView(binding.receiptWebView)
+
+        val escposPrinter = EscPosPrinter(printerConnection, 203, 57f, 32)
+        val hexImage = PrinterTextParserImg.bitmapToHexadecimalString(
+            escposPrinter,
+            bitmap,
+            false
+        )
+        escposPrinter.printFormattedText("[C]<img>$hexImage</img>\n")
+
+    } catch (e: Exception) {
+        Snackbar.make(binding.root, "Gagal mencetak: ${e.message}", Snackbar.LENGTH_LONG).show()
+        Log.e("PrinterError", e.stackTraceToString())
+    }
+}
+
+private fun captureWebView(webView: WebView): Bitmap {
+    val specWidth = View.MeasureSpec.makeMeasureSpec(webView.width, View.MeasureSpec.EXACTLY)
+    val specHeight = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+    webView.measure(specWidth, specHeight)
+    webView.layout(0, 0, webView.measuredWidth, webView.measuredHeight)
+
+    val bitmap = Bitmap.createBitmap(
+        webView.measuredWidth,
+        webView.measuredHeight,
+        Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(bitmap)
+    webView.draw(canvas)
+    return bitmap
+}
+
+        private fun bitmapToBase64(bitmap: Bitmap): String {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        val byteArray = outputStream.toByteArray()
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
 

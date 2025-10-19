@@ -27,6 +27,9 @@ import dev.ferynnd.baguslaundry.model.RentalTransactionData
 import dev.ferynnd.baguslaundry.model.ReportRentalResponse
 import dev.ferynnd.baguslaundry.model.User
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class RentalReportViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -410,5 +413,43 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
                         userName.contains(query, ignoreCase = true)
             }
         }
+    }
+
+    // Add these methods to your RentalReportViewModel class
+
+    fun filterByClientAndMonth(clientId: Int?, monthYear: String?) {
+        val allReports = rentalReports.value ?: return
+
+        val filteredReports = allReports.filter { report ->
+            var matchClient = false
+            var matchMonth = true
+
+            // Client ID is required - filter by client ID
+            matchClient = report.id_client_transaction_rental == clientId
+
+            // Month-year is optional - only filter if provided
+            if (monthYear != null && monthYear.isNotEmpty()) {
+                report.time_transaction_rental?.let { dateStr ->
+                    try {
+                        val reportDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateStr)
+                        val reportMonthYear = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(reportDate ?: Date())
+                        matchMonth = reportMonthYear == monthYear
+                    } catch (e: Exception) {
+                        matchMonth = false
+                    }
+                } ?: run {
+                    matchMonth = false
+                }
+            }
+
+            matchClient && matchMonth
+        }
+
+        _filteredRentalReports.value = filteredReports
+    }
+
+    // Method to clear filter and show empty list (since client is required)
+    fun clearFilter() {
+        _filteredRentalReports.value = emptyList()
     }
 }

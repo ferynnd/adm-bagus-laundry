@@ -73,4 +73,17 @@ class LaundryProductRepository(context: Context) {
             throw e
         }
     }
+
+    suspend fun deleteProductLaundry(id: Int): DefaultRequest<ProductLaundry> {
+        try {
+            val response = laundryProductApiService.deleteProductLaundry(role, id)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+    }
 }

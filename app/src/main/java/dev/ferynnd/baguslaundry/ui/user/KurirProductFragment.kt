@@ -21,6 +21,8 @@ import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
 import dev.ferynnd.baguslaundry.databinding.KurirFragmentListProductLaundryBinding
 import dev.ferynnd.baguslaundry.model.Branch
+import dev.ferynnd.baguslaundry.model.ProductLaundry
+import dev.ferynnd.baguslaundry.model.ProductRental
 import kotlinx.coroutines.launch
 
 class KurirProductFragment : Fragment() {
@@ -53,7 +55,16 @@ class KurirProductFragment : Fragment() {
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)?.toIntOrNull() ?: 0
 
-        kurirProductAdapter = KurirProductAdapter()
+        // Initialize adapter with delete callbacks
+        kurirProductAdapter = KurirProductAdapter(
+            onDeleteLaundry = { productLaundry ->
+                deleteLaundryItem(productLaundry)
+            },
+            onDeleteRental = { productRental ->
+                deleteRentalItem(productRental)
+            }
+        )
+
         binding.recyclerViewProductLaundry.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = kurirProductAdapter
@@ -139,6 +150,50 @@ class KurirProductFragment : Fragment() {
         fetchDataForTab(binding.LayoutTabSelected.selectedTabPosition)
 
         return binding.root
+    }
+
+    private fun deleteLaundryItem(productLaundry: ProductLaundry) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                // Show loading state
+                binding.progresBar.visibility = View.VISIBLE
+
+                // Call delete function from ViewModel
+                laundryProductViewModel.deleteProductLaundry(productLaundry)
+
+                // Refresh data after successful delete
+                laundryProductViewModel.getProductLaundry()
+
+                showToast("Item laundry '${productLaundry.name_laundry_item}' berhasil dihapus")
+
+            } catch (e: Exception) {
+                showToast("Gagal menghapus item: ${e.message}")
+            } finally {
+                binding.progresBar.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun deleteRentalItem(productRental: ProductRental) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                // Show loading state
+                binding.progresBar.visibility = View.VISIBLE
+
+                // Call delete function from ViewModel
+                rentalProductViewModel.deleteProductRental(productRental)
+
+                // Refresh data after successful delete
+                rentalProductViewModel.getProductRental()
+
+                showToast("Item rental '${productRental.name_rental_item}' berhasil dihapus")
+
+            } catch (e: Exception) {
+                showToast("Gagal menghapus item: ${e.message}")
+            } finally {
+                binding.progresBar.visibility = View.GONE
+            }
+        }
     }
 
     private fun fetchDataForTab(position: Int) {

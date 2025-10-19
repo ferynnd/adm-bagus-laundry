@@ -146,4 +146,8 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
             rentalProductRepository.updateProductRental(it,client)
         }
     }
+
+    suspend fun deleteProductRental(client: ProductRental) {
+        client.id_rental_item?.let { rentalProductRepository.deleteProductRental(it) }
+    }
 }

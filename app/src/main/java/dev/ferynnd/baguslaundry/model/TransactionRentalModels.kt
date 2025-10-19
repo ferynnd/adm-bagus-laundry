@@ -6,6 +6,7 @@ data class RentalTransactionRequest(
     val id_branch_transaction_rental: Int,
     val id_client_transaction_rental: Int,
     val recipient_name_transaction_rental: String,
+    val number_transaction_rental: Int?,
     val notes_transaction_rental: String? = null,
     val list_transaction_rentals: List<RentalTransactionItem>
 )

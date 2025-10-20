@@ -88,7 +88,7 @@ class PrintPreviewRentalFragment : Fragment() {
         }
 
         binding.kirimButton.setOnClickListener {
-            shareReceiptToWhatsApp()
+            shareReceipt()
         }
 
         binding.backButton.setOnClickListener {
@@ -164,7 +164,7 @@ class PrintPreviewRentalFragment : Fragment() {
             ?.find { it.id_branch == userData.data.id_branch_user }
         val storeAddress = filterBranch?.full_address_branch ?: "Alamat tidak tersedia"
 
-        val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logobgs)
+        val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logo_bagus)
         val scaledLogo = Bitmap.createScaledBitmap(
             logoBitmap,
             200,
@@ -189,6 +189,8 @@ class PrintPreviewRentalFragment : Fragment() {
                         .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; font-size:14px; }
                         .items-table th { border-bottom:2px solid black; padding:5px; text-align:left; }
                         .items-table td { padding:5px; border-bottom:1px solid #ddd; }
+                        .item-name { font-weight:bold; }
+                        .item-details { font-size:12px; color:#666; margin-top:2px; }
                         .item-price { text-align:right; }
                         .summary-row { display:flex; justify-content:space-between; margin-bottom:3px; }
                         .summary-total { border-top:2px solid black; font-weight:bold; font-size:16px; padding-top:5px; margin-top:5px; }
@@ -218,8 +220,14 @@ class PrintPreviewRentalFragment : Fragment() {
                       <thead><tr><th>Layanan</th><th>Berat</th><th>Jumlah</th></tr></thead><tbody>""")
             data.list_transaction_rentals.forEach { item ->
                 val name = getRentalServiceItemName(item.id_item_rental!!)
+                val condition = translateCondition(item.condition_list_transaction_rental)
+                val status = translateItemStatus(item.status_list_transaction_rental)
+
                 append("""<tr>
-                            <td>${name}</td>
+                            <td>
+                                <div class="item-name">${name}</div>
+                                <div class="item-details">${condition} - ${status}</div>
+                            </td>
                             <td>${formatWeight(item.weight_list_transaction_rental)} Kg</td>
                             <td>${item.count_list_transaction_rental} PCS</td>
                          </tr>""")
@@ -318,12 +326,24 @@ class PrintPreviewRentalFragment : Fragment() {
                 return
             }
 
-            val bitmap = captureWebView(binding.receiptWebView)
+            // Capture WebView untuk print dengan ukuran penuh
+            val bitmap = captureWebViewForPrint(binding.receiptWebView)
 
             val escposPrinter = EscPosPrinter(printerConnection, 203, 57f, 32)
+
+            // Resize bitmap agar sesuai lebar kertas printer thermal 58mm
+            // 58mm dengan 203 DPI = sekitar 384 pixel
+            val printerWidthPx = 384
+            val scaledBitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                printerWidthPx,
+                (bitmap.height.toFloat() / bitmap.width.toFloat() * printerWidthPx).toInt(),
+                true
+            )
+
             val hexImage = PrinterTextParserImg.bitmapToHexadecimalString(
                 escposPrinter,
-                bitmap,
+                scaledBitmap,
                 false
             )
             escposPrinter.printFormattedText("[C]<img>$hexImage</img>\n")
@@ -334,24 +354,42 @@ class PrintPreviewRentalFragment : Fragment() {
         }
     }
 
-    private fun shareReceiptToWhatsApp() {
+    /**
+     * Fungsi untuk capture WebView dengan ukuran penuh untuk keperluan print
+     */
+    private fun captureWebViewForPrint(webView: WebView): Bitmap {
+        // Simpan ukuran layout saat ini
+        val originalWidth = webView.width
+        val originalHeight = webView.height
+
+        // Ukur WebView dengan ukuran penuh kontennya
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(webView.width, View.MeasureSpec.EXACTLY)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+
+        webView.measure(widthSpec, heightSpec)
+
+        // Layout dengan ukuran penuh
+        webView.layout(0, 0, webView.measuredWidth, webView.measuredHeight)
+
+        // Buat bitmap dengan ukuran penuh dari konten WebView
+        val bitmap = Bitmap.createBitmap(
+            webView.measuredWidth,
+            webView.measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+
+        val canvas = Canvas(bitmap)
+        webView.draw(canvas)
+
+        // Kembalikan layout ke ukuran semula
+        webView.layout(0, 0, originalWidth, originalHeight)
+
+        return bitmap
+    }
+
+    private fun shareReceipt() {
         currentTransactionData?.let { data ->
             try {
-                // Ambil data klien
-                val client = getClientData(data.id_client_transaction_rental!!)
-
-                if (client == null) {
-                    Snackbar.make(binding.root, "Data klien tidak ditemukan", Snackbar.LENGTH_LONG).show()
-                    return
-                }
-
-                // Validasi nomor telepon
-                val phoneNumber = client.phone_client
-                if (phoneNumber.isNullOrBlank()) {
-                    Snackbar.make(binding.root, "Nomor WhatsApp klien tidak tersedia", Snackbar.LENGTH_LONG).show()
-                    return
-                }
-
                 // Tampilkan loading
                 binding.progressBar.visibility = View.VISIBLE
                 binding.kirimButton.isEnabled = false
@@ -376,39 +414,37 @@ class PrintPreviewRentalFragment : Fragment() {
                     imageFile
                 )
 
-                // Format nomor telepon (hapus karakter non-digit dan tambahkan kode negara jika perlu)
-                val formattedPhone = formatPhoneNumber(phoneNumber)
+                // Ambil data klien untuk informasi di pesan
+                val client = getClientData(data.id_client_transaction_rental!!)
 
-                // Buat pesan teks
+                // Buat pesan teks yang informatif
                 val message = buildString {
-                    append("Halo ${client.name_client},\n\n")
-                    append("Berikut adalah struk transaksi rental Anda:\n")
-                    append("No. Invoice: ${data.number_transaction_rental}\n")
-                    append("Tanggal: ${formatDate(data.time_transaction_rental.toString())}\n\n")
+                    append("Halo,\n\n")
+                    append("Berikut adalah struk transaksi rental:\n\n")
+                    append("📋 No. Invoice: ${data.number_transaction_rental}\n")
+                    append("👤 Klien: ${client?.name_client ?: "Tidak tersedia"}\n")
+                    append("📅 Tanggal: ${formatDate(data.time_transaction_rental.toString())}\n\n")
                     append("Terima kasih telah menggunakan layanan kami. 🙏")
                 }
 
-                // Buat intent untuk WhatsApp
-                val intent = Intent(Intent.ACTION_SEND).apply {
+                // Buat intent untuk share (tanpa spesifik ke WhatsApp)
+                val shareIntent = Intent().apply {
+                    action = Intent.ACTION_SEND
                     type = "image/*"
                     putExtra(Intent.EXTRA_STREAM, imageUri)
                     putExtra(Intent.EXTRA_TEXT, message)
-                    putExtra("jid", "$formattedPhone@s.whatsapp.net")
-                    setPackage("com.whatsapp")
+                    putExtra(Intent.EXTRA_SUBJECT, "Struk Transaksi Rental - ${data.number_transaction_rental}")
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
 
+                // Buat chooser agar user bisa pilih aplikasi
+                val chooserIntent = Intent.createChooser(shareIntent, "Bagikan struk melalui")
+
                 try {
-                    startActivity(intent)
-                    Snackbar.make(binding.root, "Membuka WhatsApp...", Snackbar.LENGTH_SHORT).show()
+                    startActivity(chooserIntent)
+                    Snackbar.make(binding.root, "Pilih aplikasi untuk membagikan struk", Snackbar.LENGTH_SHORT).show()
                 } catch (e: Exception) {
-                    // Jika WhatsApp tidak terinstall, coba WhatsApp Business
-                    intent.setPackage("com.whatsapp.w4b")
-                    try {
-                        startActivity(intent)
-                    } catch (e: Exception) {
-                        Snackbar.make(binding.root, "WhatsApp tidak terinstall", Snackbar.LENGTH_LONG).show()
-                    }
+                    Snackbar.make(binding.root, "Tidak ada aplikasi yang tersedia untuk membagikan", Snackbar.LENGTH_LONG).show()
                 }
 
             } catch (e: Exception) {
@@ -423,6 +459,9 @@ class PrintPreviewRentalFragment : Fragment() {
         }
     }
 
+    /**
+     * Fungsi untuk capture WebView untuk keperluan share/preview
+     */
     private fun captureWebView(webView: WebView): Bitmap {
         val specWidth = View.MeasureSpec.makeMeasureSpec(webView.width, View.MeasureSpec.EXACTLY)
         val specHeight = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -461,23 +500,6 @@ class PrintPreviewRentalFragment : Fragment() {
             Log.e("SaveFileError", "Error saving bitmap to file: ${e.message}")
             null
         }
-    }
-
-    private fun formatPhoneNumber(phone: String): String {
-        // Hapus semua karakter non-digit
-        var cleanPhone = phone.replace(Regex("[^0-9]"), "")
-
-        // Jika diawali dengan 0, ganti dengan 62
-        if (cleanPhone.startsWith("0")) {
-            cleanPhone = "62${cleanPhone.substring(1)}"
-        }
-
-        // Jika tidak diawali dengan 62, tambahkan 62
-        if (!cleanPhone.startsWith("62")) {
-            cleanPhone = "62$cleanPhone"
-        }
-
-        return cleanPhone
     }
 
     private fun bitmapToBase64(bitmap: Bitmap): String {

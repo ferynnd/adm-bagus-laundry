@@ -325,7 +325,7 @@ class PrintPreviewFragment : Fragment() {
             // Capture WebView untuk print dengan ukuran penuh
             val bitmap = captureWebViewForPrint(binding.receiptWebView)
 
-            val escposPrinter = EscPosPrinter(printerConnection, 203, 57f, 32)
+            val escposPrinter = EscPosPrinter(printerConnection, 203, 57f, 1)
 
             // Resize bitmap agar sesuai lebar kertas printer thermal 58mm
             // 58mm dengan 203 DPI = sekitar 384 pixel

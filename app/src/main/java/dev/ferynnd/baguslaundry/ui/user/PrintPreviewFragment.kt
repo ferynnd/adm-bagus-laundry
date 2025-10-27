@@ -204,7 +204,7 @@ class PrintPreviewFragment : Fragment() {
         val storeAddress = filterBranch?.full_address_branch ?: "Alamat tidak tersedia"
 
         // Ambil logo dan convert ke Base64
-        val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logobgs)
+        val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logo_bagus)
         val scaledLogo = Bitmap.createScaledBitmap(
             logoBitmap,
             200,
@@ -218,10 +218,10 @@ class PrintPreviewFragment : Fragment() {
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <meta name="viewport" content="width=384, initial-scale=1.0">
                     <style>
                         * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
-                        body { background-color:white; color:black; line-height:1.4; padding:10px; }
+                        body { width: 384px; background-color:white; color:black; line-height:1.4; padding:12px; margin: 0 auto; }
                         .invoice-container { width:100%; margin:0 auto; }
                         .header { text-align:center; margin-bottom:10px; border-bottom:2px solid black; padding-bottom:5px; }
                         .header img { max-width:100px; margin-bottom:5px; }
@@ -297,12 +297,17 @@ class PrintPreviewFragment : Fragment() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupReceiptPreview(htmlContent: String) {
-        binding.receiptWebView.settings.javaScriptEnabled = true
-        binding.receiptWebView.settings.loadWithOverviewMode = true
-        binding.receiptWebView.settings.useWideViewPort = true
+        binding.receiptWebView.settings.apply {
+            javaScriptEnabled = true
+            loadWithOverviewMode = true
+            useWideViewPort = true
+        }
+
+        // Set initial scale pada WebView langsung (bukan di WebSettings)
+        binding.receiptWebView.setInitialScale(100)
+
         binding.receiptWebView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
 
-        // tombol hanya aktif setelah WebView selesai render
         binding.receiptWebView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
@@ -325,24 +330,38 @@ class PrintPreviewFragment : Fragment() {
             // Capture WebView untuk print dengan ukuran penuh
             val bitmap = captureWebViewForPrint(binding.receiptWebView)
 
-            val escposPrinter = EscPosPrinter(printerConnection, 203, 57f, 1)
+            // Inisialisasi printer dengan parameter yang benar
+            // DPI: 203, Width: 58mm, Char per line: 32 (untuk 58mm printer)
+            val escposPrinter = EscPosPrinter(printerConnection, 203, 58f, 32)
 
-            // Resize bitmap agar sesuai lebar kertas printer thermal 58mm
-            // 58mm dengan 203 DPI = sekitar 384 pixel
-            val printerWidthPx = 384
+            // Hitung lebar printer dalam pixel (58mm dengan 203 DPI)
+            val printerWidthMm = 58f
+            val printerDpi = 203
+            val printerWidthPx = ((printerWidthMm / 25.4f) * printerDpi).toInt() // ~464 pixel
+
+            // Scale bitmap dengan mempertahankan aspect ratio
             val scaledBitmap = Bitmap.createScaledBitmap(
                 bitmap,
                 printerWidthPx,
                 (bitmap.height.toFloat() / bitmap.width.toFloat() * printerWidthPx).toInt(),
-                true
+                true // Use filtering for better quality
             )
 
+            // Convert bitmap ke hexadecimal string untuk printer
             val hexImage = PrinterTextParserImg.bitmapToHexadecimalString(
                 escposPrinter,
                 scaledBitmap,
                 false
             )
-            escposPrinter.printFormattedText("[C]<img>$hexImage</img>\n")
+
+            // Print dengan alignment center dan tambahkan line feed
+            escposPrinter.printFormattedText(
+                "[C]<img>$hexImage</img>\n" +
+                        "[L]\n" +
+                        "[L]\n"
+            )
+
+            Snackbar.make(binding.root, "Berhasil mencetak struk", Snackbar.LENGTH_SHORT).show()
 
         } catch (e: Exception) {
             Snackbar.make(binding.root, "Gagal mencetak: ${e.message}", Snackbar.LENGTH_LONG).show()
@@ -358,13 +377,17 @@ class PrintPreviewFragment : Fragment() {
         val originalWidth = webView.width
         val originalHeight = webView.height
 
-        // Ukur WebView dengan ukuran penuh kontennya
-        val widthSpec = View.MeasureSpec.makeMeasureSpec(webView.width, View.MeasureSpec.EXACTLY)
+        // Tentukan lebar yang diinginkan untuk print (dalam pixel)
+        // Untuk printer 58mm dengan 203 DPI: ~464 pixel
+        val printWidth = ((58f / 25.4f) * 203).toInt()
+
+        // Ukur WebView dengan lebar yang fixed
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(printWidth, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
 
         webView.measure(widthSpec, heightSpec)
 
-        // Layout dengan ukuran penuh
+        // Layout dengan ukuran yang sudah diukur
         webView.layout(0, 0, webView.measuredWidth, webView.measuredHeight)
 
         // Buat bitmap dengan ukuran penuh dari konten WebView
@@ -375,6 +398,8 @@ class PrintPreviewFragment : Fragment() {
         )
 
         val canvas = Canvas(bitmap)
+        // Set background putih untuk memastikan konten terlihat jelas
+        canvas.drawColor(android.graphics.Color.WHITE)
         webView.draw(canvas)
 
         // Kembalikan layout ke ukuran semula

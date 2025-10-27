@@ -167,86 +167,182 @@ class PrintPreviewRentalFragment : Fragment() {
         val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logo_bagus)
         val scaledLogo = Bitmap.createScaledBitmap(
             logoBitmap,
-            200,
-            (200.0 / logoBitmap.width * logoBitmap.height).toInt(),
+            120, // Logo lebih kecil untuk printer thermal
+            (120.0 / logoBitmap.width * logoBitmap.height).toInt(),
             true
         )
         val logoBase64 = bitmapToBase64(scaledLogo)
 
+        // PENTING: Fixed width 384px untuk printer thermal 58mm (203 DPI)
         return buildString {
             append("""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <style>
-                        * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
-                        body { background-color:white; color:black; line-height:1.4; padding:10px; }
-                        .invoice-container { width:100%; margin:0 auto; }
-                        .header { text-align:center; margin-bottom:10px; border-bottom:2px solid black; padding-bottom:5px; }
-                        .header img { max-width:100px; margin-bottom:5px; }
-                        .invoice-info { display:grid; grid-template-columns:1fr 1fr; gap:5px; font-size:14px; margin-bottom:10px; }
-                        .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; font-size:14px; }
-                        .items-table th { border-bottom:2px solid black; padding:5px; text-align:left; }
-                        .items-table td { padding:5px; border-bottom:1px solid #ddd; }
-                        .item-name { font-weight:bold; }
-                        .item-details { font-size:12px; color:#666; margin-top:2px; }
-                        .item-price { text-align:right; }
-                        .summary-row { display:flex; justify-content:space-between; margin-bottom:3px; }
-                        .summary-total { border-top:2px solid black; font-weight:bold; font-size:16px; padding-top:5px; margin-top:5px; }
-                        .payment-info { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:10px; }
-                        .payment-item { border:1px solid black; padding:5px; }
-                        .notes { border:1px solid black; padding:5px; margin-bottom:10px; font-size:12px; }
-                        .footer { text-align:center; border-top:2px solid black; font-weight:bold; padding-top:5px; }
-                    </style>
-                </head>
-                <body>
-            """.trimIndent())
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name="viewport" content="width=384, initial-scale=1.0">
+                <style>
+                    * { 
+                        margin: 0; 
+                        padding: 0; 
+                        box-sizing: border-box; 
+                        font-family: Arial, sans-serif; 
+                    }
+                    body { 
+                        background-color: white; 
+                        color: black; 
+                        width: 384px;  /* FIXED WIDTH untuk printer 58mm */
+                        padding: 12px;
+                        margin: 0 auto;
+                    }
+                    .invoice-container { 
+                        width: 100%;
+                        padding: 8px;
+                    }
+                    .header { 
+                        text-align: center; 
+                        margin-bottom: 8px; 
+                        border-bottom: 2px solid black; 
+                        padding-bottom: 6px; 
+                    }
+                    .header img { 
+                        max-width: 120px; 
+                        margin-bottom: 4px; 
+                    }
+                    .header p {
+                        font-size: 14px;
+                    }
+                    .invoice-info { 
+                        display:grid;
+                        grid-template-columns:1fr 1fr; 
+                        gap:5px; 
+                        margin-bottom:10px;
+                        line-height: 1.5;
+                        font-size: 12px;
+                    }
+                    .invoice-info > div {
+                        margin-bottom: 4px;
+                    }
+                    .invoice-info b {
+                        font-size: 14px;
+                    }
+                    .items-table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-bottom: 8px; 
+                        font-size: 12px;
+                    }
+                    .items-table th { 
+                        border-bottom: 2px solid black; 
+                        padding: 4px 2px; 
+                        text-align: left;
+                        font-size: 12px;
+                    }
+                    .items-table td { 
+                        padding: 4px 2px; 
+                        border-bottom: 1px dashed #999;
+                        vertical-align: top;
+                    }
+                    .item-name { 
+                        font-weight: bold; 
+                        font-size: 14px;
+                        margin-bottom: 2px;
+                    }
+                    .item-details { 
+                        font-size: 12px; 
+                        color: #444; 
+                        line-height: 1.3;
+                    }
+                    .notes { 
+                        border: 1px solid black; 
+                        padding: 6px; 
+                        margin-bottom: 8px; 
+                        font-size: 11px;
+                        line-height: 1.4;
+                    }
+                    .notes b {
+                        font-size: 12px;
+                    }
+                    .footer { 
+                        text-align: center; 
+                        border-top: 2px solid black; 
+                        font-weight: bold; 
+                        padding-top: 6px;
+                        font-size: 12px;
+                        margin-top: 8px;
+                    }
+                    /* Kolom untuk tabel */
+                    .col-service {
+                        width: 50%;
+                    }
+                    .col-weight {
+                        width: 25%;
+                        font-size: 12px;
+                    }
+                    .col-qty {
+                        width: 25%;
+                        font-size: 12px;
+                    }
+                </style>
+            </head>
+            <body>
+        """.trimIndent())
 
             append("""<div class="invoice-container">""")
             append("""<div class="header">
-                          <img src="data:image/png;base64,$logoBase64"/>
-                          <p>Telp/WA : 082329197772</p>
-                      </div>""")
+                      <img src="data:image/png;base64,$logoBase64"/>
+                      <p><b>Telp/WA: 082329197772</b></p>
+                  </div>""")
 
+            // INFO INVOICE dengan format yang lebih compact
             append("""<div class="invoice-info">
-                        <div><b>No. Invoice:</b><br>${data.number_transaction_rental}</div>
-                        <div><b>Klien:</b><br>${getClientName(data.id_client_transaction_rental!!)}</div>
-                        <div><b>Penerima:</b><br>${data.recipient_name_transaction_rental?.uppercase(Locale.getDefault())}</div>
-                        <div><b>Tanggal:</b><br>${formatDate(data.time_transaction_rental.toString())}</div>
-                      </div>""")
+                    <div><b>No. Invoice:</b><br>${data.number_transaction_rental}</div>
+                    <div><b>Klien:</b><br>${getClientName(data.id_client_transaction_rental!!)}</div>
+                    <div><b>Penerima:</b><br>${data.recipient_name_transaction_rental?.uppercase(Locale.getDefault()) ?: "-"}</div>
+                    <div><b>Tanggal:</b><br>${formatDate(data.time_transaction_rental.toString())}</div>
+                  </div>""")
 
+            // TABEL ITEMS dengan kolom yang proporsional
             append("""<table class="items-table">
-                      <thead><tr><th>Layanan</th><th>Berat</th><th>Jumlah</th></tr></thead><tbody>""")
+                  <thead>
+                      <tr>
+                          <th class="col-service">Layanan</th>
+                          <th class="col-weight">Berat</th>
+                          <th class="col-qty">Jumlah</th>
+                      </tr>
+                  </thead>
+                  <tbody>""")
+
             data.list_transaction_rentals.forEach { item ->
                 val name = getRentalServiceItemName(item.id_item_rental!!)
                 val condition = translateCondition(item.condition_list_transaction_rental)
                 val status = translateItemStatus(item.status_list_transaction_rental)
 
                 append("""<tr>
-                            <td>
-                                <div class="item-name">${name}</div>
-                                <div class="item-details">${condition} - ${status}</div>
-                            </td>
-                            <td>${formatWeight(item.weight_list_transaction_rental)} Kg</td>
-                            <td>${item.count_list_transaction_rental} PCS</td>
-                         </tr>""")
+                        <td class="col-service">
+                            <div class="item-name">${name}</div>
+                            <div class="item-details">${condition} - ${status}</div>
+                        </td>
+                        <td class="col-weight">${formatWeight(item.weight_list_transaction_rental)} Kg</td>
+                        <td class="col-qty">${item.count_list_transaction_rental} PCS</td>
+                     </tr>""")
             }
             append("</tbody></table>")
 
+            // CATATAN TRANSAKSI
             if (!data.notes_transaction_rental.isNullOrBlank()) {
-                append("""<div class="notes"><b>Catatan:</b> ${data.notes_transaction_rental}</div>""")
+                append("""<div class="notes"><b>Catatan:</b><br>${data.notes_transaction_rental}</div>""")
             }
 
+            // SYARAT DAN KETENTUAN
             append("""<div class="notes">
-                        <b>PERHATIAN:</b><br>
-                        1 Cucian rusak karena sifat bahan/kain bukan tanggung jawab kami<br>
-                        2 Cucian luntur yang tidak diberitahukan kepada kami diluar tanggung jawab kami<br>
-                        3 Apabila konsumen tidak menghitung cucian, jumlah yang kami hitung kami anggap benar<br>
-                        4 Pengajuan klaim tidak lebih dari 24 jam setelah diterima<br>
-                        5 Benda berharga/barang yang tertinggal dalam cucian apabila hilang/rusak bukan tanggung jawab kami<br>
-                        6 Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami
-                      </div>""")
+                    <b>PERHATIAN:</b><br>
+                    1. Cucian rusak karena sifat bahan/kain bukan tanggung jawab kami<br>
+                    2. Cucian luntur yang tidak diberitahukan kepada kami diluar tanggung jawab kami<br>
+                    3. Apabila konsumen tidak menghitung cucian, jumlah yang kami hitung kami anggap benar<br>
+                    4. Pengajuan klaim tidak lebih dari 24 jam setelah diterima<br>
+                    5. Benda berharga/barang yang tertinggal dalam cucian apabila hilang/rusak bukan tanggung jawab kami<br>
+                    6. Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami
+                  </div>""")
 
             append("""<div class="footer">— TERIMA KASIH —</div></div></body></html>""")
         }
@@ -302,9 +398,15 @@ class PrintPreviewRentalFragment : Fragment() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupReceiptPreview(htmlContent: String) {
-        binding.receiptWebView.settings.javaScriptEnabled = true
-        binding.receiptWebView.settings.loadWithOverviewMode = true
-        binding.receiptWebView.settings.useWideViewPort = true
+        binding.receiptWebView.settings.apply {
+            javaScriptEnabled = true
+            loadWithOverviewMode = true
+            useWideViewPort = true
+        }
+
+        // Set initial scale pada WebView langsung (bukan di WebSettings)
+        binding.receiptWebView.setInitialScale(100)
+
         binding.receiptWebView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
 
         binding.receiptWebView.webViewClient = object : WebViewClient() {
@@ -326,27 +428,22 @@ class PrintPreviewRentalFragment : Fragment() {
                 return
             }
 
-            // Capture WebView untuk print dengan ukuran penuh
+            // Capture WebView yang sudah fixed width 384px
             val bitmap = captureWebViewForPrint(binding.receiptWebView)
 
             val escposPrinter = EscPosPrinter(printerConnection, 203, 57f, 1)
 
-            // Resize bitmap agar sesuai lebar kertas printer thermal 58mm
-            // 58mm dengan 203 DPI = sekitar 384 pixel
-            val printerWidthPx = 384
-            val scaledBitmap = Bitmap.createScaledBitmap(
-                bitmap,
-                printerWidthPx,
-                (bitmap.height.toFloat() / bitmap.width.toFloat() * printerWidthPx).toInt(),
-                true
-            )
-
+            // TIDAK PERLU SCALING LAGI karena width sudah 384px
+            // Langsung convert ke hexadecimal untuk print dengan CENTER alignment
             val hexImage = PrinterTextParserImg.bitmapToHexadecimalString(
                 escposPrinter,
-                scaledBitmap,
+                bitmap,
                 false
             )
+            // Gunakan [C] untuk center alignment
             escposPrinter.printFormattedText("[C]<img>$hexImage</img>\n")
+
+            Snackbar.make(binding.root, "Struk berhasil dicetak", Snackbar.LENGTH_SHORT).show()
 
         } catch (e: Exception) {
             Snackbar.make(binding.root, "Gagal mencetak: ${e.message}", Snackbar.LENGTH_LONG).show()
@@ -358,31 +455,25 @@ class PrintPreviewRentalFragment : Fragment() {
      * Fungsi untuk capture WebView dengan ukuran penuh untuk keperluan print
      */
     private fun captureWebViewForPrint(webView: WebView): Bitmap {
-        // Simpan ukuran layout saat ini
-        val originalWidth = webView.width
-        val originalHeight = webView.height
-
-        // Ukur WebView dengan ukuran penuh kontennya
-        val widthSpec = View.MeasureSpec.makeMeasureSpec(webView.width, View.MeasureSpec.EXACTLY)
+        // Measure dengan fixed width 384px
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(384, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
 
         webView.measure(widthSpec, heightSpec)
-
-        // Layout dengan ukuran penuh
         webView.layout(0, 0, webView.measuredWidth, webView.measuredHeight)
 
-        // Buat bitmap dengan ukuran penuh dari konten WebView
+        // Buat bitmap dengan ukuran exact 384px width
         val bitmap = Bitmap.createBitmap(
-            webView.measuredWidth,
+            384, // Fixed width untuk printer 58mm
             webView.measuredHeight,
             Bitmap.Config.ARGB_8888
         )
 
         val canvas = Canvas(bitmap)
+        canvas.drawColor(android.graphics.Color.WHITE) // Background putih
         webView.draw(canvas)
 
-        // Kembalikan layout ke ukuran semula
-        webView.layout(0, 0, originalWidth, originalHeight)
+        Log.i("PrintBitmapSize", "Width: ${bitmap.width}px, Height: ${bitmap.height}px")
 
         return bitmap
     }

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="8dp">
+
+    <!-- Nama Item/Layanan -->
+    <TextView
+        android:id="@+id/tvServiceName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_semibold"
+        android:textColor="@color/blue900"
+        android:textSize="14sp"
+        tools:text="Handuk Kecil"
+        app:layout_constraintEnd_toStartOf="@+id/tvWeight"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        android:layout_marginEnd="8dp"/>
+
+    <!-- Kondisi dan Status -->
+    <TextView
+        android:id="@+id/tvConditionStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/gray900"
+        android:textSize="12sp"
+        tools:text="Bersih - Masuk"
+        app:layout_constraintEnd_toStartOf="@+id/tvWeight"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvServiceName"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="8dp"/>
+
+    <!-- Berat -->
+    <TextView
+        android:id="@+id/tvWeight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_semibold"
+        android:textColor="@color/blue900"
+        android:textSize="14sp"
+        android:minWidth="60dp"
+        android:gravity="end"
+        tools:text="34,9 Kg"
+        app:layout_constraintEnd_toStartOf="@+id/tvQuantity"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginEnd="12dp"/>
+
+    <!-- Jumlah -->
+    <TextView
+        android:id="@+id/tvQuantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_semibold"
+        android:textColor="@color/blue900"
+        android:textSize="14sp"
+        android:minWidth="60dp"
+        android:gravity="end"
+        tools:text="200 PCS"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <!-- Divider -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/blueBase"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvConditionStatus" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

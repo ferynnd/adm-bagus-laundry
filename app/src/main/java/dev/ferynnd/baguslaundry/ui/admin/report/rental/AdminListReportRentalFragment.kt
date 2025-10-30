@@ -33,6 +33,7 @@ import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
+import dev.ferynnd.baguslaundry.data.viewmodel.report.ListTransactionReportRentalViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminListReportRentalBinding
 import dev.ferynnd.baguslaundry.model.Branch
@@ -56,6 +57,7 @@ class AdminListReportRentalFragment : Fragment() {
     private lateinit var rentalProductViewModel : RentalProductViewModel
     private lateinit var userViewModel: UserViewModel
     private lateinit var clientViewModel: ClientViewModel
+    private lateinit var listTransactionReportRentalViewModel: ListTransactionReportRentalViewModel
 
     // Variables to store filter values
     private var selectedFilterBranch: Branch? = null
@@ -72,6 +74,8 @@ class AdminListReportRentalFragment : Fragment() {
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java].apply { init(requireContext()) }
         rentalProductViewModel = ViewModelProvider(this)[RentalProductViewModel::class.java].apply { init(requireContext()) }
+        listTransactionReportRentalViewModel = ViewModelProvider(this)[ListTransactionReportRentalViewModel::class.java]
+        listTransactionReportRentalViewModel.init(requireContext())
     }
 
     override fun onCreateView(
@@ -116,25 +120,32 @@ class AdminListReportRentalFragment : Fragment() {
                     binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
                     binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
                 }
+
                 rentalReportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
                     if (errorMessage.isNotBlank()) {
                         Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
                         rentalReportViewModel.resetErrorMessage()
                     }
                 }
+
+                rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { products ->
+                    products?.let {
+                        rentalReportAdapter.setRentalProducts(it)
+                    }
+                }
+
                 rentalReportViewModel.filteredRentalReports.observe(viewLifecycleOwner) { filteredReports ->
-                    // Only show reports if client is selected
                     if (selectedFilterClient != null) {
                         rentalReportAdapter.submitList(filteredReports)
                     } else {
                         rentalReportAdapter.submitList(emptyList())
                     }
                 }
+
                 branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
                     rentalReportAdapter.setBranches(branches)
                     rentalReportViewModel.setBranches(branches)
 
-                    // Show filter dialog on first load after branches are loaded
                     if (isFirstLoad && branches.isNotEmpty()) {
                         isFirstLoad = false
                         showFilterBottomSheet(requireContext()) { selectedBranch, selectedClient, selectedMonth ->
@@ -142,21 +153,27 @@ class AdminListReportRentalFragment : Fragment() {
                         }
                     }
                 }
+
                 userViewModel.users.observe(viewLifecycleOwner) { users ->
                     rentalReportAdapter.setSender(users)
                     rentalReportViewModel.setUsers(users)
                 }
+
                 clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
                     rentalReportAdapter.setClient(clients)
                     rentalReportViewModel.setClient(clients)
                 }
+
                 rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { products ->
-                    // Only set reports if client is selected
                     if (selectedFilterClient != null) {
                         setReportRental(products)
                     } else {
                         rentalReportAdapter.submitList(emptyList())
                     }
+                }
+
+                listTransactionReportRentalViewModel.listTransactionRentalReports.observe(viewLifecycleOwner) { listTransaksi ->
+                    rentalReportAdapter.setRentalList(listTransaksi)
                 }
             } catch (e: Exception) {
                 throw e

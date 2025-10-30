@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Spinner
@@ -20,16 +21,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputEditText
 import dev.ferynnd.baguslaundry.R
-import dev.ferynnd.baguslaundry.controller.FilterBranchAdapter
 import dev.ferynnd.baguslaundry.controller.LaundryReportAdapter
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
-import dev.ferynnd.baguslaundry.databinding.FragmentAdminDetailListReportLaundryBinding
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminListReportLaundryBinding
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ExportReportLaundry
@@ -43,30 +41,32 @@ import java.util.Locale
 
 class AdminListReportLaundryFragment : Fragment() {
 
-
     private lateinit var binding: FragmentAdminListReportLaundryBinding
     private lateinit var laundryReportViewModel: LaundryReportViewModel
     private lateinit var laundryReportAdapter: LaundryReportAdapter
-
     private lateinit var branchViewModel: BranchViewModel
     private lateinit var userViewModel: UserViewModel
 
+    // Variables to store filter values
+    private var selectedFilterBranch: Branch? = null
+    private var selectedFilterMonth: String? = null
+    private var isFirstLoad = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        laundryReportViewModel = ViewModelProvider(this).get(LaundryReportViewModel::class.java)
+        laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java]
         laundryReportViewModel.init(requireContext())
-        branchViewModel = ViewModelProvider(this).get(BranchViewModel::class.java)
+        branchViewModel = ViewModelProvider(this)[BranchViewModel::class.java]
         branchViewModel.init(requireContext())
-        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAdminListReportLaundryBinding.inflate(layoutInflater)
-        // Inflate the layout for this fragment
+
         laundryReportAdapter = LaundryReportAdapter(
             onDetail = { transactionReport ->
                 onDetail(transactionReport)
@@ -78,15 +78,10 @@ class AdminListReportLaundryFragment : Fragment() {
             adapter = laundryReportAdapter
         }
 
+        // Updated filter button to show new filter bottom sheet
         binding.btnRoutes.setOnClickListener {
-            branchViewModel.branches.value?.let { branches ->
-                showFilterBottomSheet(requireContext(), branches) { selectedBranch ->
-                    if (selectedBranch.id_branch == -1) {
-                        laundryReportViewModel.filterClient(null) // Semua Cabang
-                    } else {
-                        laundryReportViewModel.filterClient(selectedBranch.id_branch)
-                    }
-                }
+            showFilterBottomSheet(requireContext()) { selectedBranch, selectedMonth ->
+                filterReports(selectedBranch, selectedMonth)
             }
         }
 
@@ -115,27 +110,51 @@ class AdminListReportLaundryFragment : Fragment() {
                     }
                 }
 
-                laundryReportViewModel.filteredLaundryReports.observe(viewLifecycleOwner) { filteredProducts ->
-                    laundryReportAdapter.submitList(filteredProducts)
+                laundryReportViewModel.filteredLaundryReports.observe(viewLifecycleOwner) { filteredReports ->
+                    // Only show reports if branch is selected
+                    if (selectedFilterBranch != null) {
+                        laundryReportAdapter.submitList(filteredReports)
+                    } else {
+                        laundryReportAdapter.submitList(emptyList())
+                    }
                 }
+
                 branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
                     laundryReportAdapter.setBranches(branches)
                     laundryReportViewModel.setBranches(branches)
+
+                    // Show filter dialog on first load after branches are loaded
+                    if (isFirstLoad && branches.isNotEmpty()) {
+                        isFirstLoad = false
+                        showFilterBottomSheet(requireContext()) { selectedBranch, selectedMonth ->
+                            filterReports(selectedBranch, selectedMonth)
+                        }
+                    }
                 }
+
                 userViewModel.users.observe(viewLifecycleOwner) { users ->
                     laundryReportViewModel.setUsers(users)
                     laundryReportAdapter.setUsers(users)
                 }
+
                 laundryReportViewModel.laundryReports.observe(viewLifecycleOwner) { products ->
-                    setReportLaundry(products)
+                    // Only set reports if branch is selected
+                    if (selectedFilterBranch != null) {
+                        setReportLaundry(products)
+                    } else {
+                        laundryReportAdapter.submitList(emptyList())
+                    }
                 }
             } catch (e: Exception) {
                 throw e
             }
-
         }
 
         binding.iconExel.setOnClickListener {
+            if (selectedFilterBranch == null) {
+                Toast.makeText(requireContext(), "Silakan pilih cabang terlebih dahulu", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             showCetakDialog(requireContext())
         }
 
@@ -173,14 +192,10 @@ class AdminListReportLaundryFragment : Fragment() {
         val localeID = Locale("id", "ID")
         val parser = SimpleDateFormat("yyyy-MM-dd", localeID)
         val monthFormatter = SimpleDateFormat("MMMM yyyy", localeID)
-        val monthKeyFormatter =
-            SimpleDateFormat("yyyy-MM", localeID) // digunakan untuk sorting bulan
+        val monthKeyFormatter = SimpleDateFormat("yyyy-MM", localeID)
 
-        // Step 1: Urutkan berdasarkan tanggal descending (terbaru ke lama)
-        val sortedReports =
-            newReportLaundrys.sortedByDescending { it.first_date_transaction_laundry }
+        val sortedReports = newReportLaundrys.sortedByDescending { it.first_date_transaction_laundry }
 
-        // Step 2: Group berdasarkan bulan menggunakan key yyyy-MM
         val groupedByMonth = sortedReports.groupBy { report ->
             report.first_date_transaction_laundry?.let { dateStr ->
                 try {
@@ -192,10 +207,8 @@ class AdminListReportLaundryFragment : Fragment() {
             } ?: "0000-00"
         }
 
-        // Step 3: Urutkan key bulan dari terbaru ke lama
         val sortedMonthKeys = groupedByMonth.keys.sortedDescending()
 
-        // Step 4: Tambahkan Header + Data ke list
         for (monthKey in sortedMonthKeys) {
             val readableMonth = try {
                 val date = monthKeyFormatter.parse(monthKey)
@@ -209,6 +222,56 @@ class AdminListReportLaundryFragment : Fragment() {
         }
 
         laundryReportAdapter.submitList(tempGroupedData)
+    }
+
+    // Updated filter function that handles branch and month filtering
+    private fun filterReports(selectedBranch: Branch?, selectedMonth: String?) {
+        // Update stored filter values
+        selectedFilterBranch = selectedBranch
+        selectedFilterMonth = selectedMonth
+
+        if (selectedBranch == null) {
+            // If no branch selected, show empty list
+            laundryReportAdapter.submitList(emptyList())
+            return
+        }
+
+        val branchId = selectedBranch.id_branch
+        val monthYear = selectedMonth?.let { convertMonthYearToFormat(it) }
+
+        // Filter by branch
+        laundryReportViewModel.filterClient(branchId)
+
+        // If month is selected, apply additional filtering
+        if (monthYear != null && monthYear.isNotEmpty()) {
+            laundryReportViewModel.filteredLaundryReports.observe(viewLifecycleOwner) { reports ->
+                val filteredByMonth = reports.filter { report ->
+                    report.first_date_transaction_laundry?.startsWith(monthYear) == true
+                }
+                setReportLaundry(filteredByMonth)
+            }
+        }
+    }
+
+    private fun convertMonthYearToFormat(monthYearString: String): String {
+        return try {
+            val parts = monthYearString.split(" - ")
+            if (parts.size == 2) {
+                val monthName = parts[0]
+                val year = parts[1]
+                val months = listOf(
+                    "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
+                    "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
+                )
+                val monthNumber = months.indexOf(monthName) + 1
+                val formattedMonth = String.format("%02d", monthNumber)
+                "$year-$formattedMonth"
+            } else {
+                ""
+            }
+        } catch (e: Exception) {
+            ""
+        }
     }
 
     private fun showCetakDialog(context: Context) {
@@ -236,7 +299,6 @@ class AdminListReportLaundryFragment : Fragment() {
             "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
         )
 
-        // Generate list bulan-tahun
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH)
@@ -249,17 +311,14 @@ class AdminListReportLaundryFragment : Fragment() {
             }
         }
 
-        // Set adapter ke spinner kalender
         spinnerCalendar.adapter =
             ArrayAdapter(context, android.R.layout.simple_spinner_item, items).apply {
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             }
 
-        // Default pilih bulan sekarang
         val currentItem = "${months[currentMonth]} - $currentYear"
         spinnerCalendar.setSelection(items.indexOf(currentItem))
 
-        // Ambil data branch
         branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
             branchList.clear()
             branchList.addAll(branches)
@@ -271,7 +330,6 @@ class AdminListReportLaundryFragment : Fragment() {
                 }
         }
 
-        // Tombol tambah catatan
         addButton.setOnClickListener {
             val note = inputNote.text.toString().trim()
             if (note.isNotEmpty()) {
@@ -282,7 +340,6 @@ class AdminListReportLaundryFragment : Fragment() {
             }
         }
 
-        // Tombol Cetak
         cetakButton.setOnClickListener {
             val selectedDate = spinnerCalendar.selectedItem.toString()
             val selectedBranch = spinnerBranch.selectedItem.toString()
@@ -302,7 +359,7 @@ class AdminListReportLaundryFragment : Fragment() {
 
             val requestData = ExportReportLaundry(
                 month = formattedDate,
-                id_branch =  branchId,
+                id_branch = branchId,
                 notes = notesList
             )
 
@@ -342,34 +399,90 @@ class AdminListReportLaundryFragment : Fragment() {
         dialog.show()
     }
 
-
+    // Updated filter bottom sheet with branch (mandatory) and month-year (optional) filtering
     private fun showFilterBottomSheet(
         context: Context,
-        items: List<Branch>,
-        onBranchSelected: (Branch) -> Unit
+        onFilterSelected: (Branch?, String?) -> Unit
     ) {
         val bottomSheetDialog = BottomSheetDialog(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.dialog_filter_branch, null)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_filter_laundry_report, null)
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewFilterBranch)
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        // Month-Year Spinner
+        val spinnerMonthYear = view.findViewById<AutoCompleteTextView>(R.id.inputBulanTahun)
+        val spinnerBranch = view.findViewById<AutoCompleteTextView>(R.id.inputNamaCabang)
+        val applyButton = view.findViewById<Button>(R.id.buttonApply)
+        val exitButton = view.findViewById<ImageView>(R.id.btnExit)
 
-        val adapter = FilterBranchAdapter { selectedBranch ->
-            onBranchSelected(selectedBranch)
+        var tempSelectedBranch: Branch? = selectedFilterBranch
+        var tempSelectedMonth: String? = selectedFilterMonth
+
+        // Restore previous selections
+        selectedFilterBranch?.let { branch ->
+            spinnerBranch.setText(branch.name_branch, false)
+        }
+        selectedFilterMonth?.let { month ->
+            spinnerMonthYear.setText(month, false)
+        }
+
+        // Setup Month-Year options
+        val months = listOf(
+            "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
+            "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
+        )
+
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+
+        val monthYearItems = mutableListOf<String>()
+        for (year in 2025..currentYear) {
+            val maxMonth = if (year == currentYear) currentMonth else 11
+            for (monthIndex in 0..maxMonth) {
+                monthYearItems.add("${months[monthIndex]} - $year")
+            }
+        }
+
+        val monthYearAdapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, monthYearItems)
+        spinnerMonthYear.setAdapter(monthYearAdapter)
+        spinnerMonthYear.setOnItemClickListener { _, _, position, _ ->
+            tempSelectedMonth = monthYearItems[position]
+        }
+
+        // Setup Branch options
+        branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
+            val branchAdapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, branches)
+            spinnerBranch.setAdapter(branchAdapter)
+            spinnerBranch.setOnItemClickListener { _, _, position, _ ->
+                tempSelectedBranch = branches[position]
+            }
+        }
+
+        applyButton?.setOnClickListener {
+            if (tempSelectedBranch == null) {
+                Toast.makeText(context, "Cabang wajib dipilih!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            onFilterSelected(tempSelectedBranch, tempSelectedMonth)
             bottomSheetDialog.dismiss()
         }
 
-        recyclerView.adapter = adapter
-        adapter.submitList(items)
+        exitButton?.setOnClickListener {
+            // Only allow closing if branch is selected (except for first time)
+            if (selectedFilterBranch != null || !isFirstLoad) {
+                bottomSheetDialog.dismiss()
+            } else {
+                Toast.makeText(context, "Cabang wajib dipilih sebelum menutup filter!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Make dialog non-cancelable for first load
+        bottomSheetDialog.setCancelable(selectedFilterBranch != null)
 
         bottomSheetDialog.setContentView(view)
-        // Menentukan tinggi bottom sheet menjadi sepertiga dari tinggi layar perangkat
         val layoutParams = bottomSheetDialog.window?.attributes
         layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
         bottomSheetDialog.window?.attributes = layoutParams
 
-
         bottomSheetDialog.show()
     }
-
 }

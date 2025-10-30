@@ -10,7 +10,8 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="wrap_content"
+        android:minHeight="500dp"
         app:cardBackgroundColor="@color/blueGray"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -20,11 +21,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
-
     <androidx.cardview.widget.CardView
         android:id="@+id/cardForeground"
         android:layout_width="match_parent"
-        android:layout_height="445dp"
+        android:layout_height="wrap_content"
+        android:minHeight="445dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -71,7 +72,6 @@
         >
 
         <TableRow>
-
             <TextView
                 android:text="WAKTU"
                 android:padding="10dp"
@@ -83,11 +83,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                />
 
             <TextView
                 android:id="@+id/inputTime"
-                tools:text="NamaKu"
+                tools:text="27 Oktober 2025 18:31"
                 android:padding="10dp"
                 android:textSize="14sp"
                 android:layout_marginEnd="10dp"
@@ -97,8 +97,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                />
         </TableRow>
+
         <TableRow>
             <TextView
                 android:text="CABANG"
@@ -111,7 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                />
 
             <TextView
                 android:id="@+id/inputBranch"
@@ -128,7 +129,6 @@
                 />
         </TableRow>
 
-
         <TableRow>
             <TextView
                 android:text="KLIEN"
@@ -141,7 +141,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                />
 
             <TextView
                 android:id="@+id/inputCLient"
@@ -170,7 +170,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                />
 
             <TextView
                 android:id="@+id/inputRecipient"
@@ -199,7 +199,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                />
 
             <TextView
                 android:id="@+id/inputSender"
@@ -215,99 +215,6 @@
                 android:layout_weight="1"
                 />
         </TableRow>
-
-
-        <TableRow>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-                <TextView
-                    android:text="BERAT"
-                    android:padding="10dp"
-                    android:textSize="12sp"
-                    android:layout_marginStart="10dp"
-                    android:fontFamily="@font/inter"
-                    android:textColor="@color/blue900"
-                    android:textAlignment="textStart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
-                <TextView
-                    android:text="@string/berat"
-                    android:padding="10dp"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/inter"
-                    android:textColor="@color/primary"
-                    android:textAlignment="textStart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/inputWeight"
-                tools:text="10,15"
-                android:padding="10dp"
-                android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
-
-
-
-        <TableRow>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-                <TextView
-                    android:text="JUMLAH"
-                    android:padding="10dp"
-                    android:textSize="12sp"
-                    android:layout_marginStart="10dp"
-                    android:fontFamily="@font/inter"
-                    android:textColor="@color/blue900"
-                    android:textAlignment="textStart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
-                <TextView
-                    android:text="@string/pcs"
-                    android:padding="10dp"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/inter"
-                    android:textColor="@color/primary"
-                    android:textAlignment="textStart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/inputPcs"
-                tools:text="10"
-                android:padding="10dp"
-                android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
-
 
     </TableLayout>
 
@@ -345,15 +252,44 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardNotes"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
+        android:minHeight="60dp"
         app:cardBackgroundColor="@color/blueBase"
         app:cardCornerRadius="10dp"
         android:layout_marginHorizontal="15dp"
         app:cardElevation="0dp"
-        android:maxLines="3"
         app:layout_constraintTop_toBottomOf="@+id/titleNotes"
         app:layout_constraintStart_toStartOf="@id/cardForeground"
         app:layout_constraintEnd_toEndOf="@id/cardForeground"
         />
+
+    <!-- SECTION LAYANAN / LIST ITEMS -->
+    <TextView
+        android:id="@+id/titleLayanan"
+        android:text="LAYANAN"
+        android:padding="10dp"
+        android:textSize="12sp"
+        android:layout_marginStart="10dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/blue900"
+        android:textAlignment="textStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/cardNotes"
+        app:layout_constraintStart_toStartOf="@id/cardForeground"
+        />
+
+    <LinearLayout
+        android:id="@+id/layoutItemsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/titleLayanan"
+        app:layout_constraintStart_toStartOf="@id/cardForeground"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -73,7 +73,6 @@ class RentalProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
                 holder.binding.apply {
                     inputName.text = rentalItem.name_rental_item
                     inputBranch.text = branchName
-                    inputIsActive.text = rentalItem.is_active_rental_item.toString()
                     val localeID = Locale("in", "ID")
                     val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
                     val harga = rentalItem.price_rental_item
@@ -83,9 +82,6 @@ class RentalProductAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
             is HeaderLaundryViewHolder -> {
                 val header = item as Branch
                 holder.binding.inputNameBranch.text = header.name_branch
-                val context = holder.binding.root.context
-                val color = ContextCompat.getColor(context, R.color.blueGray) // pastikan 'orange' benar ada di colors.xml
-                holder.binding.root.setCardBackgroundColor(color)
             }
 
         }

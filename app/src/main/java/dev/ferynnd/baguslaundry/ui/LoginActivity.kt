@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.tapadoo.alerter.Alerter
 import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.data.helper.Constant
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
@@ -64,9 +65,24 @@ class LoginActivity : AppCompatActivity() {
 
                         result.onFailure { throwable ->
                                 if (throwable is ConnectException) {
-                                    Toast.makeText(this, "Gagal terhubung ke server. Periksa jaringan Anda.", Toast.LENGTH_SHORT).show()
+                                     runOnUiThread {
+                                            Alerter.create(this)
+                                                    .setTitle("Gagal!")
+                                                    .setText("Gagal terhubung ke server. Periksa jaringan Anda.")
+                                                    .setBackgroundColorRes(R.color.red600)
+                                                    .setDuration(4000)
+                                                    .show()
+                                        }
                                 } else {
                                     Toast.makeText(this, "Login Error Kesalahan Username atau Password", Toast.LENGTH_SHORT).show()
+                                     runOnUiThread {
+                                            Alerter.create(this)
+                                                    .setTitle("Gagal!")
+                                                    .setText("Login Error Kesalahan Username atau Password")
+                                                    .setBackgroundColorRes(R.color.red600)
+                                                    .setDuration(4000)
+                                                    .show()
+                                        }
                                 }
                         }
                 }
@@ -84,10 +100,29 @@ class LoginActivity : AppCompatActivity() {
                      userViewModel.login(username, password)
                  }
             } else {
-                Toast.makeText(this, "Please enter both username and password", Toast.LENGTH_SHORT).show()
+                  Alerter.create(this)
+                    .setTitle("Peringatan!")
+                    .setText("Masukan Username dan Password")
+                    .setBackgroundColorRes(R.color.primary)
+                    .setIcon(R.drawable.info)
+                    .setIconColorFilter(0)
+                    .setDuration(4000)
+                    .show()
             }
 
         }
+
+        userViewModel.alertEvent.observe(this) { event ->
+            event.getContentIfNotHandled()?.let { alertData ->
+                Alerter.create(this)
+                    .setTitle( alertData.title)
+                    .setText(alertData.message)
+                    .setBackgroundColorRes(alertData.backgroundColorRes)
+                    .setDuration(alertData.duration)
+                    .show()
+            }
+        }
+
 
     }
 
@@ -119,12 +154,32 @@ class LoginActivity : AppCompatActivity() {
     private fun navigateToRole(role: UserRole) {
         when (role) {
             UserRole.kurir -> {
-                startActivity(Intent(this, UserActivity::class.java))
-                finish()
+                 Alerter.create(this)
+                    .setTitle("Berhasil!")
+                    .setText("Berhasil Login")
+                    .setBackgroundColorRes(R.color.primary)
+                    .setIcon(R.drawable.success)
+                    .setIconColorFilter(0)
+                    .setDuration(2000)
+                    .setOnHideListener {
+                        startActivity(Intent(this, UserActivity::class.java))
+                        finish()
+                    }
+                    .show()
             }
             UserRole.admin -> {
-                startActivity(Intent(this, AdminActivity::class.java))
-                finish()
+                 Alerter.create(this)
+                    .setTitle("Berhasil!")
+                    .setText("Berhasil Login")
+                    .setBackgroundColorRes(R.color.primary)
+                    .setIcon(R.drawable.success)
+                    .setIconColorFilter(0)
+                    .setDuration(2000)
+                    .setOnHideListener {
+                        startActivity(Intent(this, AdminActivity::class.java))
+                        finish()
+                    }
+                    .show()
             }
             else -> {
                 Toast.makeText(this, "Login Tidak Sesuai Role", Toast.LENGTH_SHORT).show()

@@ -10,6 +10,7 @@ import android.widget.Toast
 import dev.ferynnd.baguslaundry.R
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
@@ -17,6 +18,8 @@ import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
 import dev.ferynnd.baguslaundry.databinding.KurirFragmentCreateItemRentalBinding
 import dev.ferynnd.baguslaundry.model.IsActiveRental
 import dev.ferynnd.baguslaundry.model.ProductRental
+import dev.ferynnd.baguslaundry.ui.openUserFragment
+import dev.ferynnd.baguslaundry.ui.showAlert
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -59,12 +62,12 @@ class CreateItemRentalFragment : Fragment() {
                 val client = rentalProductViewModel.getProductRentalById(productRentalId!!)
                 binding.inputNamaItem.setText(client.data.name_rental_item)
                 binding.inputHargaItem.setText(client.data.price_rental_item.toString())
-                binding.textHeaderBold.text = "UPDATE PRODUK RENTAL"
-                binding.btnSubmit.text = "UPDATE"
+                binding.textHeaderBold.text = "Perbarui Produk Sewa"
+                binding.btnSubmit.text = "Simpan Pembaruan"
             }
         } else {
-            binding.textHeaderBold.text = "UPDATE PRODUK RENTAL"
-            binding.btnSubmit.text = "CREATE"
+            binding.textHeaderBold.text = "Produk Sewa"
+            binding.btnSubmit.text = "Simpan Produk"
         }
 
         binding.btnSubmit.setOnClickListener {
@@ -76,10 +79,10 @@ class CreateItemRentalFragment : Fragment() {
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, KurirProductFragment())
-                .commit()
+             openUserFragment(KurirProductFragment(), "KurirProduct")
         }
+
+        hideBottomNavigationView()
 
         return binding.root
     }
@@ -95,11 +98,12 @@ class CreateItemRentalFragment : Fragment() {
             if (userResponse.success) {
                 userIdBranch = userResponse.data.id_branch_user!!.toInt()
             } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Gagal memuat data pengguna",
-                    Toast.LENGTH_LONG
-                ).show()
+                 showAlert(
+                    title = "Gagal!",
+                    message = "Gagal memuat data pengguna",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                )
             }
         } catch (e: Exception) {
             Toast.makeText(
@@ -115,7 +119,12 @@ class CreateItemRentalFragment : Fragment() {
         val price = binding.inputHargaItem.text.toString()
 
         if (name.isBlank() || price.isBlank()) {
-            Toast.makeText(requireContext(), "Lengkapi semua inputan", Toast.LENGTH_SHORT).show()
+             showAlert(
+                title = "Peringatan!",
+                message = "Lengkapi semua inputan",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             return
         }
 
@@ -126,17 +135,24 @@ class CreateItemRentalFragment : Fragment() {
             is_active_rental_item = IsActiveRental.active,
         )
 
-//        Log.d("CreateEditProductRentalFragment", "Data Product Rental: $dataProductRental")
-
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 rentalProductViewModel.createProductRental(dataProductRental)
-                Toast.makeText(requireContext(), "Berhasil membuat item Rental", Toast.LENGTH_SHORT).show()
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.host_fragment_user, KurirProductFragment())
-                    .commit()
+                showAlert(
+                    title = "Berhasil!",
+                    message = "Produk berhasil dibuat",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.success
+                )
+                openUserFragment(KurirProductFragment(), "KurirProduct")
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Gagal membuat cabang: ${e.message}", Toast.LENGTH_LONG).show()
+                showAlert(
+                    title = "Gagal!",
+                    message = "Gagal membuat produk ${e.message}",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                    duration = 4000
+                )
             }
         }
     }
@@ -148,7 +164,12 @@ class CreateItemRentalFragment : Fragment() {
         val productRentalId = arguments?.getInt("productRentalID") ?: 0
 
         if (name.isBlank() || price.isBlank()) {
-            Toast.makeText(requireContext(), "Lengkapi semua inputan", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Lengkapi semua inputan",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             return
         }
 
@@ -163,14 +184,32 @@ class CreateItemRentalFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 rentalProductViewModel.updateProductRental(dataProductRental)
-                Toast.makeText(requireContext(), "Cabang berhasil diupdate", Toast.LENGTH_SHORT).show()
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.host_fragment_user, KurirProductFragment())
-                    .commit()
+                showAlert(
+                    title = "Berhasil!",
+                    message = "Data produk berhasil diperbarui",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.success
+                )
+                openUserFragment(KurirProductFragment(), "KurirProduct")
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Gagal mengupdate cabang: ${e.message}", Toast.LENGTH_LONG).show()
-
+                showAlert(
+                    title = "Gagal!",
+                    message = "Gagal memperbarui data produk ${e.message}",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                    duration = 4000
+                )
             }
         }
     }
+
+    private fun hideBottomNavigationView() {
+        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
+    }
+
 }

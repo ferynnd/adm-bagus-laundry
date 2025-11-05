@@ -1,6 +1,8 @@
 package dev.ferynnd.baguslaundry.data.viewmodel
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +13,7 @@ import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportRental
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 class DashboardViewModel (application: Application) : AndroidViewModel(application) {
 
     private val laundryReportViewModel: LaundryReportViewModel =
@@ -50,8 +53,8 @@ class DashboardViewModel (application: Application) : AndroidViewModel(applicati
                 // Sort the combined list
                  combinedList.sortByDescending {
                     when (it) {
-                        is ReportLaundry -> it.first_date_transaction_laundry
-                        is ReportRental -> it.time_transaction_rental
+                        is ReportLaundry -> it.formatted_first_date
+                        is ReportRental -> it.formatted_time_transaction_rental
                         else -> ""
                     }
                 }

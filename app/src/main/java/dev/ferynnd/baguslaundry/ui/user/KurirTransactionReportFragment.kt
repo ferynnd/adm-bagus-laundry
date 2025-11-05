@@ -1,11 +1,13 @@
 package dev.ferynnd.baguslaundry.ui.user
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -27,7 +29,7 @@ import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import dev.ferynnd.baguslaundry.model.User
 import kotlinx.coroutines.launch
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 class KurirTransactionReportFragment : Fragment() {
 
     private lateinit var binding: KurirFragmentListTransaksiLaundryBinding
@@ -38,6 +40,7 @@ class KurirTransactionReportFragment : Fragment() {
     private lateinit var kurirTransactionListAdapter: KurirTransactionListAdapter
     private lateinit var sharePrefrences: SharePrefrenceHelper
     private lateinit var clientViewModel: ClientViewModel
+    private lateinit var branchViewModel: BranchViewModel
 
 
     private var userId: Int = 0
@@ -51,8 +54,10 @@ class KurirTransactionReportFragment : Fragment() {
         clientViewModel.init(requireContext())
         laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java].apply { init(requireContext()) }
         rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java].apply { init(requireContext()) }
+        branchViewModel = ViewModelProvider(this)[BranchViewModel::class.java].apply { init(requireContext()) }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -86,7 +91,6 @@ class KurirTransactionReportFragment : Fragment() {
             }
         })
 
-        // Observer produk laundry
         laundryReportViewModel.laundryReports.observe(viewLifecycleOwner) { laundry ->
             if (isLaundryTabSelected()) {
                 val filterStatus = laundry?.filter { it.status_transaction_laundry == StatusReportLaundry.completed }
@@ -141,6 +145,7 @@ class KurirTransactionReportFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun fetchDataForTab(position: Int) {
         // Reset pencarian setiap kali tab berpindah
         binding.searchView.setQuery("", false)

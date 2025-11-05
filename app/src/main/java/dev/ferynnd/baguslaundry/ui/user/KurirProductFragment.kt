@@ -23,6 +23,8 @@ import dev.ferynnd.baguslaundry.databinding.KurirFragmentListProductLaundryBindi
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.ProductRental
+import dev.ferynnd.baguslaundry.ui.showAlert
+import dev.ferynnd.baguslaundry.ui.showConfirmationAlert
 import kotlinx.coroutines.launch
 
 class KurirProductFragment : Fragment() {
@@ -55,7 +57,6 @@ class KurirProductFragment : Fragment() {
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)?.toIntOrNull() ?: 0
 
-        // Initialize adapter with delete callbacks
         kurirProductAdapter = KurirProductAdapter(
             onDeleteLaundry = { productLaundry ->
                 deleteLaundryItem(productLaundry)
@@ -70,28 +71,26 @@ class KurirProductFragment : Fragment() {
             adapter = kurirProductAdapter
         }
 
-        // Tab event
         binding.LayoutTabSelected.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) = fetchDataForTab(tab.position)
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
 
-        // Ganti listener pencarian ke SearchView
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                kurirProductAdapter.filter(query.orEmpty())
+                laundryProductViewModel.setSearchQuery(query.orEmpty())
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                kurirProductAdapter.filter(newText.orEmpty())
+                laundryProductViewModel.setSearchQuery(newText.orEmpty())
                 return true
             }
         })
 
-        // Observer produk laundry
-        laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { products ->
+
+        laundryProductViewModel.filteredProductLaundry.observe(viewLifecycleOwner) { products ->
             if (isLaundryTabSelected()) {
                 updateProductList(products)
                 updateCounter(products?.size ?: 0, "Laundry")
@@ -104,8 +103,7 @@ class KurirProductFragment : Fragment() {
             }
         }
 
-        // Observer produk rental
-        rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { products ->
+        rentalProductViewModel.filteredRentalProducts.observe(viewLifecycleOwner) { products ->
             if (isRentalTabSelected()) {
                 updateProductList(products)
                 updateCounter(products?.size ?: 0, "Persewaan")
@@ -118,7 +116,6 @@ class KurirProductFragment : Fragment() {
             }
         }
 
-        // Loading observer
         laundryProductViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
             if (isLaundryTabSelected()) updateLoadingState(isLoading)
         }
@@ -126,78 +123,96 @@ class KurirProductFragment : Fragment() {
             if (isRentalTabSelected()) updateLoadingState(isLoading)
         }
 
-        // Error observer
         laundryProductViewModel.error.observe(viewLifecycleOwner) { error ->
             if (error.isNotBlank() && isLaundryTabSelected()) {
-                showToast(error)
+                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
                 laundryProductViewModel.resetErrorMessage()
             }
         }
         rentalProductViewModel.error.observe(viewLifecycleOwner) { error ->
             if (error.isNotBlank() && isRentalTabSelected()) {
-                showToast(error)
+                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
                 rentalProductViewModel.resetErrorMessage()
             }
         }
 
-        // Observer cabang (sekali saja)
         branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
             branchList = branches
             kurirProductAdapter.setBranches(branches)
         }
 
-        // Load data tab pertama saat fragment tampil
         fetchDataForTab(binding.LayoutTabSelected.selectedTabPosition)
 
         return binding.root
     }
 
     private fun deleteLaundryItem(productLaundry: ProductLaundry) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                // Show loading state
-                binding.progresBar.visibility = View.VISIBLE
-
-                // Call delete function from ViewModel
-                laundryProductViewModel.deleteProductLaundry(productLaundry)
-
-                // Refresh data after successful delete
-                laundryProductViewModel.getProductLaundry()
-
-                showToast("Item laundry '${productLaundry.name_laundry_item}' berhasil dihapus")
-
-            } catch (e: Exception) {
-                showToast("Gagal menghapus item: ${e.message}")
-            } finally {
-                binding.progresBar.visibility = View.GONE
+            showConfirmationAlert(
+                title = "Konfirmasi Hapus!",
+                message = "Apakah kamu yakin ingin menghapus layanan ${productLaundry.name_laundry_item}?",
+                confirmText = "YA",
+                cancelText = "BATAL",
+                backgroundColorRes = R.color.primary
+            ) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        binding.progresBar.visibility = View.VISIBLE
+                        laundryProductViewModel.deleteProductLaundry(productLaundry)
+                        laundryProductViewModel.getProductLaundry(forceRefresh = true)
+                        showAlert(
+                            title = "Berhasil!",
+                            message = "Layanan laundry '${productLaundry.name_laundry_item}' berhasil dihapus",
+                            backgroundColorRes = R.color.primary,
+                            iconRes = R.drawable.success
+                        )
+                    } catch (e: Exception) {
+                        showAlert(
+                            title = "Gagal!",
+                            message = "Gagal menghapus layanan: ${e.message}",
+                            backgroundColorRes = R.color.red600,
+                            iconRes = R.drawable.failed
+                        )
+                    } finally {
+                        binding.progresBar.visibility = View.GONE
+                    }
+                }
             }
-        }
     }
 
     private fun deleteRentalItem(productRental: ProductRental) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                // Show loading state
-                binding.progresBar.visibility = View.VISIBLE
-
-                // Call delete function from ViewModel
-                rentalProductViewModel.deleteProductRental(productRental)
-
-                // Refresh data after successful delete
-                rentalProductViewModel.getProductRental()
-
-                showToast("Item rental '${productRental.name_rental_item}' berhasil dihapus")
-
-            } catch (e: Exception) {
-                showToast("Gagal menghapus item: ${e.message}")
-            } finally {
-                binding.progresBar.visibility = View.GONE
+          showConfirmationAlert(
+                title = "Konfirmasi Hapus!",
+                message = "Apakah kamu yakin ingin menghapus produk ${productRental.name_rental_item}?",
+                confirmText = "YA",
+                cancelText = "BATAL",
+                backgroundColorRes = R.color.primary
+            ) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                     try {
+                        binding.progresBar.visibility = View.VISIBLE
+                        rentalProductViewModel.deleteProductRental(productRental)
+                        rentalProductViewModel.getProductRental(forceRefresh = true)
+                        showAlert(
+                            title = "Berhasil!",
+                            message = "Produk sewa '${productRental.name_rental_item}' berhasil dihapus",
+                            backgroundColorRes = R.color.primary,
+                            iconRes = R.drawable.success
+                        )
+                    } catch (e: Exception) {
+                        showAlert(
+                            title = "Gagal!",
+                            message = "Gagal menghapus produk sewa: ${e.message}",
+                            backgroundColorRes = R.color.red600,
+                            iconRes = R.drawable.failed
+                        )
+                    } finally {
+                        binding.progresBar.visibility = View.GONE
+                    }
+                }
             }
-        }
     }
 
     private fun fetchDataForTab(position: Int) {
-        // Reset pencarian setiap kali tab berpindah
         binding.searchView.setQuery("", false)
         binding.searchView.clearFocus()
         when (position) {
@@ -232,9 +247,6 @@ class KurirProductFragment : Fragment() {
         binding.countKeterangan.text = label
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-    }
 
     private fun isLaundryTabSelected() = binding.LayoutTabSelected.selectedTabPosition == 0
     private fun isRentalTabSelected() = binding.LayoutTabSelected.selectedTabPosition == 1

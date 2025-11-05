@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -17,6 +18,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -37,6 +39,7 @@ import dev.ferynnd.baguslaundry.databinding.FragmentPrintPreviewBinding
 import dev.ferynnd.baguslaundry.model.LaundryPrintTransaction
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
+import dev.ferynnd.baguslaundry.ui.toBranchTime
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -47,6 +50,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 class PrintPreviewFragment : Fragment() {
 
     private lateinit var binding: FragmentPrintPreviewBinding
@@ -100,6 +104,8 @@ class PrintPreviewFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+
+        hideBottomNavigationView()
         return binding.root
     }
 
@@ -197,11 +203,15 @@ class PrintPreviewFragment : Fragment() {
     }
 
     private suspend fun generateReceiptHtml(data: LaundryPrintTransaction): String {
-        val idUser = sharePreferences.getString("PREF_USER_ID")
-        val userData = userViewModel.getUserById(idUser?.toInt() ?: 0)
-        val filterBranch = branchViewModel.branches.value
-            ?.find { it.id_branch == userData.data.id_branch_user }
-        val storeAddress = filterBranch?.full_address_branch ?: "Alamat tidak tersedia"
+        // Ambil daftar cabang dari ViewModel
+        val branchList = branchViewModel.branches.value.orEmpty()
+
+        // Filter cabang sesuai ID cabang dari transaksi
+        val selectedBranch = branchList.find { it.id_branch == data.id_branch_transaction_laundry }
+
+        // Ambil data alamat dan timezone
+        val storeAddress = selectedBranch?.full_address_branch ?: "Alamat tidak tersedia"
+        val branchTimezone = selectedBranch?.timezone_branch ?: "Asia/Jakarta" // fallback
 
         // Ambil logo dan convert ke Base64
         val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logo_bagus)
@@ -250,7 +260,7 @@ class PrintPreviewFragment : Fragment() {
             append("""<div class="invoice-info">
                         <div><b>No. Invoice:</b><br>${data.number_transaction_laundry}</div>
                         <div><b>Nama:</b><br>${data.name_client_transaction_laundry.uppercase()}</div>
-                        <div><b>Tanggal:</b><br>${formatDate(data.first_date_transaction_laundry)}</div>
+                        <div><b>Tanggal:</b><br>${data.first_date_transaction_laundry.toBranchTime(branchTimezone)}</div>
                         <div><b>Status:</b><br>${data.status_transaction_laundry}</div>
                       </div>""")
 
@@ -411,6 +421,11 @@ class PrintPreviewFragment : Fragment() {
     private fun shareReceipt() {
         currentTransactionData?.let { data ->
             try {
+                // Ambil daftar cabang dari ViewModel
+                val branchList = branchViewModel.branches.value.orEmpty()
+                // Filter cabang sesuai ID cabang dari transaksi
+                val selectedBranch = branchList.find { it.id_branch == data.id_branch_transaction_laundry }
+                val branchTimezone = selectedBranch?.timezone_branch ?: "Asia/Jakarta" // fallback
                 // Tampilkan loading
                 binding.progressBar.visibility = View.VISIBLE
                 binding.kirimButton.isEnabled = false
@@ -441,7 +456,7 @@ class PrintPreviewFragment : Fragment() {
                     append("Berikut adalah struk transaksi laundry:\n\n")
                     append("📋 No. Invoice: ${data.number_transaction_laundry}\n")
                     append("👤 Nama: ${data.name_client_transaction_laundry}\n")
-                    append("📅 Tanggal: ${formatDate(data.first_date_transaction_laundry)}\n")
+                    append("📅 Tanggal: ${formatDate(data.first_date_transaction_laundry.toBranchTime(branchTimezone))}\n")
                     append("💰 Total: ${formatCurrency(data.total_transaction_laundry)}\n")
                     append("📊 Status: ${data.status_transaction_laundry}\n\n")
                     append("Terima kasih telah menggunakan layanan kami. 🙏")
@@ -520,6 +535,16 @@ class PrintPreviewFragment : Fragment() {
             Log.e("SaveFileError", "Error saving bitmap to file: ${e.message}")
             null
         }
+    }
+
+
+    private fun hideBottomNavigationView() {
+        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
     }
 
     override fun onDestroyView() {

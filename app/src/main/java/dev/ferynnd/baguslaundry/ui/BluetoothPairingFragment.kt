@@ -28,6 +28,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothConnection
 import com.google.android.material.snackbar.Snackbar
+import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.controller.BluetoothDeviceAdapter
 import dev.ferynnd.baguslaundry.databinding.FragmentBluetoothPairingBinding
 import dev.ferynnd.baguslaundry.model.BluetoothDeviceItem
@@ -69,18 +70,15 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
     // Launcher untuk meminta beberapa izin sekaligus (Bluetooth, Lokasi)
     private val requestBluetoothPermissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            // Cek jika semua izin yang diminta telah diberikan
             if (permissions.values.all { it }) {
-                Log.d("BluetoothFragment", "Semua izin yang diperlukan telah diberikan.")
-                // Lanjutkan ke proses pemindaian setelah izin diberikan
                 checkPrerequisitesAndScan()
             } else {
-                Log.w("BluetoothFragment", "Beberapa izin ditolak.")
-                Snackbar.make(
-                    binding.root,
-                    "Izin Bluetooth dan Lokasi sangat penting. Harap izinkan di pengaturan aplikasi.",
-                    Snackbar.LENGTH_LONG
-                ).show()
+                showAlert(
+                    title = "Peringatan!",
+                    message = "Izin Bluetooth dan Lokasi sangat penting. Harap izinkan di pengaturan aplikasi.",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.info
+                )
                 showScanningStatus(false, "Izin ditolak.")
             }
         }
@@ -89,16 +87,15 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
     private val enableBluetoothLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == -1) { // -1 adalah Activity.RESULT_OK
-            Log.d("BluetoothFragment", "Bluetooth berhasil diaktifkan oleh pengguna.")
+        if (result.resultCode == -1) {
             checkPrerequisitesAndScan()
         } else {
-            Log.w("BluetoothFragment", "Pengguna menolak untuk mengaktifkan Bluetooth.")
-            Snackbar.make(
-                binding.root,
-                "Bluetooth harus diaktifkan untuk memindai perangkat.",
-                Snackbar.LENGTH_LONG
-            ).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Bluetooth harus diaktifkan untuk memindai perangkat.",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             showScanningStatus(false, "Bluetooth nonaktif.")
         }
     }
@@ -121,7 +118,6 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
                     device?.let { handleFoundDevice(it) }
                 }
 
-                // Saat status pemasangan (bonding) berubah
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
                     val device: BluetoothDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
@@ -134,14 +130,12 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
                     val prevBondState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR)
 
                     device?.let {
-                        Log.d("BluetoothFragment", "Status pemasangan berubah untuk ${it.name}: ${getBondStateString(prevBondState)} -> ${getBondStateString(bondState)}")
                         handleBondStateChange(it, bondState)
                     }
                 }
 
                 // Saat pemindaian selesai
                 BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
-                    Log.d("BluetoothFragment", "Pemindaian selesai.")
                     showScanningStatus(false, "Pemindaian selesai. Pilih perangkat untuk terhubung.")
                 }
             }
@@ -162,14 +156,18 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
         // Inisialisasi BluetoothAdapter
         val bluetoothManager = ContextCompat.getSystemService(requireContext(), BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager?.adapter ?: run {
-            Snackbar.make(binding.root, "Bluetooth tidak didukung pada perangkat ini.", Snackbar.LENGTH_LONG).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Perangkat ini tidak mendukung Bluetooth.",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             binding.scanButton.isEnabled = false
             return
         }
 
         binding.toolbar.title = "Pemasangan Printer Bluetooth"
 
-        // Setup RecyclerView
         deviceAdapter = BluetoothDeviceAdapter(this)
         binding.bluetoothRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -180,7 +178,6 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
             checkPrerequisitesAndScan()
         }
 
-        // Memuat perangkat yang sudah dipasangkan saat pertama kali fragment dibuat
         if (hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
             refreshPairedDevices()
         }
@@ -224,14 +221,12 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
 
         // 2. Jika ada izin yang kurang, minta ke pengguna
         if (missingPermissions.isNotEmpty()) {
-            Log.d("BluetoothFragment", "Meminta izin: $missingPermissions")
             requestBluetoothPermissions.launch(missingPermissions.toTypedArray())
             return
         }
 
         // 3. Jika Bluetooth tidak aktif, minta pengguna untuk mengaktifkannya
         if (!bluetoothAdapter.isEnabled) {
-            Log.d("BluetoothFragment", "Bluetooth tidak aktif, meminta untuk diaktifkan.")
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             enableBluetoothLauncher.launch(enableBtIntent)
             return
@@ -239,15 +234,17 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
 
         // 4. (Untuk Android < 12) Jika layanan lokasi tidak aktif, minta pengguna mengaktifkannya
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S && !isLocationServiceEnabled()) {
-            Log.d("BluetoothFragment", "Layanan lokasi tidak aktif, meminta untuk diaktifkan.")
-            Snackbar.make(binding.root, "Layanan lokasi harus aktif untuk memindai perangkat.", Snackbar.LENGTH_LONG).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Layanan lokasi harus aktif untuk memindai perangkat.",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
             showScanningStatus(false, "Layanan lokasi nonaktif.")
             return
         }
 
-        // 5. Jika semua prasyarat terpenuhi, mulai pemindaian
-        Log.d("BluetoothFragment", "Semua prasyarat terpenuhi. Memulai pemindaian.")
         startBluetoothScan()
     }
 
@@ -270,11 +267,13 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
 
         // Mulai penemuan
         if (!bluetoothAdapter.startDiscovery()) {
-            Log.e("BluetoothFragment", "Gagal memulai discovery. Periksa status adapter.")
             showScanningStatus(false, "Gagal memulai pemindaian.")
-            Snackbar.make(binding.root, "Tidak dapat memulai pemindaian. Coba matikan/hidupkan Bluetooth.", Snackbar.LENGTH_LONG).show()
-        } else {
-            Log.d("BluetoothFragment", "Pemindaian Bluetooth berhasil dimulai.")
+            showAlert(
+                title = "Peringatan!",
+                message = "Tidak dapat memulai pemindaian. Coba matikan/hidupkan Bluetooth.",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
         }
     }
 
@@ -297,7 +296,6 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
                     pairedDevices.add(deviceItem)
                 }
             }
-            Log.d("BluetoothFragment", "Memuat ${pairedDevices.size} printer yang sudah dipasangkan.")
         } catch (e: SecurityException) {
             Log.e("BluetoothFragment", "Gagal mendapatkan paired devices karena masalah izin.", e)
         }
@@ -335,16 +333,23 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
     private fun handleBondStateChange(device: BluetoothDevice, bondState: Int) {
         when (bondState) {
             BluetoothDevice.BOND_BONDED -> {
-                Snackbar.make(binding.root, "Berhasil memasangkan dengan ${device.name}", Snackbar.LENGTH_SHORT).show()
-                Log.d("BluetoothFragment", "Pemasangan berhasil dengan ${device.name}.")
-                // Setelah berhasil dipasangkan, perbarui daftar dan coba hubungkan
+                showAlert(
+                    title = "Berhasil!",
+                    message = "Perangkat berhasil dipasangkan dengan ${device.name}.",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.success,
+                    duration = 4000
+                )
                 refreshPairedDevices()
                 connectToDevice(device)
             }
             BluetoothDevice.BOND_NONE -> {
-                Snackbar.make(binding.root, "Gagal memasangkan atau pemasangan dibatalkan.", Snackbar.LENGTH_SHORT).show()
-                Log.w("BluetoothFragment", "Pemasangan gagal atau dilepas dari ${device.name}.")
-                // Perbarui UI untuk merefleksikan status yang tidak terpasang lagi
+                showAlert(
+                    title = "Gagal!",
+                    message = "Perangkat gagal dipasangkan dengan ${device.name}.",
+                    backgroundColorRes = R.color.red,
+                    iconRes = R.drawable.failed
+                )
                 updateDeviceStatus(device.address, isPaired = false, isConnecting = false, isConnected = false)
             }
             BluetoothDevice.BOND_BONDING -> {
@@ -385,18 +390,11 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
         val majorDeviceClass = device.bluetoothClass.majorDeviceClass
         val deviceClass = device.bluetoothClass.deviceClass
 
-//        val DEVICE_CLASS_PRINTER_PORTABLE = 1664
-
         val PRINTER_DEVICE_CLASSES = listOf(1664, 1668) // Tambahkan jika tahu kode lainnya
 
         val isPrinterClass = majorDeviceClass == BluetoothClass.Device.Major.IMAGING &&
                 deviceClass in PRINTER_DEVICE_CLASSES
 
-
-//        // Kelas perangkat yang sering digunakan oleh printer
-//        val isPrinterClass = majorDeviceClass == BluetoothClass.Device.Major.IMAGING &&
-//                (deviceClass == BluetoothClass.Device.Major.IMAGING || deviceClass == 1664) // 1664 adalah kode untuk printer portabel
-//
         // Heuristik berdasarkan nama perangkat
         val deviceName = device.name ?: ""
         val isNameLikelyPrinter = deviceName.contains("printer", ignoreCase = true) ||
@@ -422,16 +420,13 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
 
             if (remoteDevice.bondState == BluetoothDevice.BOND_BONDED) {
                 // Jika sudah dipasangkan, langsung coba hubungkan
-                Log.d("BluetoothFragment", "Perangkat sudah dipasangkan. Mencoba menghubungkan ke ${deviceItem.name}.")
                 connectToDevice(remoteDevice)
             } else {
                 // Jika belum dipasangkan, mulai proses pemasangan
-                Log.d("BluetoothFragment", "Perangkat belum dipasangkan. Memulai proses pemasangan dengan ${deviceItem.name}.")
                 updateDeviceStatus(deviceItem.address, isPaired = false, isConnecting = true, isConnected = false)
                 remoteDevice.createBond()
             }
         } catch (e: SecurityException) {
-            Log.e("BluetoothFragment", "SecurityException saat onDeviceClick: ${e.message}", e)
             Snackbar.make(binding.root, "Izin Bluetooth CONNECT ditolak.", Snackbar.LENGTH_LONG).show()
         } catch (e: IllegalArgumentException) {
             Log.e("BluetoothFragment", "Alamat Bluetooth tidak valid: ${deviceItem.address}", e)
@@ -460,25 +455,29 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
 
                 // Jika koneksi berhasil
                 withContext(Dispatchers.Main) {
-                    Log.d("BluetoothFragment", "Berhasil terhubung ke ${device.name}")
-                    Snackbar.make(binding.root, "Terhubung ke ${device.name}", Snackbar.LENGTH_SHORT).show()
+                    showAlert(
+                        title = "Berhasil!",
+                        message = "Terhubung ke ${device.name}.",
+                        backgroundColorRes = R.color.primary,
+                        iconRes = R.drawable.success
+                    )
                     updateDeviceStatus(device.address, isPaired = true, isConnecting = false, isConnected = true)
 
-                    // Simpan koneksi printer untuk digunakan di fragment lain
-                    // (Contoh menggunakan Singleton atau ViewModel)
-                    // PrinterConnectionManager.setConnection(BluetoothConnection(device))
                 }
 
             } catch (e: IOException) {
                 // Gagal terhubung
                 withContext(Dispatchers.Main) {
-                    Log.e("BluetoothFragment", "IOException saat menghubungkan: ${e.message}", e)
-                    Snackbar.make(binding.root, "Gagal terhubung. Pastikan printer aktif dan dekat.", Snackbar.LENGTH_LONG).show()
+                    showAlert(
+                        title = "Gagal!",
+                        message = "Terhubung ke ${device.name} gagal, Pastikan printer aktif dan dekat",
+                        backgroundColorRes = R.color.red600,
+                        iconRes = R.drawable.failed
+                    )
                     updateDeviceStatus(device.address, isPaired = true, isConnecting = false, isConnected = false)
                 }
             } catch (e: SecurityException) {
                 withContext(Dispatchers.Main) {
-                    Log.e("BluetoothFragment", "SecurityException saat menghubungkan: ${e.message}", e)
                     updateDeviceStatus(device.address, isPaired = true, isConnecting = false, isConnected = false)
                 }
             } finally {

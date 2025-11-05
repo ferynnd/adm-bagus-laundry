@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -42,12 +44,14 @@ import dev.ferynnd.baguslaundry.model.ExportReportRental
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.ui.admin.AdminDashboardFragment
+import dev.ferynnd.baguslaundry.ui.openAdminFragment
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 class AdminListReportRentalFragment : Fragment() {
 
     private lateinit var binding: FragmentAdminListReportRentalBinding
@@ -95,7 +99,6 @@ class AdminListReportRentalFragment : Fragment() {
             adapter = rentalReportAdapter
         }
 
-        // Updated filter button to show new filter bottom sheet
         binding.btnRoutes.setOnClickListener {
             showFilterBottomSheet(requireContext()) { selectedBranch, selectedClient, selectedMonth ->
                 filterReports(selectedBranch, selectedClient, selectedMonth)
@@ -199,9 +202,7 @@ class AdminListReportRentalFragment : Fragment() {
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminDashboardFragment())
-                .commit()
+            openAdminFragment(AdminDashboardFragment(), "AdminDashboard")
         }
 
         return binding.root
@@ -264,7 +265,6 @@ class AdminListReportRentalFragment : Fragment() {
         rentalReportAdapter.submitList(tempGroupedData)
     }
 
-    // Updated filter function that handles branch, client, and month filtering
     private fun filterReports(selectedBranch: Branch?, selectedClient: Client?, selectedMonth: String?) {
         // Update stored filter values
         selectedFilterBranch = selectedBranch
@@ -272,7 +272,6 @@ class AdminListReportRentalFragment : Fragment() {
         selectedFilterMonth = selectedMonth
 
         if (selectedClient == null) {
-            // If no client selected, show empty list
             rentalReportAdapter.submitList(emptyList())
             return
         }
@@ -280,7 +279,6 @@ class AdminListReportRentalFragment : Fragment() {
         val clientId = selectedClient.id_client
         val monthYear = selectedMonth?.let { convertMonthYearToFormat(it) }
 
-        // Call the ViewModel to filter by client and month
         rentalReportViewModel.filterByClientAndMonth(clientId, monthYear)
     }
 
@@ -431,8 +429,6 @@ class AdminListReportRentalFragment : Fragment() {
                 initial_stock = stock,
             )
 
-            Log.d("Request Data", requestData.toString())
-
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val response = rentalReportViewModel.exportRentalMonthly(requestData)
@@ -460,7 +456,6 @@ class AdminListReportRentalFragment : Fragment() {
         dialog.show()
     }
 
-    // Updated filter bottom sheet with client and month-year filtering
     private fun showFilterBottomSheet(
         context: Context,
         onFilterSelected: (Branch?, Client?, String?) -> Unit
@@ -468,7 +463,6 @@ class AdminListReportRentalFragment : Fragment() {
         val bottomSheetDialog = BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_filter_rental_report, null)
 
-        // Month-Year Spinner
         val spinnerMonthYear = view.findViewById<AutoCompleteTextView>(R.id.inputBulanTahun)
         val spinnerBranch = view.findViewById<AutoCompleteTextView>(R.id.inputNamaCabang)
         val spinnerClient = view.findViewById<AutoCompleteTextView>(R.id.inputNamaClient)
@@ -570,7 +564,6 @@ class AdminListReportRentalFragment : Fragment() {
             }
         }
 
-        // Make dialog non-cancelable for first load
         bottomSheetDialog.setCancelable(selectedFilterClient != null)
 
         bottomSheetDialog.setContentView(view)

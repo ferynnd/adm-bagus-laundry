@@ -32,7 +32,6 @@ class ClientAdapter : ListAdapter<Client, ClientAdapter.ClientViewHolder>(DiffCa
 
         holder.binding.apply {
             inputName.text = client.name_client
-            inputStatus.text = client.is_active_client.toString()
             inputTelephon.text = client.phone_client
             inputAddress.text = client.full_address_client
 

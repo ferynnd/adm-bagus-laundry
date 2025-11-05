@@ -61,4 +61,18 @@
         <item name="cornerSize">16dp</item>
     </style>
 
+
+<style name="AlertButtonDelete" parent="Widget.AppCompat.Button">
+    <item name="android:background">@color/white</item>
+    <item name="android:textColor">@color/red600</item>
+    <item name="android:textAllCaps">true</item>
+</style>
+
+<style name="AlertButtonCancel" parent="Widget.AppCompat.Button">
+    <item name="android:background">@color/gray500</item>
+    <item name="android:textColor">@color/white</item>
+    <item name="android:textAllCaps">true</item>
+</style>
+
+
 </resources>

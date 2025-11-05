@@ -1,5 +1,6 @@
 package dev.ferynnd.baguslaundry.ui.user.transaksi_rental
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.lifecycle.ViewModelProvider
@@ -30,10 +32,13 @@ import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.RentalTransactionData
 import dev.ferynnd.baguslaundry.model.RentalTransactionItem
 import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
+import dev.ferynnd.baguslaundry.ui.openUserFragment
+import dev.ferynnd.baguslaundry.ui.showAlert
 import dev.ferynnd.baguslaundry.ui.user.UserDashboardFragment
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 class CreateListTransaksiRentalFragment : Fragment() {
     private var _binding: KurirFragmentCreateListTransaksiRentalBinding? = null
     private val binding get() = _binding!!
@@ -93,7 +98,6 @@ class CreateListTransaksiRentalFragment : Fragment() {
         userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
 
         if (userId != 0) {
-            // Tampilkan loading di awal
             updateLoadingState(true)
             setupObservers() // Panggil setupObservers di sini untuk menginisialisasi semua observer
             loadInitialData()
@@ -112,9 +116,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, UserDashboardFragment()).addToBackStack(null)
-                .commit()
+            openUserFragment(UserDashboardFragment(), "UserDashboard")
         }
 
         binding.btnAddItem.setOnClickListener {
@@ -201,7 +203,6 @@ class CreateListTransaksiRentalFragment : Fragment() {
     private suspend fun loadRentalProductsData() {
         try {
             val rentalResponse = rentalProductViewModel.getProductRental()
-            // Proses data rental langsung di sini tanpa observer
             rentalProductViewModel.filteredRentalProducts.value?.let { rentalList ->
                 handleRentalProductsData(rentalList)
             }
@@ -216,26 +217,26 @@ class CreateListTransaksiRentalFragment : Fragment() {
         }
     }
 
-    private suspend fun loadClientData() {
-        try {
-            val clientResponse = clientViewModel.getClient()
-            // Proses data client langsung di sini tanpa observer
-            clientViewModel.clients.value?.let { clients ->
+   private fun loadClientData() {
+        clientViewModel.getClient()
+
+        clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
+            if (clients != null) {
                 handleClientData(clients)
+                isClientDataLoaded = true
+                checkAllDataLoaded()
             }
-            isClientDataLoaded = true
-            checkAllDataLoaded()
-        } catch (e: Exception) {
-            Toast.makeText(
-                requireContext(),
-                "Gagal memuat data client: ${e.message}",
-                Toast.LENGTH_SHORT
-            ).show()
+        }
+
+        clientViewModel.error.observe(viewLifecycleOwner) { error ->
+            if (!error.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
+
     private fun checkAllDataLoaded() {
-        // Sembunyikan loading hanya ketika semua data sudah dimuat
         if (isUserDataLoaded && isRentalDataLoaded && isClientDataLoaded) {
             updateLoadingState(false)
         }
@@ -285,19 +286,18 @@ class CreateListTransaksiRentalFragment : Fragment() {
         try {
             if (response != null) {
                 if (response.success) {
-                    Toast.makeText(requireContext(), "Data Berhasil Disimpan", Toast.LENGTH_SHORT)
-                        .show()
+                    showAlert(
+                        title = "Berhasil!",
+                        message = "Transaksi berhasil disimpan",
+                        backgroundColorRes = R.color.primary,
+                        iconRes = R.drawable.success
+                    )
                    val bundle = Bundle()
                     bundle.putInt("transactionId", response.data.id_transaction_rental)
-                    Log.d("CreateTransaction", "Transaction ID: ${response.data.id_transaction_rental}")
-
                     val fragment = PrintPreviewRentalFragment()
                     fragment.arguments = bundle
 
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.host_fragment_user, fragment)
-                        .addToBackStack(null) // opsional, jika ingin bisa kembali
-                        .commit()
+                    openUserFragment(fragment, "PrintPreviewRental")
 
                 } else {
                     Toast.makeText(
@@ -404,30 +404,32 @@ class CreateListTransaksiRentalFragment : Fragment() {
 
             val position = spinner.selectedItemPosition
             if (position < 0 || position >= fullRentalList.size) {
-                Toast.makeText(
-                    requireContext(),
-                    "Pemilihan item rental tidak valid pada baris ke-${i + 1}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showAlert(
+                    title = "Peringatan!",
+                    message = "Pemilihan item rental tidak valid pada baris ke-${i + 1}",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.info
+                )
                 return false
             }
 
             val pcs = pcsEditText.text.toString().toDoubleOrNull()
             if (pcs == null || pcs <= 0) {
-                Toast.makeText(
-                    requireContext(),
-                    "Jumlah item rental harus diisi dengan benar",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showAlert(
+                    title = "Peringatan!",
+                    message = "Jumlah item rental harus diisi dengan benar",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.info
+                )
                 return false
             }
 
             if (statusDropdown.text.isNullOrEmpty()) {
-                Toast.makeText(
-                    requireContext(),
-                    "Pilih status item rental terlebih dahulu",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showAlert(
+                    title = "Peringatan!",
+                    message = "Pilih status item rental terlebih dahulu",
+                    backgroundColorRes = R.color.primary
+                )
                 return false
             }
 
@@ -435,21 +437,20 @@ class CreateListTransaksiRentalFragment : Fragment() {
             val selectedStatusValue =
                 statusOptions.find { it.displayName == selectedStatus }?.value
             if (selectedStatusValue == null) {
-                Toast.makeText(
-                    requireContext(),
-                    "Status item rental tidak sesuai",
-                    Toast.LENGTH_SHORT
+                showAlert(
+                    title = "Peringatan!",
+                    message = "Status item rental tidak sesuai",
+                    backgroundColorRes = R.color.primary
                 )
-                    .show()
                 return false
             }
 
             if (kondisiDropdown.text.isNullOrEmpty()) {
-                Toast.makeText(
-                    requireContext(),
-                    "Pilih kondisi item rental terlebih dahulu",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showAlert(
+                    title = "Peringatan!",
+                    message = "Pilih kondisi item rental terlebih dahulu",
+                    backgroundColorRes = R.color.primary
+                )
                 return false
             }
 
@@ -457,29 +458,39 @@ class CreateListTransaksiRentalFragment : Fragment() {
             val selectedKondisiValue =
                 conditionOptions.find { it.displayName == selectedKondisi }?.value
             if (selectedKondisiValue == null) {
-                Toast.makeText(
-                    requireContext(),
-                    "Kondisi item rental tidak sesuai",
-                    Toast.LENGTH_SHORT
+                showAlert(
+                    title = "Peringatan!",
+                    message = "Kondisi item rental tidak sesuai",
+                    backgroundColorRes = R.color.primary
                 )
-                    .show()
                 return false
             }
         }
 
         if (binding.inputNamaClient.text.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Pilih client terlebih dahulu", Toast.LENGTH_SHORT)
-                .show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Pilih client terlebih dahulu",
+                backgroundColorRes = R.color.primary
+            )
             return false
         }
 
         if (binding.inputNomorNota.text.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Masukkan nomor nota", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Masukkan nomor nota",
+                backgroundColorRes = R.color.primary
+            )
             return false
         }
 
         if (binding.inputNamaPenerima.text.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Masukkan nama penerima", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Masukkan nama penerima",
+                backgroundColorRes = R.color.primary
+            )
             return false
         }
 
@@ -490,11 +501,11 @@ class CreateListTransaksiRentalFragment : Fragment() {
         rentalTransactionItems.clear()
 
         if (binding.containerRental.childCount == 0) {
-            Toast.makeText(
-                requireContext(),
-                "Silahkan tambahkan item rental terlebih dahulu",
-                Toast.LENGTH_SHORT
-            ).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Silahkan tambahkan item rental terlebih dahulu",
+                backgroundColorRes = R.color.primary
+            )
             return
         }
 
@@ -532,11 +543,11 @@ class CreateListTransaksiRentalFragment : Fragment() {
             val selectedRentalItemId = spinner.getTag(R.id.spinnerRental) as? Int
             val selected = fullRentalList.find { it.id_rental_item == selectedRentalItemId }
             if (selected == null) {
-                Toast.makeText(
-                    requireContext(),
-                    "Item rental tidak valid atau tidak ditemukan",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showAlert(
+                    title = "Peringatan!",
+                    message = "Item rental tidak valid atau tidak ditemukan",
+                    backgroundColorRes = R.color.primary
+                )
                 return
             }
 
@@ -564,6 +575,12 @@ class CreateListTransaksiRentalFragment : Fragment() {
 
         rentalReportViewModel.createRentalTransaction(rentalTransactionRequest)
 
+        showAlert(
+            title = "Berhasil!",
+            message = "Transaksi berhasil disimpan",
+            backgroundColorRes = R.color.primary,
+            iconRes = R.drawable.success
+        )
     }
 
     private fun updateLoadingState(isLoading: Boolean) {

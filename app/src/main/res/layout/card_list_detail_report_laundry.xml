@@ -11,7 +11,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardForeground"
         android:layout_width="match_parent"
-        android:layout_height="256dp"
+        android:layout_height="225dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -219,46 +219,6 @@
                 />
         </TableRow>
 
-        <TableRow>
-            <TextView
-                android:text="STATUS"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:fontFamily="@font/inter"
-                android:layout_marginStart="10dp"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/layoutStatus"
-                android:layout_width="140dp"
-                android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/baseActive"
-                android:layout_marginVertical="5dp"
-                android:layout_marginEnd="10dp"
-                app:cardCornerRadius="5dp"
-                app:cardElevation="2dp"
-                android:padding="10dp">
-
-                <TextView
-                    android:id="@+id/inputStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:fontFamily="@font/inter_medium"
-                    android:textSize="13sp"
-                    android:gravity="center"
-                    android:textAllCaps="true"
-                    android:textColor="@color/white"
-                    tools:text="ACTIVE"
-                    />
-
-            </androidx.cardview.widget.CardView>
-
-        </TableRow>
 
     </TableLayout>
 

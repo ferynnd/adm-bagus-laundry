@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
@@ -17,6 +18,8 @@ import dev.ferynnd.baguslaundry.model.IsActiveLaundryItem
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import kotlinx.coroutines.launch
 import dev.ferynnd.baguslaundry.R
+import dev.ferynnd.baguslaundry.ui.openUserFragment
+import dev.ferynnd.baguslaundry.ui.showAlert
 
 class CreateItemLaundryFragment : Fragment() {
     private var _binding: KurirFragmentCreateItemLaundryBinding? = null
@@ -57,12 +60,12 @@ class CreateItemLaundryFragment : Fragment() {
                 binding.inputNamaItem.setText(product.data.name_laundry_item)
                 binding.inputHargaItem.setText(product.data.price_laundry_item.toString())
                 binding.inputTimeItem.setText(product.data.time_laundry_item)
-                binding.textHeaderBold.text = "Update Item Laundry"
-                binding.btnSubmit.text = "Update"
+                binding.textHeaderBold.text = "Perbarui Layanan Laundry"
+                binding.btnSubmit.text = "Simpan Pembaruan"
             }
         } else {
-            binding.textHeaderBold.text = "Create Item Laundry"
-            binding.btnSubmit.text = "Create"
+            binding.textHeaderBold.text = "Layanan Laundry"
+            binding.btnSubmit.text = "Simpan Layanan"
         }
 
         binding.btnSubmit.setOnClickListener {
@@ -74,11 +77,10 @@ class CreateItemLaundryFragment : Fragment() {
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, KurirProductFragment())
-                .commit()
+             openUserFragment(KurirProductFragment(), "KurirProduct")
         }
 
+        hideBottomNavigationView()
         return binding.root
     }
 
@@ -93,11 +95,12 @@ class CreateItemLaundryFragment : Fragment() {
             if (userResponse.success) {
                 userIdBranch = userResponse.data.id_branch_user!!.toInt()
             } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Gagal memuat data pengguna",
-                    Toast.LENGTH_LONG
-                ).show()
+                showAlert(
+                    title = "Gagal!",
+                    message = "Gagal memuat data pengguna",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                )
             }
         } catch (e: Exception) {
             Toast.makeText(
@@ -114,7 +117,12 @@ class CreateItemLaundryFragment : Fragment() {
         val time = binding.inputTimeItem.text.toString()
 
         if (name.isBlank() || price.isBlank()) {
-            Toast.makeText(requireContext(), "Lengkapi semua inputan", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Lengkapi semua inputan",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             return
         }
 
@@ -129,12 +137,21 @@ class CreateItemLaundryFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 laundryProductViewModel.createProductLaundry(dataProductLaundry)
-                Toast.makeText(requireContext(), "Cabang berhasil dibuat", Toast.LENGTH_SHORT).show()
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.host_fragment_user, KurirProductFragment())
-                    .commit()
+                showAlert(
+                    title = "Berhasil!",
+                    message = "Layanan berhasil dibuat",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.success
+                )
+                openUserFragment(KurirProductFragment(), "KurirProduct")
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Gagal membuat cabang: ${e.message}", Toast.LENGTH_LONG).show()
+                showAlert(
+                    title = "Gagal!",
+                    message = "Gagal membuat layanan ${e.message}",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                    duration = 4000
+                )
             }
         }
     }
@@ -146,7 +163,12 @@ class CreateItemLaundryFragment : Fragment() {
         val time = binding.inputTimeItem.text.toString()
 
         if (name.isBlank() || price.isBlank() || time.isBlank()) {
-            Toast.makeText(requireContext(), "Lengkapi semua inputan", Toast.LENGTH_SHORT).show()
+             showAlert(
+                title = "Peringatan!",
+                message = "Lengkapi semua inputan",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             return
         }
 
@@ -164,14 +186,33 @@ class CreateItemLaundryFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 laundryProductViewModel.updateProductLaundry(dataProductLaundry)
-                Toast.makeText(requireContext(), "Cabang berhasil diupdate", Toast.LENGTH_SHORT).show()
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.host_fragment_user, KurirProductFragment())
-                    .commit()
+                   showAlert(
+                    title = "Berhasil!",
+                    message = "Data layanan berhasil diperbarui",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.success
+                )
+                openUserFragment(KurirProductFragment(), "KurirProduct")
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Gagal mengupdate cabang: ${e.message}", Toast.LENGTH_LONG).show()
-
+                showAlert(
+                    title = "Gagal!",
+                    message = "Gagal memperbarui data layanan ${e.message}",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                    duration = 4000
+                )
             }
         }
     }
+
+
+    private fun hideBottomNavigationView() {
+        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
+    }
+
 }

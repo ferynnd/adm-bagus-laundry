@@ -79,4 +79,7 @@ dependencies {
 
     implementation(libs.flexbox)
 
+    implementation("com.github.tapadoo:alerter:7.2.4")
+
+
 }

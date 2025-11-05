@@ -108,9 +108,6 @@ class LaundryReportAdapter ( private val onDetail : (ReportLaundry) -> Unit) : L
             is HeaderViewHolder -> {
                 val header = item as String
                 holder.binding.inputNameBranch.text = header
-                val context = holder.binding.root.context
-                val color = ContextCompat.getColor(context, R.color.greenDark) // pastikan 'orange' benar ada di colors.xml
-                holder.binding.root.setCardBackgroundColor(color)
             }
         }
     }

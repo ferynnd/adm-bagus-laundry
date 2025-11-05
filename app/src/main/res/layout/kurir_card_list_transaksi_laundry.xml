@@ -39,10 +39,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="@color/blue500"
-            app:cardCornerRadius="6dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/nama_transaksi_laundry"
+            app:cardCornerRadius="3dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/nama_transaksi_laundry"
+            app:layout_constraintBottom_toBottomOf="@id/nama_transaksi_laundry"
             tools:ignore="MissingConstraints">
 
             <TextView

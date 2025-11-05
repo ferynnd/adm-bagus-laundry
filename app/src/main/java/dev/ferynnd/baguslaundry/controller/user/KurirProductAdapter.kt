@@ -100,15 +100,7 @@ class KurirProductAdapter(
 
                 // Add delete button click listener with ViewModel integration
                 holder.binding.layoutButtonDelete.setOnClickListener {
-                    AlertDialog.Builder(holder.itemView.context)
-                        .setTitle("Konfirmasi Hapus")
-                        .setMessage("Apakah Anda yakin ingin menghapus item laundry '${laundryItem.name_laundry_item}'?")
-                        .setPositiveButton("Ya") { _, _ ->
-                            // Call the delete function passed from Fragment
-                            onDeleteLaundry(laundryItem)
-                        }
-                        .setNegativeButton("Tidak", null)
-                        .show()
+                    onDeleteLaundry(laundryItem)
                 }
             }
             is ProductRentalViewHolder -> {
@@ -135,15 +127,7 @@ class KurirProductAdapter(
 
                 // Add delete button click listener with ViewModel integration
                 holder.binding.layoutButtonDelete.setOnClickListener {
-                    AlertDialog.Builder(holder.itemView.context)
-                        .setTitle("Konfirmasi Hapus")
-                        .setMessage("Apakah Anda yakin ingin menghapus item rental '${rentalItem.name_rental_item}'?")
-                        .setPositiveButton("Ya") { _, _ ->
-                            // Call the delete function passed from Fragment
-                            onDeleteRental(rentalItem)
-                        }
-                        .setNegativeButton("Tidak", null)
-                        .show()
+                    onDeleteRental(rentalItem)
                 }
             }
         }

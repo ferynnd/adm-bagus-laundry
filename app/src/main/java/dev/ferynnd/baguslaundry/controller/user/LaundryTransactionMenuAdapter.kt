@@ -59,17 +59,6 @@ class LaundryTransactionMenuAdapter :
             textName.text = product.name_laundry_item
             textPrice.text = numberFormatter.format(product.price_laundry_item ?: 0.0)
 
-//            val currentWeightText = product.weight?.toString() ?: ""
-//            if (textWeightItem.text.toString() != currentWeightText) {
-//                textWeightItem.setText(currentWeightText)
-//            }
-//
-//            textWeightItem.tag?.let {
-//                if (it is TextWatcher) {
-//                    textWeightItem.removeTextChangedListener(it)
-//                }
-//            }
-
             var isEditing = false
             val watcher = object : TextWatcher {
                 override fun beforeTextChanged(
@@ -92,53 +81,8 @@ class LaundryTransactionMenuAdapter :
                 }
             }
 
-//            textWeightItem.addTextChangedListener(watcher)
-//            textWeightItem.tag = watcher
         }
     }
-
-
-//    override fun onBindViewHolder(holder: MenuProductLaundryViewHolder, position: Int) {
-//        val product = getItem(position)
-//        holder.binding.apply {
-//            textName.text = product.name_laundry_item
-//            textPrice.text = numberFormatter.format(product.price_laundry_item ?: 0.0)
-//            textWeightItem.setText(product.weight?.toString() ?: "")
-//
-//            textWeightItem.tag?.let {
-//                if (it is TextWatcher) {
-//                    textWeightItem.removeTextChangedListener(it)
-//                }
-//            }
-//
-//            // Buat TextWatcher baru
-//            val watcher = object : TextWatcher {
-//                override fun beforeTextChanged(
-//                    s: CharSequence?,
-//                    start: Int,
-//                    count: Int,
-//                    after: Int
-//                ) {
-//                }
-//
-//                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-//                override fun afterTextChanged(s: Editable?) {
-//                    val input = s?.toString()?.toBigDecimalOrNull()
-//                    if (input != null) {
-//                        product.weight = input
-//                    } else if (s.isNullOrEmpty()) {
-//                        product.weight = BigDecimal.ZERO // Atau null, tergantung kebutuhan default
-//                    } else {
-//                        Log.e("WeightInput", "Input berat tidak valid: ${s.toString()}")
-//                        product.weight = BigDecimal.ZERO // Default ke 0 jika tidak valid
-//                    }
-//                    itemWeightChangeListener?.onWeightChanged()
-//                }
-//            }
-//            textWeightItem.addTextChangedListener(watcher)
-//            textWeightItem.tag = watcher
-//        }
-//    }
 
 }
 

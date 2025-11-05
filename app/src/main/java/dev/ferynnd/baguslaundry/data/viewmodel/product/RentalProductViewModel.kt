@@ -33,15 +33,43 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
     private val _filteredRentalProducts = MutableLiveData<List<ProductRental>>()  // hasil pencarian
     val filteredRentalProducts: LiveData<List<ProductRental>> get() = _filteredRentalProducts
 
+       private var currentQuery: String = ""
+    private var currentBranchId: Int? = null
+
+
     fun init(context: Context) {
         rentalProductRepository = RentalProductRepository(context)
         userRepository = UserRepository(context)
         getAllProductRental()
     }
 
-    // Fungsi publik untuk mereset pesan error
+    fun setBranchFilter(branchId: Int?) {
+        currentBranchId = branchId
+        applyFilters()
+    }
+
+    fun setSearchQuery(query: String) {
+        currentQuery = query
+        applyFilters()
+    }
+
+    private fun applyFilters() {
+        val all = _rentalProducts.value ?: return
+
+        val filtered = all.filter { item ->
+            val matchBranch = currentBranchId?.let { item.id_branch_rental_item == it } ?: true
+            val matchQuery = if (currentQuery.isBlank()) true
+                             else item.name_rental_item?.contains(currentQuery, true) == true
+            matchBranch && matchQuery
+        }
+
+        _filteredRentalProducts.postValue(filtered)
+    }
+
+
+
     fun resetErrorMessage() {
-        _error.postValue("") // Gunakan postValue untuk memastikan pembaruan terjadi di main thread
+        _error.postValue("")
     }
 
     private fun getAllProductRental() {
@@ -66,7 +94,13 @@ class RentalProductViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    suspend fun getProductRental() {
+    private var isDataLoaded = false
+
+    suspend fun getProductRental(forceRefresh: Boolean = false) {
+        if (isDataLoaded && !forceRefresh) {
+            applyFilters() // tetap jalankan filter/search
+            return
+        }
         _loading.postValue(true) // Set loading to true
         _error.postValue("") // Reset error
         try {

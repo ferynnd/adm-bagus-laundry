@@ -1,10 +1,12 @@
 package dev.ferynnd.baguslaundry.ui.user
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -15,8 +17,10 @@ import dev.ferynnd.baguslaundry.controller.user.ListItemTransactionLaundryAdapte
 import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentListItemTransactionLaundryBinding
 import dev.ferynnd.baguslaundry.model.ProductLaundry
+import dev.ferynnd.baguslaundry.ui.openUserFragment
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 class ListItemTransactionLaundryFragment : Fragment(), ListItemTransactionLaundryAdapter.OnItemClickListener {
 
     private lateinit var binding: FragmentListItemTransactionLaundryBinding
@@ -65,21 +69,14 @@ class ListItemTransactionLaundryFragment : Fragment(), ListItemTransactionLaundr
         laundryProductViewModel.selectedItems.observe(viewLifecycleOwner) { selected ->
             binding.btnSubmit.visibility = if (selected.isNotEmpty()) View.VISIBLE else View.GONE
             binding.btnSubmit.setOnClickListener {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.host_fragment_user, LaundryTransactionMenuFragment())
-                    .addToBackStack("product")
-                    .commit()
+                openUserFragment(LaundryTransactionMenuFragment(), "MenuTransactionLaundry")
             }
         }
 
-        // Tombol kembali
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, UserDashboardFragment())
-                .commit()
+            openUserFragment(UserDashboardFragment(), "UserDashboard")
         }
 
-        // Panggil data laundry
         viewLifecycleOwner.lifecycleScope.launch {
             laundryProductViewModel.getProductLaundry()
         }

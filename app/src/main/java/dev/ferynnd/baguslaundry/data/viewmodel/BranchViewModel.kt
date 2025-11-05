@@ -19,97 +19,70 @@ class BranchViewModel(application: Application) : AndroidViewModel(application) 
     private val _branches = MutableLiveData<List<Branch>>()
     val branches: LiveData<List<Branch>> get() = _branches
 
+    private val _filteredBranches = MutableLiveData<List<Branch>>()
+    val filteredBranches: LiveData<List<Branch>> get() = _filteredBranches
+
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> get() = _loading
 
-    private val _error = MutableLiveData<String>() // Ubah menjadi non-nullable String
+    private val _error = MutableLiveData<String>()
     val error: LiveData<String> get() = _error
 
-    private val _filteredBranches = MutableLiveData<List<Branch>>()  // hasil pencarian
-    val filteredBranches: LiveData<List<Branch>> get() = _filteredBranches
+    private var currentQuery: String = ""
+    private var selectedBranchId: Int? = null
+
 
     fun init(context: Context) {
         branchRepository = BranchRepository(context)
-        getAllBranch()
+        fetchAllBranches()
     }
 
-    // Fungsi publik untuk mereset pesan error
-    fun resetErrorMessage() {
-        _error.postValue("") // Gunakan postValue untuk memastikan pembaruan terjadi di main thread
-    }
 
-    private fun getAllBranch() {
-        _loading.postValue(true) // Set loading to true
-        _error.postValue("") // Reset error message
+    private fun fetchAllBranches() {
         viewModelScope.launch {
+            _loading.postValue(true)
+            _error.postValue("")
             try {
                 val response = branchRepository.getBranch()
                 if (response.success) {
                     _branches.postValue(response.data)
-                    _filteredBranches.postValue(response.data) // Inisialisasi filtered list dengan semua data
+                    applyCurrentFilters(response.data)
                 } else {
-                    _error.postValue("Gagal memuat cabang awal: ${response.message ?: "Pesan tidak tersedia"}")
+                    _error.postValue(response.message ?: "Gagal memuat cabang.")
                 }
             } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan saat memuat data cabang awal.")
+                _error.postValue(e.message ?: "Kesalahan jaringan.")
             } finally {
-                _loading.postValue(false) // Always set loading to false
+                _loading.postValue(false)
             }
         }
     }
 
-
-    suspend fun getBranch() {
-        _loading.postValue(true) // Set loading to true
-        _error.postValue("") // Reset error message
-        try {
-            val response = branchRepository.getBranch()
-            if (response.success) {
-                val branch = response.data
-                _branches.postValue(branch) // Memperbarui LiveData dengan data baru
-                _filteredBranches.postValue(branch) // Perbarui juga filtered list
-            } else {
-                _error.postValue("Permintaan API gagal saat mengambil cabang: ${response.message ?: "Pesan tidak tersedia"}")
-            }
-        } catch (e: Exception) {
-            _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil data cabang.")
-        } finally {
-            _loading.postValue(false) // Always set loading to false
+    private fun applyCurrentFilters(all: List<Branch>) {
+        var result = all
+        selectedBranchId?.let { id ->
+            result = result.filter { it.id_branch == id }
         }
-    }
-
-    suspend fun getBranchById(id: Int): DefaultRequest<Branch> {
-        _loading.postValue(true) // Set loading to true
-        _error.postValue("") // Reset error message
-        return try {
-            branchRepository.getBranchById(id)
-        } catch (e: Exception) {
-            _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil cabang berdasarkan ID.")
-            // Pastikan mengembalikan DefaultRequest yang valid, bukan null
-            DefaultRequest(success = false, message = e.message.toString(), data = null)
-        } finally {
-            _loading.postValue(false) // Always set loading to false
-        } as DefaultRequest<Branch>
-    }
-
-    fun filterClient(branchId: Int?) {
-        val allBranches = _branches.value ?: return
-        _filteredBranches.value = if (branchId == null) {
-            allBranches
-        } else {
-            allBranches.filter { it.id_branch == branchId }
-        }
-    }
-
-     fun searchBranches(query: String) {
-        val allBranches = _branches.value ?: return
-        if (query.isBlank()) {
-            _filteredBranches.value = allBranches
-        } else {
-            _filteredBranches.value = allBranches.filter {
-                it.name_branch?.contains(query, ignoreCase = true) == true ||
-                it.city_branch?.contains(query, ignoreCase = true) == true
+        if (currentQuery.isNotEmpty()) {
+            result = result.filter {
+                it.name_branch?.contains(currentQuery, ignoreCase = true) == true ||
+                it.city_branch?.contains(currentQuery, ignoreCase = true) == true
             }
         }
+        _filteredBranches.postValue(result)
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        currentQuery = query
+        _branches.value?.let { applyCurrentFilters(it) }
+    }
+
+    fun onBranchFilterSelected(branchId: Int?) {
+        selectedBranchId = branchId
+        _branches.value?.let { applyCurrentFilters(it) }
+    }
+
+    fun resetErrorMessage() {
+        _error.postValue("")
     }
 }

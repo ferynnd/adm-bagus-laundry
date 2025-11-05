@@ -21,7 +21,6 @@ import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminListUserBinding
 import dev.ferynnd.baguslaundry.model.Branch
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AdminListUserFragment : Fragment() {
@@ -46,7 +45,6 @@ class AdminListUserFragment : Fragment() {
     ): View? {
 
         binding = FragmentAdminListUserBinding.inflate(layoutInflater)
-        // Inflate the layout for this fragment
         userAdapter = UserAdapter()
 
         binding.recyclerView.apply {
@@ -57,39 +55,33 @@ class AdminListUserFragment : Fragment() {
         binding.btnRoutes.setOnClickListener {
             branchViewModel.branches.value?.let { branches ->
                 showFilterBottomSheet(requireContext(), branches) { selectedBranch ->
-                    if (selectedBranch.id_branch == -1) {
-                        userViewModel.filterClient(null) // Semua Cabang
-                    } else {
-                        userViewModel.filterClient(selectedBranch.id_branch)
-                    }
+                    val id = if (selectedBranch.id_branch == -1) null else selectedBranch.id_branch
+                        userViewModel.onBranchFilterSelected(id)
                 }
             }
         }
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let { userViewModel.searchUsers(it) }
+                userViewModel.onSearchQueryChanged(query.orEmpty())
                 return true
             }
-
             override fun onQueryTextChange(newText: String?): Boolean {
-                userViewModel.searchUsers(newText.orEmpty())
+                userViewModel.onSearchQueryChanged(newText.orEmpty())
                 return true
             }
         })
 
         viewLifecycleOwner.lifecycleScope.launch {
-            // Observe loading state
             userViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
                 binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
                 binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
             }
 
-            // Observe error messages
             userViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
                 if (errorMessage.isNotBlank()) {
                     Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                    userViewModel.resetErrorMessage() // Panggil fungsi reset di ViewModel
+                    userViewModel.resetErrorMessage()
                 }
             }
 
@@ -102,9 +94,7 @@ class AdminListUserFragment : Fragment() {
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminDashboardFragment())
-                .commit()
+            parentFragmentManager.popBackStack()
         }
 
         return binding.root
@@ -130,7 +120,6 @@ class AdminListUserFragment : Fragment() {
         adapter.submitList(items)
 
         bottomSheetDialog.setContentView(view)
-        // Menentukan tinggi bottom sheet menjadi sepertiga dari tinggi layar perangkat
         val layoutParams = bottomSheetDialog.window?.attributes
         layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
         bottomSheetDialog.window?.attributes = layoutParams

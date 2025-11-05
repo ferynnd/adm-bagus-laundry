@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.replace
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -35,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 class AdminListInvoiceRentalFragment : Fragment() {
 
     private lateinit var binding: FragmentAdminListInvoiceRentalBinding
@@ -116,9 +119,7 @@ class AdminListInvoiceRentalFragment : Fragment() {
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminListReportRentalFragment())
-                .commit()
+            parentFragmentManager.popBackStack()
         }
         return binding.root
     }

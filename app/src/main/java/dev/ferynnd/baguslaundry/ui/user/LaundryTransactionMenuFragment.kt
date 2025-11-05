@@ -1,6 +1,7 @@
 package dev.ferynnd.baguslaundry.ui.user
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,11 +32,14 @@ import dev.ferynnd.baguslaundry.model.ListTransactionLaundry
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import dev.ferynnd.baguslaundry.model.TransactionData
+import dev.ferynnd.baguslaundry.ui.openUserFragment
+import dev.ferynnd.baguslaundry.ui.showAlert
 import kotlinx.coroutines.launch
 import java.math.BigDecimal // Import BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 class LaundryTransactionMenuFragment : Fragment() {
 
     private lateinit var binding: FragmentLaundryTransactionMenuBinding
@@ -56,32 +61,27 @@ class LaundryTransactionMenuFragment : Fragment() {
     // Fungsi helper untuk konversi String ke BigDecimal dengan aman
     private fun getBigDecimalFromCurrencyInput(editText: TextInputEditText): BigDecimal {
         val cleanString = editText.text.toString()
-            .replace("[Rp,.\\s]".toRegex(), "") // hapus simbol Rp dan titik/koma dan spasi
+            .replace("[Rp,.\\s]".toRegex(), "")
             .trim()
         return try {
             if (cleanString.isEmpty()) BigDecimal.ZERO
             else BigDecimal(cleanString)
         } catch (e: NumberFormatException) {
-            Log.e("BigDecimalConvert", "Error converting '$cleanString' to BigDecimal: ${e.message}")
             BigDecimal.ZERO
         }
     }
 
-    // Fungsi untuk mengkonversi input weight ke BigDecimal
     private fun getBigDecimalFromWeightInput(editText: TextInputEditText): BigDecimal {
         val cleanString = editText.text.toString().trim()
         return try {
             if (cleanString.isEmpty()) BigDecimal.ZERO
             else BigDecimal(cleanString)
         } catch (e: NumberFormatException) {
-            Log.e("WeightConvert", "Error converting '$cleanString' to BigDecimal: ${e.message}")
             BigDecimal.ZERO
         }
     }
 
-    // Fungsi untuk memformat BigDecimal ke Rupiah tanpa desimal untuk tampilan
     private fun formatBigDecimalToRupiahWithoutDecimal(value: BigDecimal): String {
-        // BigDecimal ke Double untuk formatter bawaan NumberFormat, dengan RoundingMode
         return numberFormatter.format(value.setScale(0, BigDecimal.ROUND_HALF_UP).toDouble())
     }
 
@@ -147,18 +147,20 @@ class LaundryTransactionMenuFragment : Fragment() {
         laundryReportViewModel.createTransactionResponse.observe(viewLifecycleOwner) { response ->
             if (response != null) {
                 if (response.success) {
-                    Toast.makeText(requireContext(), "Data Berhasil Disimpan", Toast.LENGTH_SHORT)
-                        .show()
+                    showAlert(
+                        title = "Berhasil!",
+                        message = "Data berhasil disimpan.",
+                        backgroundColorRes = R.color.primary,
+                        iconRes = R.drawable.success
+                    )
                     val bundle = Bundle()
                     bundle.putInt("transactionId", response.data.id_transaction_laundry!!)
 
                     val fragment = PrintPreviewFragment()
                     fragment.arguments = bundle
 
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.host_fragment_user, fragment)
-                        .addToBackStack(null) // opsional, jika ingin bisa kembali
-                        .commit()
+                    openUserFragment(fragment, "PrintPreviewLaundry")
+
 
                 } else {
                     Toast.makeText(
@@ -183,9 +185,7 @@ class LaundryTransactionMenuFragment : Fragment() {
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, ListItemTransactionLaundryFragment())
-                .commit()
+            openUserFragment(UserDashboardFragment(), "UserDashboard")
             activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
         }
 
@@ -193,8 +193,8 @@ class LaundryTransactionMenuFragment : Fragment() {
             showOptionalDialog(
                 requireContext(),
                 currentNotes,
-                currentAdditionalCost, // Ini sudah BigDecimal
-                currentPromoAmount // Ini sudah BigDecimal
+                currentAdditionalCost,
+                currentPromoAmount
             ) { notes, additionalCost, promoAmount ->
                 currentNotes = notes
                 currentAdditionalCost = additionalCost
@@ -293,10 +293,15 @@ class LaundryTransactionMenuFragment : Fragment() {
         binding.textChangeMoney.text = formatBigDecimalToRupiahWithoutDecimal(returnAmount)
     }
 
+
     private fun createLaundryTransaction() {
         val nameClient = binding.textClient.text.toString().trim()
         if (nameClient.isEmpty()) {
-            Toast.makeText(requireContext(), "Nama pelanggan harus diisi", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Nama pelanggan harus diisi",
+                backgroundColorRes = R.color.primary
+            )
             binding.textClient.error = "Nama pelanggan harus diisi"
             return
         } else {
@@ -305,12 +310,20 @@ class LaundryTransactionMenuFragment : Fragment() {
 
         val priceCash = getBigDecimalFromCurrencyInput(binding.textCash)
         if (binding.textCash.text.toString().trim().isEmpty()) {
-            Toast.makeText(requireContext(), "Uang tunai harus diisi", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Uang tunai harus diisi",
+                backgroundColorRes = R.color.primary
+            )
             binding.textCash.error = "Uang tunai harus diisi"
             return
         }
         if (priceCash <= BigDecimal.ZERO) {
-            Toast.makeText(requireContext(), "Uang tunai harus lebih dari 0", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Uang tunai harus lebih dari 0",
+                backgroundColorRes = R.color.primary
+            )
             binding.textCash.error = "Uang tunai harus lebih dari 0"
             return
         } else {
@@ -319,20 +332,35 @@ class LaundryTransactionMenuFragment : Fragment() {
 
         val selectedItems = laundryProductViewModel.selectedItems.value ?: emptyList()
         if (selectedItems.isEmpty()) {
-            Toast.makeText(requireContext(), "Pilih setidaknya satu item laundry", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Pilih setidaknya satu item laundry",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             return
         }
 
         // Validasi bahwa semua item memiliki berat
         val itemsWithoutWeight = selectedItems.filter { it.weight == null || it.weight == BigDecimal.ZERO }
         if (itemsWithoutWeight.isNotEmpty()) {
-            Toast.makeText(requireContext(), "Harap isi berat untuk semua item", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Harap isi berat untuk semua item",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             return
         }
 
         val statusTransaction = binding.statusText.selectedItem as? StatusReportLaundry
         if (statusTransaction == null) {
-            Toast.makeText(requireContext(), "Status transaksi harus dipilih", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Status transaksi harus dipilih",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.info
+            )
             return
         }
 
@@ -357,7 +385,11 @@ class LaundryTransactionMenuFragment : Fragment() {
 
         // Validasi uang tunai cukup
         if (returnAmount < BigDecimal.ZERO) {
-            Toast.makeText(requireContext(), "Uang tunai kurang dari total pembayaran", Toast.LENGTH_SHORT).show()
+            showAlert(
+                title = "Peringatan!",
+                message = "Uang tunai kurang dari total pembayaran",
+                backgroundColorRes = R.color.primary,
+            )
             binding.textCash.error = "Uang tunai kurang dari total pembayaran"
             return
         } else {
@@ -423,14 +455,12 @@ class LaundryTransactionMenuFragment : Fragment() {
             // Validasi biaya tambahan dan promo tidak negatif
             if (additionalCost < BigDecimal.ZERO) {
                 editTextAdditionalCost.error = "Biaya tambahan tidak boleh negatif"
-                Toast.makeText(context, "Biaya tambahan tidak boleh negatif", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             } else {
                 editTextAdditionalCost.error = null
             }
             if (promoAmount < BigDecimal.ZERO) {
                 editTextPromoAmount.error = "Promo tidak boleh negatif"
-                Toast.makeText(context, "Promo tidak boleh negatif", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             } else {
                 editTextPromoAmount.error = null
@@ -453,23 +483,18 @@ class LaundryTransactionMenuFragment : Fragment() {
                 if (s.toString() != current) {
                     editText.removeTextChangedListener(this)
 
-                    // Hapus semua karakter non-digit kecuali tanda koma/titik untuk desimal sementara
-                    // Tapi karena kita ingin tanpa desimal di tampilan, cukup hapus Rp, titik, koma, spasi.
                     val cleanString = s.toString()
                         .replace("[Rp,.\\s]".toRegex(), "")
 
                     if (cleanString.isNotEmpty()) {
                         try {
                             val parsed = BigDecimal(cleanString)
-                            // Gunakan numberFormatter yang sudah diatur tanpa desimal
-                            val formatted = numberFormatter.format(parsed.toDouble()) // Format untuk tampilan
+                            val formatted = numberFormatter.format(parsed.toDouble())
 
                             current = formatted
                             editText.setText(formatted)
                             editText.setSelection(formatted.length)
                         } catch (e: NumberFormatException) {
-                            Log.e("CurrencyInput", "Invalid number format: $cleanString")
-                            // Biarkan kosong atau tampilkan pesan error jika tidak valid
                         }
                     } else {
                         current = ""

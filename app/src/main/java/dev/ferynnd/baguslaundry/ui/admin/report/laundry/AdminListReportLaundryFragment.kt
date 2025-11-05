@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -33,12 +35,14 @@ import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ExportReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.ui.admin.AdminDashboardFragment
+import dev.ferynnd.baguslaundry.ui.openAdminFragment
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 class AdminListReportLaundryFragment : Fragment() {
 
     private lateinit var binding: FragmentAdminListReportLaundryBinding
@@ -91,6 +95,7 @@ class AdminListReportLaundryFragment : Fragment() {
                 return true
             }
 
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onQueryTextChange(newText: String?): Boolean {
                 laundryReportViewModel.searchLaundryReports(newText.orEmpty())
                 return true
@@ -159,9 +164,7 @@ class AdminListReportLaundryFragment : Fragment() {
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminDashboardFragment())
-                .commit()
+               openAdminFragment(AdminDashboardFragment(), "AdminDashboard")
         }
 
         return binding.root

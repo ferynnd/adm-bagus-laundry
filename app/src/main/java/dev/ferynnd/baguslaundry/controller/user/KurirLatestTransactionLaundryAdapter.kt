@@ -17,24 +17,20 @@ class KurirLatestTransactionLaundryAdapter :
 
     private val numberFormatter: NumberFormat =
         NumberFormat.getCurrencyInstance(Locale("in", "ID")).apply {
-            isGroupingUsed = true // Untuk pemisah ribuan (titik)
-            maximumFractionDigits = 0 // Ini yang menghilangkan ",00"
-            minimumFractionDigits = 0 // Pastikan tidak ada desimal minimal
+            isGroupingUsed = true
+            maximumFractionDigits = 0
+            minimumFractionDigits = 0
         }
 
-    // Class ViewHolder yang benar
     inner class ReportLaundryViewHolder(val binding: KurirCardListTerbaruLaundryBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    // Interface untuk aksi klik
     interface OnTransactionActionListener {
         fun onCompleteTransactionClicked(reportLaundry: ReportLaundry)
     }
 
-    // Variabel untuk menyimpan listener
     private var transactionActionListener: OnTransactionActionListener? = null
 
-    // Fungsi untuk mengatur listener
     fun setOnTransactionActionListener(listener: OnTransactionActionListener) {
         this.transactionActionListener = listener
     }
@@ -48,28 +44,26 @@ class KurirLatestTransactionLaundryAdapter :
 
     override fun onBindViewHolder(holder: ReportLaundryViewHolder, position: Int) {
         val report = getItem(position)
-        holder.binding.numberTransaction.text = report.number_transaction_laundry.toString()
-        holder.binding.namaPelangganTransaksiLaundry.text =
-            report.name_client_transaction_laundry.toString()
-        holder.binding.tanggalMasukTransaksiLaundry.text =
-            report.first_date_transaction_laundry.toString()
-        holder.binding.tanggalKeluarTransaksiLaundry.text =
-            if (report.last_date_transaction_laundry == null) "Tidak ada tanggal keluar" else report.last_date_transaction_laundry.toString()
-        holder.binding.pcsTransaksiLaundry.text =
-            if (report.count_item_transaction_laundry == null) "0" else report.count_item_transaction_laundry.toString()
-        holder.binding.statusTransaksiLaundry.text = report.status_transaction_laundry.toString()
-        holder.binding.hargaTransaksiLaundry.text =
-            numberFormatter.format(report.total_transaction_laundry?.toDouble() ?: 0.0)
-        holder.binding.beratTransaksiLaundry.text =
-            report.total_weight_transaction_laundry.toString()
-        holder.binding.totalHargaTransaksiLaundry.text =
-            numberFormatter.format(report.total_price_transaction_laundry?.toDouble() ?: 0.0)
-        holder.binding.tunaiTransaksiLaundry.text =
-            numberFormatter.format(report.cash_transaction_laundry?.toDouble() ?: 0.0)
 
-        // --- PERBAIKAN DI SINI ---
-        holder.binding.btnCompleteTransaction.setOnClickListener {
-            transactionActionListener?.onCompleteTransactionClicked(report) // Menggunakan 'transactionActionListener'
+        // ===== LANGSUNG PAKAI DATA YANG SUDAH DIFORMAT DARI VIEWMODEL =====
+        holder.binding.apply {
+            numberTransaction.text = report.number_transaction_laundry.toString()
+            namaPelangganTransaksiLaundry.text = report.name_client_transaction_laundry ?: "-"
+            
+            // Data sudah formatted dari ViewModel, tidak perlu parsing lagi!
+            tanggalMasukTransaksiLaundry.text = report.formatted_first_date ?: "-"
+            tanggalKeluarTransaksiLaundry.text = report.formatted_last_date ?: "Tidak ada tanggal keluar"
+            
+            pcsTransaksiLaundry.text = report.count_item_transaction_laundry?.toString() ?: "0"
+            statusTransaksiLaundry.text = report.status_transaction_laundry.toString()
+            hargaTransaksiLaundry.text = numberFormatter.format(report.total_transaction_laundry?.toDouble() ?: 0.0)
+            beratTransaksiLaundry.text = report.total_weight_transaction_laundry.toString()
+            totalHargaTransaksiLaundry.text = numberFormatter.format(report.total_price_transaction_laundry?.toDouble() ?: 0.0)
+            tunaiTransaksiLaundry.text = numberFormatter.format(report.cash_transaction_laundry?.toDouble() ?: 0.0)
+
+            btnCompleteTransaction.setOnClickListener {
+                transactionActionListener?.onCompleteTransactionClicked(report)
+            }
         }
     }
 

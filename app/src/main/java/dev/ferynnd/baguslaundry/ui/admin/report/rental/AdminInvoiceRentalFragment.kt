@@ -32,6 +32,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
+@RequiresApi(Build.VERSION_CODES.O)
 class AdminInvoiceRentalFragment : Fragment() {
 
     private lateinit var binding: FragmentAdminInvoiceRentalBinding
@@ -89,7 +90,6 @@ class AdminInvoiceRentalFragment : Fragment() {
                     setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 }
                 binding.selectBranch.adapter = adapter
-                Log.d("SpinnerLog", "Data cabang dimuat ke Spinner. Jumlah: ${branches.size}")
             }
             clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
                 clientList.clear()
@@ -103,7 +103,6 @@ class AdminInvoiceRentalFragment : Fragment() {
                     setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 }
                 binding.selectClient.adapter = adapter
-                Log.d("SpinnerLog", "Data klien dimuat ke Spinner. Jumlah: ${clients.size}")
             }
         }
 
@@ -117,12 +116,10 @@ class AdminInvoiceRentalFragment : Fragment() {
             ) {
                 val branchName = parent.getItemAtPosition(position) as String
                 selectedBranchId = branchList.find { it.name_branch == branchName }?.id_branch
-                Log.d("SpinnerLog", "Cabang dipilih: $branchName, ID: $selectedBranchId")
                 filterRentalReports()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
-                Log.d("SpinnerLog", "Tidak ada cabang yang dipilih")
             }
         }
 
@@ -136,7 +133,6 @@ class AdminInvoiceRentalFragment : Fragment() {
             ) {
                 val clientName = parent.getItemAtPosition(position) as String
                 selectedClientId = clientList.find { it.name_client == clientName }?.id_client
-                Log.d("SpinnerLog", "Klien dipilih: $clientName, ID: $selectedClientId")
                 filterRentalReports()
             }
 
@@ -190,21 +186,17 @@ class AdminInvoiceRentalFragment : Fragment() {
 
                     selectedMonth = months.indexOf(monthString) + 1 // untuk filter laporan
 
-                    // ✅ Format sesuai backend: "2025-06"
                     val paddedMonth = selectedMonth.toString().padStart(2, '0')
                     selectedMonthString = "$yearString-$paddedMonth"
 
-                    Log.d("SpinnerLog", "Bulan dipilih: $selectedMonthString, Nomor: $selectedMonth")
                 }
 
                 val monthString = selectedDate.split(" - ")[0]
                 selectedMonth = months.indexOf(monthString) + 1
-                Log.d("SpinnerLog", "Bulan dipilih: $monthString, Nomor: $selectedMonth")
                 filterRentalReports()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                Log.d("SpinnerLog", "Tidak ada tanggal yang dipilih")
             }
         }
 
@@ -219,15 +211,12 @@ class AdminInvoiceRentalFragment : Fragment() {
 
             val selectedInvoices = rentalInvoiceAdapter.getSelectedInvoiceData()
 
-            Log.d("SpinnerLog", "Selected Invoices: $selectedInvoices")
 
             val invoiceItems = selectedInvoices.map {
                 ListInvoiceRentalItem(
                     id_item_rental_invoice = it.id_item_rental_invoice
                 )
             }
-
-            Log.d("SpinnerLog", "Invoice Item : $invoiceItems")
 
             val request = PostInvoiceRentalRequest(
                 id_branch_invoice = branchId,
@@ -237,8 +226,6 @@ class AdminInvoiceRentalFragment : Fragment() {
                 additional_cost_invoice_rental = additionalCost,
                 list_invoice_rentals = invoiceItems
             )
-
-            Log.d("SpinnerLog", "Data Invoice Rental: $request")
 
             lifecycleScope.launch {
                 try {
@@ -268,9 +255,7 @@ class AdminInvoiceRentalFragment : Fragment() {
         }
 
         binding.buttonBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminListInvoiceRentalFragment())
-                .commit()
+            parentFragmentManager.popBackStack()
         }
 
         return binding.root

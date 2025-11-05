@@ -2,9 +2,8 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardBackgroundColor="@color/blueGray"
-    app:cardCornerRadius="8dp"
-    android:layout_height="40dp">
+    app:cardBackgroundColor="@android:color/transparent"
+    android:layout_height="50dp">
 
     <TextView
         android:id="@+id/inputNameBranch"
@@ -16,6 +15,6 @@
         android:fontFamily="@font/inter_semibold"
         android:textSize="18sp"
         android:gravity="center"
-        android:textColor="@color/white"
+        android:textColor="@color/gray900"
         />
 </androidx.cardview.widget.CardView>

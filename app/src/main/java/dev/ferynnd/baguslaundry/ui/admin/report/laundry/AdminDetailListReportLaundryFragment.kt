@@ -32,6 +32,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 class AdminDetailListReportLaundryFragment : Fragment() {
 
     private lateinit var binding: FragmentAdminDetailListReportLaundryBinding
@@ -117,7 +118,6 @@ class AdminDetailListReportLaundryFragment : Fragment() {
                         inputCustommer.text = dataReport.name_client_transaction_laundry
                         inputNotes.text = dataReport.notes_transaction_laundry
                         inputWeight.text = dataReport.total_weight_transaction_laundry.toString()
-                        inputIsActive.text = dataReport.is_active_transaction_laundry.toString()
                         val localeID = Locale("in", "ID")
                         val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
 
@@ -144,8 +144,8 @@ class AdminDetailListReportLaundryFragment : Fragment() {
                             StatusReportLaundry.cancelled -> "DiBatalkan"
                         }
                         inputStatus.text = dataStatus
-                        inputTimeIn.text = dataReport.first_date_transaction_laundry
-                        inputTimeOut.text = dataReport.last_date_transaction_laundry
+                        inputTimeIn.text = dataReport.formatted_first_date
+                        inputTimeOut.text = dataReport.formatted_last_date
 
 
                     }
@@ -162,9 +162,7 @@ class AdminDetailListReportLaundryFragment : Fragment() {
 
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminListReportLaundryFragment())
-                .commit()
+            parentFragmentManager.popBackStack()
         }
 
         return binding.root

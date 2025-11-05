@@ -8,18 +8,17 @@ import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.api.LoginResponse
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.model.ChangePasswordRequest
 import dev.ferynnd.baguslaundry.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-//private val authApiService: AuthApiService = RetrofitHelper(context).authApiService
 class UserRepository(context: Context) {
 
-
     private val sharedPreferences = SharePrefrenceHelper(context)
-
     private val retrofitHelper = RetrofitHelper(context)
+
     private val authApiService = retrofitHelper.authApiService
     private val userApiService = retrofitHelper.userApiService
 
@@ -35,17 +34,15 @@ class UserRepository(context: Context) {
     suspend fun login(username: String, password: String): Result<LoginResponse> {
         return try {
             val response = authApiService.login(username, password)
-
-            if (response.isSuccessful && response.body() != null) {
-                val body = response.body()!!
+            val body = response.body()
+            if (response.isSuccessful && body != null) {
                 if (body.success) {
-                    Result.success(body)
+                    Result.success(body) // login benar
                 } else {
-                    // Respons berhasil tapi login gagal (contoh: username/password salah)
-                    Result.failure(Exception(body.message ?: "Login gagal"))
+                    Result.failure(Exception(body.message ?: "Username atau password salah"))
                 }
             } else {
-                val errorMsg = response.errorBody()?.string() ?: "Terjadi kesalahan"
+                val errorMsg = response.errorBody()?.string()
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
@@ -53,22 +50,6 @@ class UserRepository(context: Context) {
         }
     }
 
-
-//
-//    suspend fun login(username: String, password: String): Result<LoginResponse> {
-//            return try {
-//                val response = authApiService.login(username, password)
-//
-//                if (response.isSuccessful && response.body() != null) {
-//                    Result.success(response.body()!!)
-//                } else {
-//                    val errorMsg = response.errorBody()?.string()
-//                    Result.failure(Exception(errorMsg))
-//                }
-//            } catch (e: Exception) {
-//                Result.failure(e)
-//            }
-//    }
 
     suspend fun getUser(): ApiResponse<User> {
         val response = userApiService.getUser(role)
@@ -85,6 +66,21 @@ class UserRepository(context: Context) {
             return response
         } else {
             throw Exception("API request failed")
+        }
+    }
+
+    suspend fun changePassword(token: String, currentPassword: String, newPassword: String): DefaultRequest<Any> {
+        try {
+            val bearerToken = "Bearer $token"
+            val request = ChangePasswordRequest(currentPassword, newPassword, newPassword)
+            val response = userApiService.changePassword(bearerToken, request)
+            if (response.success) {
+                return response
+            } else {
+                throw Exception("API request failed")
+            }
+            } catch (e: Exception) {
+            throw e
         }
     }
 }

@@ -118,9 +118,7 @@ class AdminListProductLaundryFragment : Fragment()  {
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminDashboardFragment())
-                .commit()
+            parentFragmentManager.popBackStack()
         }
 
         return binding.root

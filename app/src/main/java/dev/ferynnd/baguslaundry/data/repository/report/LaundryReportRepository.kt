@@ -7,89 +7,41 @@ import dev.ferynnd.baguslaundry.data.api.DefaultRequestPrint
 import dev.ferynnd.baguslaundry.data.api.DefaultResponse
 import dev.ferynnd.baguslaundry.data.helper.RetrofitHelper
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
-import dev.ferynnd.baguslaundry.model.ExportReportLaundry
-import dev.ferynnd.baguslaundry.model.LaundryPrintTransaction
-import dev.ferynnd.baguslaundry.model.ReportLaundry
-import dev.ferynnd.baguslaundry.model.ReportLaundryResponse
-import dev.ferynnd.baguslaundry.model.TransactionData
+import dev.ferynnd.baguslaundry.model.*
 
 class LaundryReportRepository(context: Context) {
 
     private val retrofitHelper = RetrofitHelper(context)
     private val laundryReportApiService = retrofitHelper.laundryReportApiService
-
     private val sharedPreferences = SharePrefrenceHelper(context)
 
     private val role: String
         get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
 
+    // Hanya mengambil data mentah dari API
     suspend fun getReportLaundry(): ApiResponse<ReportLaundry> {
-        try {
-            val response = laundryReportApiService.getReportRental(role)
-            if (response.success) {
-                return response
-            } else {
-                throw Exception("API request failed")
-            }
-        } catch (e: Exception) {
-            throw e
-        }
+        return laundryReportApiService.getReportRental(role)
     }
 
-
     suspend fun getReportLaundryById(id: Int): DefaultRequest<ReportLaundry> {
-        try {
-            val response = laundryReportApiService.getReportLaundryById(role, id)
-            if (response.success) {
-                return response
-            } else {
-                throw Exception("API request failed")
-            }
-        } catch (e: Exception) {
-            throw e
-
-        }
+        return laundryReportApiService.getReportLaundryById(role, id)
     }
 
     suspend fun createReportLaundry(laundryTransactionRequest: TransactionData): DefaultRequest<TransactionData> {
-        try {
-            val response =
-                laundryReportApiService.createReportLaundry(role, laundryTransactionRequest)
-            return response
-        } catch (e: Exception) {
-            throw e
-        }
+        return laundryReportApiService.createReportLaundry(role, laundryTransactionRequest)
     }
 
-    // Fungsi updateReportLaundry yang baru
     suspend fun updateReportLaundry(reportLaundry: ReportLaundry): DefaultResponse {
-        return try {
-            val idTransaction = reportLaundry.id_transaction_laundry
-                ?: throw IllegalArgumentException("Transaction ID cannot be null for update.")
-
-            laundryReportApiService.updateReportLaundry(role, idTransaction, reportLaundry)
-        } catch (e: Exception) {
-            DefaultResponse(success = false, message = e.message ?: "Kesalahan jaringan")
-        }
+        val idTransaction = reportLaundry.id_transaction_laundry
+            ?: throw IllegalArgumentException("Transaction ID cannot be null for update.")
+        return laundryReportApiService.updateReportLaundry(role, idTransaction, reportLaundry)
     }
 
     suspend fun exportLaundryMonthly(exportReport: ExportReportLaundry): DefaultRequest<ReportLaundryResponse> {
-        try {
-            val response = laundryReportApiService.exportLaundryMonthly(exportReport)
-            if (response.success) {
-                return response
-            } else {
-                throw Exception("API request failed")
-            }
-        } catch (e: Exception) {
-            throw e
-
-        }
+        return laundryReportApiService.exportLaundryMonthly(exportReport)
     }
 
     suspend fun getLaundryPrint(id: Int?): DefaultRequestPrint<LaundryPrintTransaction> {
         return laundryReportApiService.getLaundryPrint(role, id)
     }
-
-
 }

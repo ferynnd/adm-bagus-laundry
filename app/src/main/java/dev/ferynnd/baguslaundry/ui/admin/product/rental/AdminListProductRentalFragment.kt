@@ -58,22 +58,6 @@ class AdminListProductRentalFragment : Fragment() {
             adapter = rentalProductAdapter
         }
 
-        // Tambahkan ProgressBar ke layout Anda (misalnya di fragment_admin_list_product_rental.xml)
-        // dan berikan ID 'progresBar' agar ini berfungsi.
-        // Contoh:
-        // <ProgressBar
-        //    android:id="@+id/progresBar"
-        //    style="?android:attr/progressBarStyle"
-        //    android:layout_width="wrap_content"
-        //    android:layout_height="wrap_content"
-        //    android:layout_centerInParent="true"
-        //    android:visibility="gone"
-        //    app:layout_constraintBottom_toBottomOf="parent"
-        //    app:layout_constraintEnd_toEndOf="parent"
-        //    app:layout_constraintStart_toStartOf="parent"
-        //    app:layout_constraintTop_toTopOf="parent" />
-
-
         binding.btnRoutes.setOnClickListener {
             branchViewModel.branches.value?.let { branches ->
                 showFilterBottomSheet(requireContext(), branches) { selectedBranch ->
@@ -129,9 +113,7 @@ class AdminListProductRentalFragment : Fragment() {
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminDashboardFragment())
-                .commit()
+            parentFragmentManager.popBackStack()
         }
 
         return binding.root

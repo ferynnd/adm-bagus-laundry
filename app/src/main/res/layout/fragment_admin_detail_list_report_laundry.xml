@@ -77,7 +77,7 @@
             android:id="@+id/cardBackground"
             android:layout_width="0dp"
             android:layout_height="700dp"
-            app:cardBackgroundColor="@color/greenDark"
+            app:cardBackgroundColor="@color/orage"
             app:cardCornerRadius="10dp"
             android:layout_marginTop="20dp"
             app:cardElevation="0dp"
@@ -89,7 +89,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardForeground"
             android:layout_width="0dp"
-            android:layout_height="650dp"
+            android:layout_height="630dp"
             app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="10dp"
             app:cardElevation="0dp"
@@ -105,7 +105,7 @@
             android:text="CAB001234"
             android:fontFamily="@font/inter_medium"
             android:textSize="18sp"
-            android:textColor="@color/white"
+            android:textColor="@color/gray900"
             android:layout_marginStart="15dp"
             app:layout_constraintBottom_toTopOf="@id/cardForeground"
             app:layout_constraintStart_toStartOf="@id/cardBackground"
@@ -515,47 +515,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     />
-            </TableRow>
-
-            <TableRow>
-                <TextView
-                    android:text="AKTIF"
-                    android:padding="10dp"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/inter"
-                    android:layout_marginStart="10dp"
-                    android:textColor="@color/blue900"
-                    android:textAlignment="textStart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    /> <!-- kasih lebar minimum -->
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/layoutIsActive"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    app:cardBackgroundColor="@color/baseActive"
-                    android:layout_marginVertical="5dp"
-                    android:layout_marginEnd="10dp"
-                    app:cardCornerRadius="5dp"
-                    app:cardElevation="2dp"
-                    android:padding="10dp">
-
-                    <TextView
-                        android:id="@+id/inputIsActive"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:fontFamily="@font/inter_medium"
-                        android:textSize="12sp"
-                        android:gravity="center"
-                        android:textAllCaps="true"
-                        android:textColor="@color/white"
-                        android:text="ACTIVE"
-                        />
-
-                </androidx.cardview.widget.CardView>
-
             </TableRow>
 
             <TableRow>

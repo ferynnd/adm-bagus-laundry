@@ -47,12 +47,6 @@ class DetailLaundryReportAdapter : ListAdapter<ListTransactionLaundry, DetailLau
             inputWeight.text = detailReportLaundry.weight_list_transaction_laundry.toString()
             inputNumber.text = detailReportLaundry.id_transaction_laundry.toString()
             inputNameItem.text = productLaundryName
-            val dataStatus = when(detailReportLaundry.is_active_list_transaction_laundry) {
-                IsActiveListTransactionLaundry.active -> "AKTIF"
-                IsActiveListTransactionLaundry.inactive -> "TIDAK AKTIF"
-                else -> null
-            }
-            inputStatus.text = dataStatus
         }
     }
 

@@ -125,7 +125,7 @@ class RentalReportAdapter(
                     inputNotes.text = transactionReportRental.notes_transaction_rental.takeIf {
                         !it.isNullOrBlank()
                     } ?: "-"
-                    inputTime.text = transactionReportRental.time_transaction_rental
+                    inputTime.text = transactionReportRental.formatted_time_transaction_rental
                     idTransactionRental.text = transactionReportRental.number_transaction_rental.toString()
 
                     // Setup RecyclerView untuk list items dengan null check
@@ -140,9 +140,6 @@ class RentalReportAdapter(
             is HeaderViewHolder -> {
                 val header = item as String
                 holder.binding.inputNameBranch.text = header
-                val context = holder.binding.root.context
-                val color = ContextCompat.getColor(context, R.color.blueGray)
-                holder.binding.root.setCardBackgroundColor(color)
             }
         }
     }
@@ -155,8 +152,6 @@ class RentalReportAdapter(
         val matchingItems = rentalListItem.filter {
             it.id_rental_transaction == transaction.id_transaction_rental
         }
-
-        Log.d("RentalAdapter", "Transaction ID: ${transaction.id_transaction_rental}, Matching items: ${matchingItems.size}")
 
         if (matchingItems.isEmpty()) {
             val emptyView = TextView(holder.itemView.context).apply {

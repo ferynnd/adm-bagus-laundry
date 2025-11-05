@@ -41,13 +41,40 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
     private val _error = MutableLiveData<String>() // Tidak lagi nullable
     val error: LiveData<String> = _error
 
+    private var currentQuery: String = ""
+    private var currentBranchId: Int? = null
+
+
     fun init(context: Context) {
         laundryProductRepository = LaundryProductRepository(context)
         userRepository = UserRepository(context)
         getAllProductLaundry()
     }
 
-    // Fungsi publik untuk mereset pesan error
+    fun setBranchFilter(branchId: Int?) {
+        currentBranchId = branchId
+        applyFilters()
+    }
+
+    fun setSearchQuery(query: String) {
+        currentQuery = query
+        applyFilters()
+    }
+
+    private fun applyFilters() {
+        val all = _laundryProducts.value ?: return
+
+        val filtered = all.filter { item ->
+            val matchBranch = currentBranchId?.let { item.id_branch_laundry_item == it } ?: true
+            val matchQuery = if (currentQuery.isBlank()) true
+                             else item.name_laundry_item?.contains(currentQuery, true) == true
+            matchBranch && matchQuery
+        }
+
+        _filteredProductLaundry.postValue(filtered)
+    }
+
+
     fun resetErrorMessage() {
         _error.postValue("") // Gunakan postValue untuk memastikan pembaruan terjadi di main thread
     }
@@ -74,7 +101,13 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    suspend fun getProductLaundry() {
+    private var isDataLoaded = false
+
+    suspend fun getProductLaundry(forceRefresh: Boolean = false) {
+        if (isDataLoaded && !forceRefresh) {
+            applyFilters() // tetap jalankan filter/search
+            return
+        }
         _loading.postValue(true)
         _error.postValue("")
 
@@ -112,25 +145,6 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
     }
 
 
-//    suspend fun getProductLaundry() {
-//        _loading.postValue(true) // Set loading to true
-//        _error.postValue("") // Reset error
-//        try {
-//            val response = laundryProductRepository.getProductLaundry()
-//            if (response.success) {
-//                val productLaundry = response.data
-//                _laundryProducts.postValue(productLaundry) // Memperbarui LiveData dengan data baru
-//                _filteredProductLaundry.postValue(productLaundry) // Also update filtered list
-//            } else {
-//                _error.postValue("Permintaan API gagal saat mengambil item laundry: ${response.message}")
-//            }
-//        } catch (e: Exception) {
-//            _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil item laundry.")
-//        } finally {
-//            _loading.postValue(false) // Always set loading to false
-//        }
-//    }
-
     suspend fun getProductLaundryById(id: Int): DefaultRequest<ProductLaundry> {
         _loading.postValue(true) // Set loading to true
         _error.postValue("") // Reset error
@@ -148,7 +162,6 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun filterClient(branchId: Int?) {
-        // No loading indicator here as it's a local filter operation
         val allLaundryProducts = _laundryProducts.value ?: return
         _filteredProductLaundry.value = if (branchId == null) {
             allLaundryProducts
@@ -158,7 +171,6 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun searchLaundryProducts(query: String) {
-        // No loading indicator here as it's a local search operation
         val allLaundryProducts = _laundryProducts.value ?: return
         if (query.isBlank()) {
             _filteredProductLaundry.value = allLaundryProducts
@@ -169,24 +181,12 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    // MutableLiveData untuk item yang terpilih
     private val _selectedItems = MutableLiveData<List<ProductLaundry>>()
     val selectedItems: LiveData<List<ProductLaundry>> get() = _selectedItems
 
-    // Menyimpan daftar item terpilih
     fun setSelectedItems(items: List<ProductLaundry>) {
         _selectedItems.postValue(items)
     }
-//
-//    fun toggleItemSelection(item: ProductLaundry) {
-//        val currentList = _selectedItems.value?.toMutableList() ?: mutableListOf()
-//        if (currentList.any { it.id_laundry_item == item.id_laundry_item }) {
-//            currentList.removeAll { it.id_laundry_item == item.id_laundry_item }
-//        } else {
-//            currentList.add(item)
-//        }
-//        _selectedItems.postValue(currentList)
-//    }
 
     fun updateItemWeight(itemId: Int, weight: BigDecimal) {
         val currentList = _selectedItems.value?.toMutableList() ?: return
@@ -210,24 +210,6 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
         val selected = updatedList.filter { it.isSelected == true }
         _selectedItems.value = selected
     }
-
-
-//    fun toggleItemSelection(item: ProductLaundry) {
-//    val currentList = _selectedItems.value?.toMutableList() ?: mutableListOf()
-//
-//    if (currentList.any { it.id_laundry_item == item.id_laundry_item }) {
-//        // Batalkan seleksi
-//        currentList.removeAll { it.id_laundry_item == item.id_laundry_item }
-//        item.isSelected = false // ✅ Update state di objek
-//    } else {
-//        // Seleksi baru
-//        item.isSelected = true // ✅ Update state di objek
-//        currentList.add(item)
-//    }
-//
-//    _selectedItems.postValue(currentList)
-//}
-
 
     fun clearSelectedItems() {
         _selectedItems.postValue(emptyList())

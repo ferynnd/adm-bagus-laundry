@@ -16,7 +16,6 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- Header: No Resi | Tipe Transaksi -->
         <TextView
             android:id="@+id/no_resi_transaksi_rental"
             android:layout_width="wrap_content"
@@ -28,38 +27,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
-        <!-- Status Card -->
-<!--        <androidx.cardview.widget.CardView-->
-<!--            android:id="@+id/wadah_status"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:gravity="end"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            app:cardBackgroundColor="@color/blueGray"-->
-<!--            app:cardCornerRadius="8dp"-->
-<!--            app:cardElevation="0dp"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/no_resi_transaksi_rental">-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/nama_client_transaksi_rental"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:fontFamily="@font/inter_semibold"-->
-<!--                android:paddingHorizontal="14dp"-->
-<!--                android:paddingVertical="6dp"-->
-<!--                android:text="PRAKASA FITNES"-->
-<!--                android:textAllCaps="true"-->
-<!--                android:textColor="@color/white"-->
-<!--                android:textSize="13sp" />-->
-<!--        </androidx.cardview.widget.CardView>-->
-
         <TextView
             android:id="@+id/nama_client_transaksi_rental"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             android:fontFamily="@font/inter_semibold"
             android:text="PRAKASA FITNES"
             android:textAllCaps="true"
@@ -85,12 +57,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_semibold"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="6dp"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="8dp"
                 android:text="Cetak Struk"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
-                android:textSize="13sp" />
+                android:textSize="12sp" />
         </androidx.cardview.widget.CardView>
 
         <!-- Detail Informasi (Grouped) -->
@@ -108,7 +80,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
+                android:layout_marginVertical="5dp">
 
                 <TextView
                     android:id="@+id/title_tanggal_transaksi_rental"
@@ -133,17 +105,12 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Nama Client -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp" />
 
             <!-- Nama Penerima -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
+                android:layout_marginVertical="5dp">
 
                 <TextView
                     android:id="@+id/title_nama_penerima_transaksi_rental"
@@ -172,7 +139,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
+                android:layout_marginVertical="5dp">
 
                 <TextView
                     android:id="@+id/title_nama_kurir_transaksi_rental"
@@ -201,7 +168,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
+                android:layout_marginVertical="5dp">
 
                 <TextView
                     android:id="@+id/title_jumlah_item_transaksi_rental"
@@ -232,7 +199,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp">
+                android:layout_marginVertical="5dp">
 
                 <TextView
                     android:id="@+id/title_total_berat_transaksi_rental"

@@ -60,6 +60,8 @@
             android:layout_marginEnd="8dp"
             android:paddingVertical="12dp"
             app:iconSize="14sp"
+            app:backgroundTint="@color/red600"
+            app:iconTint="@color/white"
             app:icon="@drawable/back"
             app:iconGravity="textStart" />
 
@@ -68,12 +70,12 @@
             style="@style/Widget.MaterialComponents.Button.Icon"
             android:layout_width="0dp"
             app:backgroundTint="@color/transaksiIn"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginStart="8dp"
             android:layout_weight="1.7"
             android:paddingVertical="12dp"
             android:text="Kirim STRUK"
-            android:textSize="10sp"
+            android:textSize="12sp"
             app:iconSize="14sp"
             app:icon="@drawable/share"
             app:iconGravity="textStart" />
@@ -82,12 +84,12 @@
             android:id="@+id/print_button"
             style="@style/Widget.MaterialComponents.Button.Icon"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginStart="8dp"
             android:layout_weight="1.7"
             android:paddingVertical="12dp"
             android:text="Cetak Struk"
-            android:textSize="10sp"
+            android:textSize="12sp"
             app:iconSize="14sp"
             app:icon="@drawable/report"
             app:iconGravity="textStart" />

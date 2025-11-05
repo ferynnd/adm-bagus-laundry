@@ -20,100 +20,90 @@ class ClientViewModel(application: Application) : AndroidViewModel(application) 
     private val _clients = MutableLiveData<List<Client>>()
     val clients: LiveData<List<Client>> get() = _clients
 
-    // Tambahkan LiveData untuk loading dan error
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> get() = _loading
 
-    private val _error = MutableLiveData<String>() // Ubah menjadi non-nullable String
+    private val _error = MutableLiveData<String>()
     val error: LiveData<String> get() = _error
 
-    private val _filteredClients = MutableLiveData<List<Client>>()  // hasil pencarian
+    private val _filteredClients = MutableLiveData<List<Client>>()
     val filteredClients: LiveData<List<Client>> get() = _filteredClients
 
+    private var currentQuery: String = ""
+    private var selectedBranchId: Int? = null
 
     fun init(context: Context) {
         clientRepository = ClientRepository(context)
-        getAllClient()
+        fetchAllClients()
     }
 
-    // Fungsi publik untuk mereset pesan error
-    fun resetErrorMessage() {
-        _error.postValue("") // Gunakan postValue untuk memastikan pembaruan terjadi di main thread
-    }
-
-    private fun getAllClient() {
-        _loading.postValue(true) // Set loading to true
-        _error.postValue("") // Reset error message
+    fun getClient() {
         viewModelScope.launch {
+            _loading.postValue(true)
+            _error.postValue("")
             try {
                 val response = clientRepository.getClient()
                 if (response.success) {
                     _clients.postValue(response.data)
-                    _filteredClients.postValue(response.data) // Inisialisasi filtered list dengan semua data
+                    applyCurrentFilters(response.data)
                 } else {
-                    _error.postValue("Gagal memuat data klien awal: ${response.message ?: "Pesan tidak tersedia"}")
+                    _error.postValue(response.message ?: "Gagal memuat klien.")
+                }
+            } catch ( e : Exception) {
+                _error.postValue(e.message ?: "Kesalahan jaringan.")
+            } finally {
+                _loading.postValue(false)
+            }
+        }
+    }
+
+    private fun fetchAllClients() {
+        viewModelScope.launch {
+            _loading.postValue(true)
+            _error.postValue("")
+            try {
+                val response = clientRepository.getClient()
+                if (response.success) {
+                    _clients.postValue(response.data)
+                    applyCurrentFilters(response.data)
+                } else {
+                    _error.postValue(response.message ?: "Gagal memuat klien.")
                 }
             } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan saat memuat data klien awal.")
+                _error.postValue(e.message ?: "Kesalahan jaringan.")
             } finally {
-                _loading.postValue(false) // Always set loading to false
+                _loading.postValue(false)
             }
         }
     }
 
-
-    suspend fun getClient() {
-        _loading.postValue(true) // Set loading to true
-        _error.postValue("") // Reset error message
-        try {
-            val response = clientRepository.getClient()
-            if (response.success) {
-                val client = response.data
-                _clients.postValue(client) // Memperbarui LiveData dengan data baru
-                _filteredClients.postValue(client) // Perbarui juga filtered list
-            } else {
-                _error.postValue("Permintaan API gagal saat mengambil klien: ${response.message ?: "Pesan tidak tersedia"}")
-            }
-        } catch (e: Exception) {
-            _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil data klien.")
-        } finally {
-            _loading.postValue(false) // Always set loading to false
+     private fun applyCurrentFilters(all: List<Client>) {
+        var result = all
+        selectedBranchId?.let { id ->
+            result = result.filter { it.id_client == id }
         }
-    }
-
-
-    suspend fun getClientById(id: Int): DefaultRequest<Client> {
-        _loading.postValue(true) // Set loading to true
-        _error.postValue("") // Reset error message
-        return try {
-            clientRepository.getClientById(id)
-        } catch (e: Exception) {
-            _error.postValue(e.message ?: "Terjadi kesalahan saat mengambil klien berdasarkan ID.")
-            // Pastikan mengembalikan DefaultRequest yang valid, bukan null
-            DefaultRequest(success = false, message = e.message.toString(), data = null)
-        } finally {
-            _loading.postValue(false) // Always set loading to false
-        } as DefaultRequest<Client>
-    }
-
-
-    fun filterClient(branchId: Int?) {
-        val allClients = _clients.value ?: return
-        _filteredClients.value = if (branchId == null) {
-            allClients
-        } else {
-            allClients.filter { it.id_branch_client == branchId }
-        }
-    }
-
-     fun searchClients(query: String) {
-        val allClients = _clients.value ?: return
-        if (query.isBlank()) {
-            _filteredClients.value = allClients
-        } else {
-            _filteredClients.value = allClients.filter {
-                it.name_client?.contains(query, ignoreCase = true) == true
+        if (currentQuery.isNotEmpty()) {
+            result = result.filter {
+                it.name_client?.contains(currentQuery, ignoreCase = true) == true ||
+                it.city_client?.contains(currentQuery, ignoreCase = true) == true
             }
         }
+        _filteredClients.postValue(result)
     }
+
+    fun onSearchQueryChanged(query: String) {
+        currentQuery = query
+        _clients.value?.let { applyCurrentFilters(it) }
+    }
+
+    fun onBranchFilterSelected(branchId: Int?) {
+        selectedBranchId = branchId
+        _clients.value?.let { applyCurrentFilters(it) }
+    }
+
+    fun resetErrorMessage() {
+        _error.postValue("")
+    }
+
+
 }

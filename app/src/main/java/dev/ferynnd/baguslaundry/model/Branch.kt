@@ -13,6 +13,7 @@ data class Branch(
     val kode_pos_branch: Int? = null,
     val full_address_branch: String? = null,
     val is_active_branch: Status? = Status.active,
+    val timezone_branch: String? = null,
     val deleted_at: String? = null
 ){
     override fun toString(): String {

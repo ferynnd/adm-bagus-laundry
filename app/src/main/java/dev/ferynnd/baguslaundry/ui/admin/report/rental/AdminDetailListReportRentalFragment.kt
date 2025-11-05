@@ -38,6 +38,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 class AdminDetailListReportRentalFragment : Fragment() {
 
     private lateinit var binding: FragmentAdminDetailListReportRentalBinding
@@ -144,9 +145,10 @@ class AdminDetailListReportRentalFragment : Fragment() {
                         val branchName =
                             branch.find { it.id_branch == dataReport.id_branch_transaction_rental }?.name_branch
                                 ?: "Unknown"
+
                         inputBranch.text = branchName
 
-                        inputTime.text = dataReport.time_transaction_rental
+                        inputTime.text = dataReport.formatted_time_transaction_rental
 
                     }
 
@@ -162,9 +164,7 @@ class AdminDetailListReportRentalFragment : Fragment() {
 
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminListReportRentalFragment())
-                .commit()
+            parentFragmentManager.popBackStack()
         }
 
         return binding.root

@@ -82,25 +82,6 @@ class LaundryProductAdapter: ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallb
                     val formatRupiah = NumberFormat.getCurrencyInstance(localeID)
                     val harga = laundryItem.price_laundry_item
                     inputPrice.text = formatRupiah.format(harga)
-
-                    inputStatus.text = laundryItem.is_active_laundry_item.toString()
-                    val context = holder.binding.root.context
-                    if (laundryItem.is_active_laundry_item == IsActiveLaundryItem.active) {
-                        layoutStatus.setCardBackgroundColor(
-                            ContextCompat.getColor(
-                                context,
-                                R.color.baseActive
-                            )
-                        )
-                    } else {
-                        layoutStatus.setCardBackgroundColor(
-                            ContextCompat.getColor(
-                                context,
-                                R.color.red
-                            )
-                        )
-
-                    }
                 }
             }
             is HeaderLaundryViewHolder -> {

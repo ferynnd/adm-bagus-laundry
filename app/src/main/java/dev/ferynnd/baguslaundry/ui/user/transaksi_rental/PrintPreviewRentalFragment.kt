@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -14,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -34,6 +36,8 @@ import dev.ferynnd.baguslaundry.databinding.FragmentPrintPreviewRentalBinding
 import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.RentalPrintTransaction
+import dev.ferynnd.baguslaundry.ui.showAlert
+import dev.ferynnd.baguslaundry.ui.toBranchTime
 import dev.ferynnd.baguslaundry.ui.user.KurirTransactionReportFragment
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
@@ -43,6 +47,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
+@RequiresApi(Build.VERSION_CODES.O)
 class PrintPreviewRentalFragment : Fragment() {
 
     private var _binding: FragmentPrintPreviewRentalBinding? = null
@@ -149,20 +154,20 @@ class PrintPreviewRentalFragment : Fragment() {
                 ).show()
                 binding.printButton.isEnabled = false
                 binding.kirimButton.isEnabled = false
-                Log.e(
-                    "FetchDataError",
-                    "Error fetching transaction data: ${e.stackTraceToString()}"
-                )
             }
         }
     }
 
     private suspend fun generateReceiptHtml(data: RentalPrintTransaction): String {
-        val idUser = sharePreferences.getString("PREF_USER_ID")
-        val userData = userViewModel.getUserById(idUser?.toInt() ?: 0)
-        val filterBranch = branchViewModel.branches.value
-            ?.find { it.id_branch == userData.data.id_branch_user }
-        val storeAddress = filterBranch?.full_address_branch ?: "Alamat tidak tersedia"
+         // Ambil daftar cabang dari ViewModel
+        val branchList = branchViewModel.branches.value.orEmpty()
+
+        // Filter cabang sesuai ID cabang dari transaksi
+        val selectedBranch = branchList.find { it.id_branch == data.id_branch_transaction_rental }
+
+        // Ambil data alamat dan timezone
+        val storeAddress = selectedBranch?.full_address_branch ?: "Alamat tidak tersedia"
+        val branchTimezone = selectedBranch?.timezone_branch ?: "Asia/Jakarta" // fallback
 
         val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logo_bagus)
         val scaledLogo = Bitmap.createScaledBitmap(
@@ -298,7 +303,7 @@ class PrintPreviewRentalFragment : Fragment() {
                     <div><b>No. Invoice:</b><br>${data.number_transaction_rental}</div>
                     <div><b>Klien:</b><br>${getClientName(data.id_client_transaction_rental!!)}</div>
                     <div><b>Penerima:</b><br>${data.recipient_name_transaction_rental?.uppercase(Locale.getDefault()) ?: "-"}</div>
-                    <div><b>Tanggal:</b><br>${formatDate(data.time_transaction_rental.toString())}</div>
+                    <div><b>Tanggal:</b><br>${data.time_transaction_rental?.toBranchTime(branchTimezone)}</div>
                   </div>""")
 
             // TABEL ITEMS dengan kolom yang proporsional
@@ -443,11 +448,19 @@ class PrintPreviewRentalFragment : Fragment() {
             // Gunakan [C] untuk center alignment
             escposPrinter.printFormattedText("[C]<img>$hexImage</img>\n")
 
-            Snackbar.make(binding.root, "Struk berhasil dicetak", Snackbar.LENGTH_SHORT).show()
-
+            showAlert(
+                title = "Berhasil!",
+                message = "Struk berhasil dicetak",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.success
+            )
         } catch (e: Exception) {
-            Snackbar.make(binding.root, "Gagal mencetak: ${e.message}", Snackbar.LENGTH_LONG).show()
-            Log.e("PrinterError", e.stackTraceToString())
+            showAlert(
+                title = "Gagal!",
+                message = "Gagal mencetak: ${e.message}",
+                backgroundColorRes = R.color.red600,
+                iconRes = R.drawable.failed
+            )
         }
     }
 
@@ -473,14 +486,18 @@ class PrintPreviewRentalFragment : Fragment() {
         canvas.drawColor(android.graphics.Color.WHITE) // Background putih
         webView.draw(canvas)
 
-        Log.i("PrintBitmapSize", "Width: ${bitmap.width}px, Height: ${bitmap.height}px")
-
         return bitmap
     }
 
     private fun shareReceipt() {
         currentTransactionData?.let { data ->
             try {
+                // Ambil daftar cabang dari ViewModel
+                val branchList = branchViewModel.branches.value.orEmpty()
+                // Filter cabang sesuai ID cabang dari transaksi
+                val selectedBranch = branchList.find { it.id_branch == data.id_branch_transaction_rental }
+                // Ambil data alamat dan timezone
+                val branchTimezone = selectedBranch?.timezone_branch ?: "Asia/Jakarta" // fallback
                 // Tampilkan loading
                 binding.progressBar.visibility = View.VISIBLE
                 binding.kirimButton.isEnabled = false
@@ -514,7 +531,7 @@ class PrintPreviewRentalFragment : Fragment() {
                     append("Berikut adalah struk transaksi rental:\n\n")
                     append("📋 No. Invoice: ${data.number_transaction_rental}\n")
                     append("👤 Klien: ${client?.name_client ?: "Tidak tersedia"}\n")
-                    append("📅 Tanggal: ${formatDate(data.time_transaction_rental.toString())}\n\n")
+                    append("📅 Tanggal: ${data.time_transaction_rental?.toBranchTime(branchTimezone)}\n\n")
                     append("Terima kasih telah menggunakan layanan kami. 🙏")
                 }
 
@@ -528,12 +545,16 @@ class PrintPreviewRentalFragment : Fragment() {
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
 
-                // Buat chooser agar user bisa pilih aplikasi
                 val chooserIntent = Intent.createChooser(shareIntent, "Bagikan struk melalui")
 
                 try {
                     startActivity(chooserIntent)
-                    Snackbar.make(binding.root, "Pilih aplikasi untuk membagikan struk", Snackbar.LENGTH_SHORT).show()
+                    showAlert(
+                        title = "Peringatan!",
+                        message = "Pilih aplikasi untuk membagikan struk",
+                        backgroundColorRes = R.color.primary,
+                        iconRes = R.drawable.info
+                    )
                 } catch (e: Exception) {
                     Snackbar.make(binding.root, "Tidak ada aplikasi yang tersedia untuk membagikan", Snackbar.LENGTH_LONG).show()
                 }
@@ -588,7 +609,6 @@ class PrintPreviewRentalFragment : Fragment() {
 
             file
         } catch (e: Exception) {
-            Log.e("SaveFileError", "Error saving bitmap to file: ${e.message}")
             null
         }
     }
@@ -619,7 +639,6 @@ class PrintPreviewRentalFragment : Fragment() {
                 }
             }
         } catch (e: Exception) {
-            Log.e("CleanupError", "Error cleaning up cache files: ${e.message}")
         }
 
         _binding = null

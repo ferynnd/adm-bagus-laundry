@@ -1,24 +1,35 @@
 package dev.ferynnd.baguslaundry.controller
 
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.databinding.CardDashboardBinding
+import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.Client
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.ReportRental
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
+import dev.ferynnd.baguslaundry.ui.toBranchTime
 
 class DashboardAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
 
       private var clients: List<Client> = emptyList()
 
+    private  var branchList: List<Branch> = emptyList()
+
     fun setClient(client: List<Client>) {
         clients = client
+        notifyDataSetChanged()
+    }
+
+    fun setBranch(branch: List<Branch>) {
+        branchList = branch
         notifyDataSetChanged()
     }
 
@@ -48,16 +59,18 @@ class DashboardAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Suppress("UNCHECKED_CAST")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         when (holder) {
             is ReportLaundryViewHolder -> {
                 val data = item as ReportLaundry
+
                 holder.binding.apply {
                     header.text = "LAUNDRY"
                     inputId.text = data.number_transaction_laundry.toString()
-                    inputDate.text = data.first_date_transaction_laundry
+                    inputDate.text = data.formatted_first_date
                     val dataStatus = when (data.status_transaction_laundry) {
                         StatusReportLaundry.paid -> "Sudah Bayar"
                         StatusReportLaundry.unpaid -> "Belum Bayar"
@@ -96,11 +109,17 @@ class DashboardAdapter : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback(
 
             is ReportRentalViewHolder -> {
                 val data = item as ReportRental
-                 val nameClient = clients.find { it.id_client == data.id_client_transaction_rental }?.name_client ?: "Tanpa Nama"
+                val nameClient = clients.find { it.id_client == data.id_client_transaction_rental }?.name_client ?: "Tanpa Nama"
+
+                val branchMap = branchList.associateBy { it.id_branch }
+                val branchTimezone = branchMap[data.id_branch_transaction_rental]?.timezone_branch
+                    ?: "Asia/Jakarta" // fallback jika null
+
+
                 holder.binding.apply {
                     header.text = "PENYEWAAN"
                     inputId.text = data.number_transaction_rental.toString()
-                    inputDate.text = data.time_transaction_rental
+                    inputDate.text = data.time_transaction_rental?.toBranchTime(branchTimezone)
                     inputStatus.text = nameClient
                 }
             }

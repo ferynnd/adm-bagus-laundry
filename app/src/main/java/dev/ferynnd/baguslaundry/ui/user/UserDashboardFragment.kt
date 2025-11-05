@@ -31,15 +31,19 @@ import dev.ferynnd.baguslaundry.ui.user.transaksi_rental.CreateListTransaksiRent
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.ferynnd.baguslaundry.ui.BluetoothPairingFragment
 import dev.ferynnd.baguslaundry.controller.user.KurirLatestTransactionLaundryAdapter
+import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
 import dev.ferynnd.baguslaundry.model.ReportLaundry
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
+import dev.ferynnd.baguslaundry.ui.openUserFragment
+import dev.ferynnd.baguslaundry.ui.showAlert
+import dev.ferynnd.baguslaundry.ui.showConfirmationAlert
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.OnTransactionActionListener {
 
     private lateinit var binding: KurirFragmentUserDashboardBinding
@@ -48,11 +52,19 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
     private lateinit var laundryReportViewModel: LaundryReportViewModel
     private lateinit var kurirLatestTransactionLaundryAdapter: KurirLatestTransactionLaundryAdapter
     private lateinit var clientViewModel: ClientViewModel
+    private lateinit var branchViewModel: BranchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-        laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java]
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java].apply {
+            init(requireContext())
+        }
+        branchViewModel = ViewModelProvider(this)[BranchViewModel::class.java].apply {
+            init(requireContext())
+        }
+        laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java].apply {
+            init(requireContext())
+        }
         clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
     }
 
@@ -67,7 +79,7 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
         kurirLatestTransactionLaundryAdapter = KurirLatestTransactionLaundryAdapter()
         kurirLatestTransactionLaundryAdapter.setOnTransactionActionListener(this)
 
-        binding.recyclerView.apply { // Sesuaikan ID RecyclerView
+        binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = kurirLatestTransactionLaundryAdapter
         }
@@ -75,54 +87,60 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
         sharePrefrences = SharePrefrenceHelper(requireContext())
         val userId = sharePrefrences.getString("PREF_USER_ID")?.toInt()
         if (userId != null) {
-            // Amati LiveData transaksi dari ViewModel
+            viewLifecycleOwner.lifecycleScope.launch {
+                laundryReportViewModel.getReportLatestLaundry()
+            }
             laundryReportViewModel.laundryReports.observe(viewLifecycleOwner) { transactions ->
                 if (transactions != null) {
                     kurirLatestTransactionLaundryAdapter.submitList(transactions)
                 } else {
-                    Toast.makeText(requireContext(), "Gagal memuat transaksi", Toast.LENGTH_SHORT).show()
+                    showAlert(
+                        title = "Peringatan!",
+                        message = "Gagal memuat transaksi.",
+                        backgroundColorRes = R.color.primary,
+                    )
                 }
             }
         } else {
             Toast.makeText(requireContext(), "User ID tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
 
-         // OBSERVER UNTUK LOADING STATE
         laundryReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
             binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            // Opsional: Sembunyikan atau tampilkan RecyclerView saat loading
             binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
-
 
          // Amati response dari update status
         laundryReportViewModel.updateTransactionResponse.observe(viewLifecycleOwner) { response ->
             if (response != null) {
                 if (response.success) {
-                    Toast.makeText(requireContext(), "Transaksi berhasil diselesaikan!", Toast.LENGTH_SHORT).show()
+                    showAlert(
+                        title = "Berhasil!",
+                        message = "Transaksi berhasil diselesaikan.",
+                        backgroundColorRes = R.color.primary,
+                        iconRes = R.drawable.success
+                    )
                 } else {
-                    Toast.makeText(requireContext(), response.message ?: "Gagal menyelesaikan transaksi", Toast.LENGTH_SHORT).show()
+                    showAlert(
+                        title = "Gagal!",
+                        message = "Transaksi gagal diselesaikan.",
+                        backgroundColorRes = R.color.red600,
+                        iconRes = R.drawable.failed
+                    )
                 }
-                laundryReportViewModel.clearUpdateTransactionResponse() // Bersihkan response setelah digunakan
+                laundryReportViewModel.clearUpdateTransactionResponse()
             }
         }
 
-        // Amati error dari ViewModel
         laundryReportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             if (errorMessage.isNotEmpty()) {
-                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+                showAlert(
+                    title = "Gagal!",
+                    message = errorMessage,
+                    backgroundColorRes = R.color.red600,
+                )
                 laundryReportViewModel.clearError()
             }
-        }
-
-        // Muat data transaksi awal (semua dari cabang user)
-        // Panggil getReportLaundry di sini untuk memicu pengambilan data
-        if (userId != null) {
-            viewLifecycleOwner.lifecycleScope.launch {
-                laundryReportViewModel.getReportLatestLaundry() // Muat semua transaksi tanpa filter status awal
-            }
-        } else {
-            Toast.makeText(requireContext(), "User ID tidak ditemukan, tidak dapat memuat transaksi.", Toast.LENGTH_LONG).show()
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -142,14 +160,14 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
                     R.id.menu_setting -> {
                         parentFragmentManager.beginTransaction()
                             .replace(R.id.host_fragment_user, UserProfileFragment())
-                            .addToBackStack("setting")
+                            .addToBackStack("UserProfile")
                             .commit()
                         true
                     }
                     R.id.menu_bluetooth -> {
                         parentFragmentManager.beginTransaction()
                             .replace(R.id.host_fragment_user, BluetoothPairingFragment())
-                            .addToBackStack("bluetooth")
+                            .addToBackStack("Bluetooth")
                             .commit()
                         true
                     }
@@ -165,17 +183,11 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
         }
 
         binding.menuTransaksiLaundry.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, ListItemTransactionLaundryFragment())
-                .addToBackStack("laundry")
-                .commit()
+            openUserFragment(ListItemTransactionLaundryFragment(), "ListItemTransactionLaundry")
         }
 
         binding.menuTransaksiRental.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, CreateListTransaksiRentalFragment())
-                .addToBackStack("rental")
-                .commit()
+            openUserFragment(CreateListTransaksiRentalFragment(), "CreateTransactionRental")
         }
 
         return binding.root
@@ -183,56 +195,77 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
     }
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCompleteTransactionClicked(reportLaundry: ReportLaundry) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Konfirmasi")
-            .setMessage("Apakah Anda yakin ingin menyelesaikan transaksi ini?")
-            .setPositiveButton("Ya") { dialog, which ->
-                lifecycleScope.launch {
+        showConfirmationAlert(
+            title = "Konfirmasi!",
+            message = "Apakah Anda yakin ingin menyelesaikan transaksi ini?",
+            confirmText = "SELESAIKAN",
+            cancelText = "BATAL",
+        ) {
+            try {
+                viewLifecycleOwner.lifecycleScope.launch {
                     val transactionId = reportLaundry.id_transaction_laundry
                     if (transactionId != null) {
-                        // Buat salinan objek reportLaundry dengan status yang diperbarui
+
                         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-                        // Ambil waktu saat ini dan format ke String
                         val currentDateTime = LocalDateTime.now().format(formatter)
                         val updatedReport = reportLaundry.copy(status_transaction_laundry = StatusReportLaundry.completed, notes_transaction_laundry = " ")
 
-                        Log.d("UserDashboardFragment", "Transaction ID: $transactionId")
-                        Log.d("UserDashboardFragment", "Updated Report: $updatedReport")
-
                         laundryReportViewModel.updateTransactionStatus(
-                            updatedReport // Kirim objek ReportLaundry yang sudah diperbarui statusnya
+                            updatedReport
+                        )
+                        showAlert(
+                            title = "Berhasil",
+                            message = "Transaksi dengan id ${transactionId}, telah diselesaikan",
+                            backgroundColorRes = R.color.primary,
+                            iconRes = R.drawable.success
                         )
                     } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "ID Transaksi tidak valid.",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showAlert(
+                            title = "Gagal!",
+                            message = "ID Transaksi tidak valid.",
+                            backgroundColorRes = R.color.red600,
+                            iconRes = R.drawable.failed
+                        )
                     }
                 }
-                dialog.dismiss()
+            } catch (e: Exception) {
+                showAlert(
+                    title = "Gagal!",
+                    message = "Terjadi kesalahan: ${e.message}",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                    duration = 5000
+                )
             }
-            .setNegativeButton("Tidak") { dialog, which ->
-                dialog.dismiss()
-            }
-            .show()
+        }
     }
 
     private fun logoutDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Konfirmasi Logout")
-            .setMessage("Apakah kamu yakin ingin logout?")
-            .setPositiveButton("Ya") { dialog, _ ->
+         showConfirmationAlert(
+            title = "Konfirmasi Keluar",
+            message = "Apakah kamu yakin ingin logout?",
+            confirmText = "KELUAR",
+            cancelText = "BATAL",
+        ) {
+            try {
                 sharePrefrences.clear()
                 startActivity(Intent(requireContext(), LoginActivity::class.java))
-                dialog.dismiss()
+                showAlert(
+                    title = "Berhasil!",
+                    message = "berhasil keluar dari akun",
+                    iconRes = R.drawable.success
+                )
+            } catch (e: Exception) {
+                showAlert(
+                    title = "Gagal!",
+                    message = "Terjadi kesalahan: ${e.message}",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                    duration = 5000
+                )
             }
-            .setNegativeButton("Batal") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setCancelable(false)
-            .show()
+        }
     }
 
 

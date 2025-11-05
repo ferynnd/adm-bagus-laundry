@@ -20,6 +20,7 @@ import dev.ferynnd.baguslaundry.controller.FilterBranchAdapter
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminListBranchBinding
 import dev.ferynnd.baguslaundry.model.Branch
+import dev.ferynnd.baguslaundry.ui.openAdminFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -41,7 +42,6 @@ class AdminListBranchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAdminListBranchBinding.inflate(layoutInflater)
-        // Inflate the layout for this fragment
         branchAdapter = BranchAdapter()
 
 
@@ -52,72 +52,44 @@ class AdminListBranchFragment : Fragment() {
 
         binding.btnRoutes.setOnClickListener {
             branchViewModel.branches.value?.let { branches ->
-                showFilterBottomSheet(requireContext(), branches) { selectedBranch ->
-                    if (selectedBranch.id_branch == -1) {
-                        branchViewModel.filterClient(null) // Semua Cabang
-                    } else {
-                        branchViewModel.filterClient(selectedBranch.id_branch)
-                    }
+                showFilterBottomSheet(requireContext(), branches) { selected ->
+                    val id = if (selected.id_branch == -1) null else selected.id_branch
+                    branchViewModel.onBranchFilterSelected(id)
                 }
             }
         }
 
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+       binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let { branchViewModel.searchBranches(it) }
+                branchViewModel.onSearchQueryChanged(query.orEmpty())
                 return true
             }
-
             override fun onQueryTextChange(newText: String?): Boolean {
-                branchViewModel.searchBranches(newText.orEmpty())
+                branchViewModel.onSearchQueryChanged(newText.orEmpty())
                 return true
             }
         })
 
-
         viewLifecycleOwner.lifecycleScope.launch {
-            // Observe loading state
             branchViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
                 binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
                 binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
             }
 
-            // Observe error messages
             branchViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
                 if (errorMessage.isNotBlank()) {
                     Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                    branchViewModel.resetErrorMessage() // Panggil fungsi reset di ViewModel
+                    branchViewModel.resetErrorMessage()
                 }
             }
-
             branchViewModel.filteredBranches.observe(viewLifecycleOwner) { filteredBranches ->
                 branchAdapter.submitList(filteredBranches)
             }
-            // Hapus atau modifikasi bagian ini karena filteredBranches sudah diamati di atas
-            // Jika Anda ingin mengamati branches untuk inisialisasi awal, pastikan tidak tumpang tindih
-            // dengan filteredBranches yang menangani hasil filter/pencarian.
-            branchViewModel.branches.observe(viewLifecycleOwner) { branch ->
-                // Jika filteredBranches sudah menangani tampilan, ini mungkin tidak diperlukan
-                // atau hanya digunakan untuk update data mentah.
-                branch?.let {
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        if (it.isNotEmpty()) { // Gunakan 'it' untuk data LiveData
-                            // branchAdapter.submitList(it) // Ini akan menimpa filteredBranches
-                            // Pertimbangkan apakah Anda benar-benar perlu mengamati 'branches' DAN 'filteredBranches' secara bersamaan
-                            // Jika 'filteredBranches' adalah sumber kebenaran untuk RecyclerView,
-                            // maka Anda tidak perlu submitList di sini juga.
-                        } else {
-                            // branchAdapter.submitList(emptyList())
-                        }
-                    }
-                }
-            }
+
         }
 
         binding.arrowBack.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_admin, AdminDashboardFragment())
-                .commit()
+            parentFragmentManager.popBackStack()
         }
 
         return binding.root
@@ -143,7 +115,6 @@ class AdminListBranchFragment : Fragment() {
         adapter.submitList(items)
 
         bottomSheetDialog.setContentView(view)
-        // Menentukan tinggi bottom sheet menjadi sepertiga dari tinggi layar perangkat
         val layoutParams = bottomSheetDialog.window?.attributes
         layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
         bottomSheetDialog.window?.attributes = layoutParams

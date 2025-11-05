@@ -8,6 +8,8 @@ class Constant {
         const val PREF_USER_NAME = "PREF_USER_NAME"
         const val PREF_USER_TOKEN = "PREF_USER_TOKEN"
         const val PREF_USER_ROLE = "PREF_USER_ROLE"
+
+        const val PREF_LAST_FRAGMENT = "PREF_LAST_FRAGMENT"
     }
 
 }

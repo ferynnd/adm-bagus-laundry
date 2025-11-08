@@ -39,5 +39,9 @@ class SharePrefrenceHelper ( context: Context) {
             .apply()
     }
 
+     fun putSync(key: String, value: String) {
+        sharedPref.edit().putString(key, value).commit()
+    }
+
 
 }

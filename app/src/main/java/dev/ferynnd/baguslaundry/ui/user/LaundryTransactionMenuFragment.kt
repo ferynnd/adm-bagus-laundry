@@ -5,8 +5,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,20 +12,25 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.ViewModelProvider
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import dev.ferynnd.baguslaundry.R
-import dev.ferynnd.baguslaundry.controller.user.LaundryTransactionMenuAdapter
+import dev.ferynnd.baguslaundry.data.api.DefaultRequest
+import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.data.viewmodel.BottomNavViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
+import dev.ferynnd.baguslaundry.data.viewmodel.product.TransactionViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentLaundryTransactionMenuBinding
+import dev.ferynnd.baguslaundry.model.LaundryTransactionState
 import dev.ferynnd.baguslaundry.model.ListTransactionLaundry
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
@@ -35,405 +38,438 @@ import dev.ferynnd.baguslaundry.model.TransactionData
 import dev.ferynnd.baguslaundry.ui.openUserFragment
 import dev.ferynnd.baguslaundry.ui.showAlert
 import kotlinx.coroutines.launch
-import java.math.BigDecimal // Import BigDecimal
+import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 class LaundryTransactionMenuFragment : Fragment() {
 
-    private lateinit var binding: FragmentLaundryTransactionMenuBinding
-    private lateinit var laundryProductViewModel: LaundryProductViewModel
-    private lateinit var laundryReportViewModel: LaundryReportViewModel
-    private lateinit var userViewModel: UserViewModel
-    private lateinit var sharePrefrences: SharePrefrenceHelper
+    private var _binding: FragmentLaundryTransactionMenuBinding? = null
+    private val binding get() = _binding!!
 
-    // Map untuk menyimpan reference ke EditText berat untuk setiap item
+    private val laundryProductViewModel: LaundryProductViewModel by activityViewModels()
+    private val laundryReportViewModel: LaundryReportViewModel by activityViewModels()
+    private val userViewModel: UserViewModel by viewModels()
+    private val transactionViewModel: TransactionViewModel by activityViewModels()
+    private val bottomNavViewModel: BottomNavViewModel by activityViewModels()
+
+    private val sharedPreferences by lazy { SharePrefrenceHelper(requireContext()) }
     private val weightInputMap = mutableMapOf<Int, TextInputEditText>()
 
-    private val numberFormatter: NumberFormat =
+    private val currencyFormatter: NumberFormat by lazy {
         NumberFormat.getCurrencyInstance(Locale("in", "ID")).apply {
-            isGroupingUsed = true // Untuk pemisah ribuan (titik)
-            maximumFractionDigits = 0 // Ini yang menghilangkan ",00"
-            minimumFractionDigits = 0 // Pastikan tidak ada desimal minimal
-        }
-
-    // Fungsi helper untuk konversi String ke BigDecimal dengan aman
-    private fun getBigDecimalFromCurrencyInput(editText: TextInputEditText): BigDecimal {
-        val cleanString = editText.text.toString()
-            .replace("[Rp,.\\s]".toRegex(), "")
-            .trim()
-        return try {
-            if (cleanString.isEmpty()) BigDecimal.ZERO
-            else BigDecimal(cleanString)
-        } catch (e: NumberFormatException) {
-            BigDecimal.ZERO
+            isGroupingUsed = true
+            maximumFractionDigits = 0
+            minimumFractionDigits = 0
         }
     }
 
-    private fun getBigDecimalFromWeightInput(editText: TextInputEditText): BigDecimal {
-        val cleanString = editText.text.toString().trim()
-        return try {
-            if (cleanString.isEmpty()) BigDecimal.ZERO
-            else BigDecimal(cleanString)
-        } catch (e: NumberFormatException) {
-            BigDecimal.ZERO
-        }
-    }
-
-    private fun formatBigDecimalToRupiahWithoutDecimal(value: BigDecimal): String {
-        return numberFormatter.format(value.setScale(0, BigDecimal.ROUND_HALF_UP).toDouble())
-    }
-
+    private var isProgrammaticChange = false
     private var userId: Int = 0
-    private var userIdBranch: Int = 0
-
-    // Menggunakan var untuk memungkinkan perubahan nilai
-    private var currentNotes: String = ""
-    // Ubah tipe data ini menjadi BigDecimal
-    private var currentAdditionalCost: BigDecimal = BigDecimal.ZERO
-    private var currentPromoAmount: BigDecimal = BigDecimal.ZERO
+    private var userBranchId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        laundryProductViewModel =
-            ViewModelProvider(requireActivity())[LaundryProductViewModel::class.java]
-        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-        laundryReportViewModel =
-            ViewModelProvider(requireActivity())[LaundryReportViewModel::class.java]
         laundryReportViewModel.init(requireContext())
+        userViewModel.init(requireContext())
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentLaundryTransactionMenuBinding.inflate(inflater, container, false)
-        hideBottomNavigationView()
-
-        setupSpinner()
-
-        sharePrefrences = SharePrefrenceHelper(requireContext())
-        userId = sharePrefrences.getString(PREF_USER_ID)!!.toInt()
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val user = userViewModel.getUserById(userId)
-                userIdBranch = user.data.id_branch_user!!.toInt()
-            } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    "Gagal mendapatkan data pengguna",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
-        laundryProductViewModel.selectedItems.observe(viewLifecycleOwner) { selected ->
-            populateLinearLayout(selected)
-            updateTotalPrices() // Panggil untuk memperbarui total saat item berubah
-        }
-
-        setupCurrencyInput(binding.textCash)
-
-        binding.textCash.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                updateTotalPrices() // Perbarui total harga dan kembalian
-            }
-        })
-
-        laundryReportViewModel.createTransactionResponse.observe(viewLifecycleOwner) { response ->
-            if (response != null) {
-                if (response.success) {
-                    showAlert(
-                        title = "Berhasil!",
-                        message = "Data berhasil disimpan.",
-                        backgroundColorRes = R.color.primary,
-                        iconRes = R.drawable.success
-                    )
-                    val bundle = Bundle()
-                    bundle.putInt("transactionId", response.data.id_transaction_laundry!!)
-
-                    val fragment = PrintPreviewFragment()
-                    fragment.arguments = bundle
-
-                    openUserFragment(fragment, "PrintPreviewLaundry")
-
-
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        response.message ?: "Gagal membuat transaksi.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                laundryReportViewModel.clearCreateTransactionResponse()
-            }
-        }
-
-        laundryReportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            if (errorMessage.isNotEmpty()) {
-                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
-                laundryReportViewModel.clearError()
-            }
-        }
-
-        binding.btnSubmit.setOnClickListener {
-            createLaundryTransaction()
-        }
-
-        binding.arrowBack.setOnClickListener {
-            openUserFragment(UserDashboardFragment(), "UserDashboard")
-            activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
-        }
-
-        binding.buttonOptional.setOnClickListener {
-            showOptionalDialog(
-                requireContext(),
-                currentNotes,
-                currentAdditionalCost,
-                currentPromoAmount
-            ) { notes, additionalCost, promoAmount ->
-                currentNotes = notes
-                currentAdditionalCost = additionalCost
-                currentPromoAmount = promoAmount
-                updateTotalPrices() // Panggil untuk memperbarui total setelah opsional diubah
-            }
-        }
-
+    ): View {
+        _binding = FragmentLaundryTransactionMenuBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        laundryProductViewModel.clearSelectedItems()
-        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        view.postDelayed({ bottomNavViewModel.hide() }, 300)
+        transactionViewModel.restoreStateFromPrefs(requireContext())
+
+        setupUI()
+        setupObservers()
+        setupListeners()
+        loadUserData()
     }
 
-    private fun hideBottomNavigationView() {
-        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.GONE
-    }
-
-    // Fungsi baru untuk populate LinearLayout
-    private fun populateLinearLayout(selectedItems: List<ProductLaundry>) {
-        binding.linearLayoutContainer.removeAllViews()
-        weightInputMap.clear()
-
-        selectedItems.forEach { item ->
-            val itemView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.card_item_detail_transaction_laundry, binding.linearLayoutContainer, false)
-
-            val textName = itemView.findViewById<TextView>(R.id.textName)
-            val textPrice = itemView.findViewById<TextView>(R.id.textPrice)
-            val weightInput = itemView.findViewById<TextInputEditText>(R.id.textWeightItem)
-
-            textName.text = item.name_laundry_item
-            textPrice.text = formatBigDecimalToRupiahWithoutDecimal(item.price_laundry_item ?: BigDecimal.ZERO)
-
-            val watcher = object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    if (weightInput.hasFocus()) {
-                        val newWeight = getBigDecimalFromWeightInput(weightInput)
-                        // Validasi: berat harus > 0 dan tidak kosong
-                        if (weightInput.text.isNullOrEmpty() || newWeight <= BigDecimal.ZERO) {
-                            weightInput.error = "Berat harus diisi dan lebih dari 0"
-                            Toast.makeText(requireContext(), "Berat harus diisi dan lebih dari 0", Toast.LENGTH_SHORT).show()
-                        } else {
-                            weightInput.error = null
-                        }
-                        if (item.weight != newWeight) {
-                            laundryProductViewModel.updateItemWeight(item.id_laundry_item ?: 0, newWeight)
-                            updateTotalPrices()
-                        }
-                    }
-                }
-            }
-            weightInput.addTextChangedListener(watcher)
-
-            val expectedWeight = if (item.weight != null && item.weight != BigDecimal.ZERO) item.weight.toString() else ""
-            if (!weightInput.hasFocus() && weightInput.text?.toString() != expectedWeight) {
-                weightInput.removeTextChangedListener(watcher)
-                weightInput.setText(expectedWeight)
-                weightInput.addTextChangedListener(watcher)
-            }
-
-            weightInputMap[item.id_laundry_item!!] = weightInput
-
-            binding.linearLayoutContainer.addView(itemView)
-        }
+    private fun setupUI() {
+        setupSpinner()
+        setupCurrencyInput(binding.textCash)
+        setupClientNameInput()
     }
 
     private fun setupSpinner() {
-        val adapter = ArrayAdapter(
-            requireContext(), android.R.layout.simple_spinner_item,
-            StatusReportLaundry.entries.filter { it != StatusReportLaundry.completed }
-        )
+        val statusList = StatusReportLaundry.entries.filter { it != StatusReportLaundry.completed }
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, statusList)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.statusText.adapter = adapter
     }
 
-    private fun updateTotalPrices() {
-        var subtotal: BigDecimal = BigDecimal.ZERO
-        laundryProductViewModel.selectedItems.value?.forEach { product ->
-            val price = product.price_laundry_item ?: BigDecimal.ZERO
-            val weight = product.weight ?: BigDecimal.ZERO
-            subtotal = subtotal.add(price.multiply(weight))
-        }
-
-        val totalBeforeDiscount = subtotal.add(currentAdditionalCost)
-        val finalTotal = totalBeforeDiscount.subtract(currentPromoAmount)
-
-        binding.textTotalPrice.text = formatBigDecimalToRupiahWithoutDecimal(finalTotal)
-        val cashInput = getBigDecimalFromCurrencyInput(binding.textCash)
-        val returnAmount = cashInput.subtract(finalTotal)
-        binding.textChangeMoney.text = formatBigDecimalToRupiahWithoutDecimal(returnAmount)
+    private fun setupClientNameInput() {
+        binding.textClient.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                transactionViewModel.updateClientName(s.toString())
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
+    private fun setupObservers() {
+        // Observe transaction state
+        transactionViewModel.state.observe(viewLifecycleOwner) { state ->
+            updateUIFromState(state)
+        }
+
+        // Observe selected items from product view model
+        laundryProductViewModel.selectedItems.observe(viewLifecycleOwner) { selectedItems ->
+            transactionViewModel.updateSelectedItems(selectedItems)
+            populateItemsList(selectedItems)
+        }
+
+        // Observe transaction response
+        laundryReportViewModel.createTransactionResponse.observe(viewLifecycleOwner) { response ->
+            response?.let { handleTransactionResponse(it) }
+        }
+
+        // Observe errors
+        laundryReportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            if (errorMessage.isNotEmpty()) {
+                showToast(errorMessage)
+                laundryReportViewModel.clearError()
+            }
+        }
+    }
+
+    private fun updateUIFromState(state: LaundryTransactionState) {
+        // Update client name if not focused
+        if (!binding.textClient.hasFocus()) {
+            val currentText = binding.textClient.text.toString()
+            if (currentText != state.clientName) {
+                binding.textClient.setText(state.clientName)
+            }
+        }
+
+        // Update cash amount if not focused
+        if (!binding.textCash.hasFocus()) {
+            val formatted = formatCurrency(state.cashAmount)
+            val currentText = binding.textCash.text.toString()
+            if (currentText != formatted) {
+                isProgrammaticChange = true
+                binding.textCash.setText(formatted)
+                isProgrammaticChange = false
+            }
+        }
+
+        // Update totals
+        updateTotalPrices(state)
+    }
+
+    private fun setupListeners() {
+        binding.apply {
+            btnSubmit.setOnClickListener { createLaundryTransaction() }
+            arrowBack.setOnClickListener { navigateBack() }
+            buttonOptional.setOnClickListener { showOptionalDialog() }
+
+            textCash.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    if (!isProgrammaticChange) {
+                        transactionViewModel.updateCash(parseCurrencyInput(textCash))
+                    }
+                }
+                override fun afterTextChanged(s: Editable?) {}
+            })
+        }
+    }
+
+    private fun loadUserData() {
+        userId = sharedPreferences.getString(PREF_USER_ID)?.toIntOrNull() ?: 0
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val userResponse = userViewModel.getUserById(userId)
+                userBranchId = userResponse.data.id_branch_user ?: 0
+            } catch (e: Exception) {
+                showToast("Gagal mendapatkan data pengguna")
+            }
+        }
+    }
+
+    private fun populateItemsList(selectedItems: List<ProductLaundry>) {
+        binding.linearLayoutContainer.removeAllViews()
+        weightInputMap.clear()
+
+        selectedItems.forEach { item ->
+            val itemView = createItemView(item)
+            binding.linearLayoutContainer.addView(itemView)
+        }
+    }
+
+    private fun createItemView(item: ProductLaundry): View {
+        val itemView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.card_item_detail_transaction_laundry, binding.linearLayoutContainer, false)
+
+        val textName = itemView.findViewById<TextView>(R.id.textName)
+        val textPrice = itemView.findViewById<TextView>(R.id.textPrice)
+        val weightInput = itemView.findViewById<TextInputEditText>(R.id.textWeightItem)
+
+        textName.text = item.name_laundry_item
+        textPrice.text = formatCurrency(item.price_laundry_item ?: BigDecimal.ZERO)
+
+        setupWeightInput(weightInput, item)
+        weightInputMap[item.id_laundry_item ?: 0] = weightInput
+
+        return itemView
+    }
+
+    private fun setupWeightInput(weightInput: TextInputEditText, item: ProductLaundry) {
+        val watcher = createWeightTextWatcher(weightInput, item)
+        weightInput.addTextChangedListener(watcher)
+
+        // Set initial value
+        val expectedWeight = item.weight?.takeIf { it != BigDecimal.ZERO }?.toString() ?: ""
+        if (!weightInput.hasFocus()) {
+            isProgrammaticChange = true
+            weightInput.setText(expectedWeight)
+            isProgrammaticChange = false
+        }
+    }
+
+    private fun createWeightTextWatcher(
+        weightInput: TextInputEditText,
+        item: ProductLaundry
+    ): TextWatcher {
+        return object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (isProgrammaticChange || !weightInput.hasFocus()) return
+                handleWeightChange(weightInput, item)
+            }
+        }
+    }
+
+    private fun handleWeightChange(weightInput: TextInputEditText, item: ProductLaundry) {
+        val newWeight = parseWeightInput(weightInput)
+
+        if (weightInput.text.isNullOrEmpty() || newWeight <= BigDecimal.ZERO) {
+            weightInput.error = "Berat harus diisi dan lebih dari 0"
+        } else {
+            weightInput.error = null
+        }
+
+        if (item.weight != newWeight) {
+            laundryProductViewModel.updateItemWeight(item.id_laundry_item ?: 0, newWeight)
+        }
+    }
+
+    private fun updateTotalPrices(state: LaundryTransactionState) {
+        val subtotal = calculateSubtotal(state.selectedItems)
+        val totalBeforeDiscount = subtotal.add(state.additionalCost)
+        val finalTotal = totalBeforeDiscount.subtract(state.promoAmount)
+
+        binding.textTotalPrice.text = formatCurrency(finalTotal)
+
+        val returnAmount = state.cashAmount.subtract(finalTotal)
+        binding.textChangeMoney.text = formatCurrency(returnAmount.max(BigDecimal.ZERO))
+    }
+
+    private fun calculateSubtotal(items: List<ProductLaundry>): BigDecimal {
+        return items.fold(BigDecimal.ZERO) { acc, product ->
+            val price = product.price_laundry_item ?: BigDecimal.ZERO
+            val weight = product.weight ?: BigDecimal.ZERO
+            acc.add(price.multiply(weight))
+        }
+    }
 
     private fun createLaundryTransaction() {
-        val nameClient = binding.textClient.text.toString().trim()
-        if (nameClient.isEmpty()) {
-            showAlert(
-                title = "Peringatan!",
-                message = "Nama pelanggan harus diisi",
-                backgroundColorRes = R.color.primary
-            )
-            binding.textClient.error = "Nama pelanggan harus diisi"
-            return
+        val state = transactionViewModel.state.value ?: return
+
+        if (!validateTransaction(state)) return
+
+        val transactionData = buildTransactionData(state)
+        laundryReportViewModel.createReportLaundry(transactionData)
+    }
+
+    private fun validateTransaction(state: LaundryTransactionState): Boolean {
+        return validateClientName(state.clientName) &&
+                validateCashAmount(state.cashAmount) &&
+                validateSelectedItems(state.selectedItems) &&
+                validateItemWeights(state.selectedItems) &&
+                validateTransactionStatus() &&
+                validateSufficientCash(state)
+    }
+
+    private fun validateClientName(clientName: String): Boolean {
+        return if (clientName.trim().isEmpty()) {
+            showValidationError("Nama pelanggan harus diisi", binding.textClient)
+            false
         } else {
             binding.textClient.error = null
+            true
         }
+    }
 
-        val priceCash = getBigDecimalFromCurrencyInput(binding.textCash)
-        if (binding.textCash.text.toString().trim().isEmpty()) {
-            showAlert(
-                title = "Peringatan!",
-                message = "Uang tunai harus diisi",
-                backgroundColorRes = R.color.primary
-            )
-            binding.textCash.error = "Uang tunai harus diisi"
-            return
+    private fun validateCashAmount(cashAmount: BigDecimal): Boolean {
+        return when {
+            cashAmount <= BigDecimal.ZERO -> {
+                showValidationError("Uang tunai harus diisi dan lebih dari 0", binding.textCash)
+                false
+            }
+            else -> {
+                binding.textCash.error = null
+                true
+            }
         }
-        if (priceCash <= BigDecimal.ZERO) {
-            showAlert(
-                title = "Peringatan!",
-                message = "Uang tunai harus lebih dari 0",
-                backgroundColorRes = R.color.primary
-            )
-            binding.textCash.error = "Uang tunai harus lebih dari 0"
-            return
-        } else {
-            binding.textCash.error = null
-        }
+    }
 
-        val selectedItems = laundryProductViewModel.selectedItems.value ?: emptyList()
-        if (selectedItems.isEmpty()) {
+    private fun validateSelectedItems(items: List<ProductLaundry>): Boolean {
+        return if (items.isEmpty()) {
             showAlert(
                 title = "Peringatan!",
                 message = "Pilih setidaknya satu item laundry",
                 backgroundColorRes = R.color.primary,
                 iconRes = R.drawable.info
             )
-            return
+            false
+        } else true
+    }
+
+    private fun validateItemWeights(items: List<ProductLaundry>): Boolean {
+        val itemsWithoutWeight = items.filter {
+            it.weight == null || it.weight == BigDecimal.ZERO
         }
 
-        // Validasi bahwa semua item memiliki berat
-        val itemsWithoutWeight = selectedItems.filter { it.weight == null || it.weight == BigDecimal.ZERO }
-        if (itemsWithoutWeight.isNotEmpty()) {
+        return if (itemsWithoutWeight.isNotEmpty()) {
             showAlert(
                 title = "Peringatan!",
                 message = "Harap isi berat untuk semua item",
                 backgroundColorRes = R.color.primary,
                 iconRes = R.drawable.info
             )
-            return
-        }
+            false
+        } else true
+    }
 
-        val statusTransaction = binding.statusText.selectedItem as? StatusReportLaundry
-        if (statusTransaction == null) {
+    private fun validateTransactionStatus(): Boolean {
+        val status = binding.statusText.selectedItem as? StatusReportLaundry
+        return if (status == null) {
             showAlert(
                 title = "Peringatan!",
                 message = "Status transaksi harus dipilih",
                 backgroundColorRes = R.color.primary,
                 iconRes = R.drawable.info
             )
-            return
-        }
+            false
+        } else true
+    }
 
-        val laundryTransactionItems = selectedItems.map { selectedItem ->
+    private fun validateSufficientCash(state: LaundryTransactionState): Boolean {
+        val finalTotal = calculateFinalTotal(state)
+        val returnAmount = state.cashAmount.subtract(finalTotal)
+
+        return if (returnAmount < BigDecimal.ZERO) {
+            showValidationError("Uang tunai kurang dari total pembayaran", binding.textCash)
+            false
+        } else {
+            binding.textCash.error = null
+            true
+        }
+    }
+
+    private fun buildTransactionData(state: LaundryTransactionState): TransactionData {
+        val status = binding.statusText.selectedItem as StatusReportLaundry
+        val finalTotal = calculateFinalTotal(state)
+        val returnAmount = state.cashAmount.subtract(finalTotal)
+
+        val transactionItems = state.selectedItems.map { item ->
             ListTransactionLaundry(
-                id_item_laundry = selectedItem.id_laundry_item,
-                weight_list_transaction_laundry = selectedItem.weight,
+                id_item_laundry = item.id_laundry_item,
+                weight_list_transaction_laundry = item.weight,
                 deleted_at = null
             )
         }
 
-        // Hitung total harga dari item yang dipilih (subtotal)
-        var totalItemPrice: BigDecimal = BigDecimal.ZERO
-        selectedItems.forEach { product ->
-            val price = product.price_laundry_item ?: BigDecimal.ZERO
-            val weight = product.weight ?: BigDecimal.ZERO
-            totalItemPrice = totalItemPrice.add(price.multiply(weight))
-        }
-        val finalTotalTransaction = totalItemPrice.add(currentAdditionalCost).subtract(currentPromoAmount)
-
-        val returnAmount = priceCash.subtract(finalTotalTransaction)
-
-        // Validasi uang tunai cukup
-        if (returnAmount < BigDecimal.ZERO) {
-            showAlert(
-                title = "Peringatan!",
-                message = "Uang tunai kurang dari total pembayaran",
-                backgroundColorRes = R.color.primary,
-            )
-            binding.textCash.error = "Uang tunai kurang dari total pembayaran"
-            return
-        } else {
-            binding.textCash.error = null
-        }
-
-        val laundryTransactionRequest = TransactionData(
+        return TransactionData(
             id_kurir_transaction_laundry = userId,
-            id_branch_transaction_laundry = userIdBranch,
-            name_client_transaction_laundry = nameClient,
-            status_transaction_laundry = statusTransaction,
-            count_item_laundry_transaction_laundry = selectedItems.size,
-            promo_transaction_laundry = currentPromoAmount,
-            additional_cost_transaction_laundry = currentAdditionalCost,
-            cash_transaction_laundry = priceCash,
-            notes_transaction_laundry = currentNotes,
-            list_transaction_laundry = laundryTransactionItems,
-            total_price_transaction_laundry = finalTotalTransaction,
+            id_branch_transaction_laundry = userBranchId,
+            name_client_transaction_laundry = state.clientName.trim(),
+            status_transaction_laundry = status,
+            count_item_laundry_transaction_laundry = state.selectedItems.size,
+            promo_transaction_laundry = state.promoAmount,
+            additional_cost_transaction_laundry = state.additionalCost,
+            cash_transaction_laundry = state.cashAmount,
+            notes_transaction_laundry = state.notes,
+            list_transaction_laundry = transactionItems,
+            total_price_transaction_laundry = finalTotal,
             change_money_transaction_laundry = returnAmount,
-            total_weight_transaction_laundry = selectedItems.sumOf { it.weight ?: BigDecimal.ZERO }.takeIf { it != BigDecimal.ZERO },
-            total_transaction_laundry = finalTotalTransaction
+            total_weight_transaction_laundry = state.selectedItems
+                .sumOf { it.weight ?: BigDecimal.ZERO }
+                .takeIf { it != BigDecimal.ZERO },
+            total_transaction_laundry = finalTotal
         )
-
-        laundryReportViewModel.createReportLaundry(laundryTransactionRequest)
     }
 
-    fun showOptionalDialog(
+    private fun calculateFinalTotal(state: LaundryTransactionState): BigDecimal {
+        val subtotal = calculateSubtotal(state.selectedItems)
+        return subtotal.add(state.additionalCost).subtract(state.promoAmount)
+    }
+
+    private fun handleTransactionResponse(response: DefaultRequest<TransactionData>) {
+        if (response.success) {
+            showAlert(
+                title = "Berhasil!",
+                message = "Data berhasil disimpan.",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.success
+            )
+            laundryProductViewModel.clearSelectedItems()
+            transactionViewModel.clearSavedState(requireContext())
+            navigateToPrintPreview(response.data.id_transaction_laundry ?: 0)
+        } else {
+            showToast(response.message ?: "Gagal membuat transaksi.")
+        }
+        laundryReportViewModel.clearCreateTransactionResponse()
+    }
+
+    private fun showOptionalDialog() {
+        val state = transactionViewModel.state.value ?: return
+
+        showOptionalDialog(
+            context = requireContext(),
+            initialNotes = state.notes,
+            initialAdditional = state.additionalCost,
+            initialPromo = state.promoAmount
+        ) { notes, additionalCost, promoAmount ->
+            transactionViewModel.updateNotes(notes)
+            transactionViewModel.updateAdditionalCost(additionalCost)
+            transactionViewModel.updatePromoAmount(promoAmount)
+        }
+    }
+
+    private fun showOptionalDialog(
         context: Context,
         initialNotes: String,
         initialAdditional: BigDecimal,
         initialPromo: BigDecimal,
-        onSave: (notes: String, additionalCost: BigDecimal, promoAmount: BigDecimal) -> Unit
+        onSave: (String, BigDecimal, BigDecimal) -> Unit
     ) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_additional, null)
 
         val editTextNotes = dialogView.findViewById<TextInputEditText>(R.id.editTextNotes)
         val editTextAdditionalCost = dialogView.findViewById<TextInputEditText>(R.id.editTextAdditionalCost)
         val editTextPromoAmount = dialogView.findViewById<TextInputEditText>(R.id.editTextPromoAmount)
-        val buttonCancel = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonCancelDialog)
-        val buttonSave = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonSaveDialog)
+        val buttonCancel = dialogView.findViewById<MaterialButton>(R.id.buttonCancelDialog)
+        val buttonSave = dialogView.findViewById<MaterialButton>(R.id.buttonSaveDialog)
 
         editTextNotes.setText(initialNotes)
-        editTextAdditionalCost.setText(formatBigDecimalToRupiahWithoutDecimal(initialAdditional))
-        editTextPromoAmount.setText(formatBigDecimalToRupiahWithoutDecimal(initialPromo))
+        editTextAdditionalCost.setText(formatCurrency(initialAdditional))
+        editTextPromoAmount.setText(formatCurrency(initialPromo))
 
         setupCurrencyInput(editTextAdditionalCost)
         setupCurrencyInput(editTextPromoAmount)
@@ -443,66 +479,159 @@ class LaundryTransactionMenuFragment : Fragment() {
             .setCancelable(false)
             .create()
 
-        buttonCancel.setOnClickListener {
-            dialog.dismiss()
-        }
-
+        buttonCancel.setOnClickListener { dialog.dismiss() }
         buttonSave.setOnClickListener {
-            val notes = editTextNotes.text.toString()
-            val additionalCost = getBigDecimalFromCurrencyInput(editTextAdditionalCost)
-            val promoAmount = getBigDecimalFromCurrencyInput(editTextPromoAmount)
-
-            // Validasi biaya tambahan dan promo tidak negatif
-            if (additionalCost < BigDecimal.ZERO) {
-                editTextAdditionalCost.error = "Biaya tambahan tidak boleh negatif"
-                return@setOnClickListener
-            } else {
-                editTextAdditionalCost.error = null
-            }
-            if (promoAmount < BigDecimal.ZERO) {
-                editTextPromoAmount.error = "Promo tidak boleh negatif"
-                return@setOnClickListener
-            } else {
-                editTextPromoAmount.error = null
-            }
-
-            onSave.invoke(notes, additionalCost, promoAmount)
-            dialog.dismiss()
+            handleOptionalDialogSave(
+                dialog,
+                editTextNotes,
+                editTextAdditionalCost,
+                editTextPromoAmount,
+                onSave
+            )
         }
 
         dialog.show()
     }
 
-    fun setupCurrencyInput(editText: TextInputEditText) {
-        var current = ""
+    private fun handleOptionalDialogSave(
+        dialog: AlertDialog,
+        notesInput: TextInputEditText,
+        additionalCostInput: TextInputEditText,
+        promoInput: TextInputEditText,
+        onSave: (String, BigDecimal, BigDecimal) -> Unit
+    ) {
+        val notes = notesInput.text.toString()
+        val additionalCost = parseCurrencyInput(additionalCostInput)
+        val promoAmount = parseCurrencyInput(promoInput)
+
+        if (!validateOptionalInputs(additionalCostInput, additionalCost, promoInput, promoAmount)) {
+            return
+        }
+
+        onSave(notes, additionalCost, promoAmount)
+        dialog.dismiss()
+    }
+
+    private fun validateOptionalInputs(
+        additionalCostInput: TextInputEditText,
+        additionalCost: BigDecimal,
+        promoInput: TextInputEditText,
+        promoAmount: BigDecimal
+    ): Boolean {
+        return when {
+            additionalCost < BigDecimal.ZERO -> {
+                additionalCostInput.error = "Biaya tambahan tidak boleh negatif"
+                false
+            }
+            promoAmount < BigDecimal.ZERO -> {
+                promoInput.error = "Promo tidak boleh negatif"
+                false
+            }
+            else -> {
+                additionalCostInput.error = null
+                promoInput.error = null
+                true
+            }
+        }
+    }
+
+    private fun setupCurrencyInput(editText: TextInputEditText) {
+        var currentValue = ""
+
         editText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
             override fun afterTextChanged(s: Editable?) {
-                if (s.toString() != current) {
+                if (s.toString() != currentValue) {
                     editText.removeTextChangedListener(this)
 
-                    val cleanString = s.toString()
-                        .replace("[Rp,.\\s]".toRegex(), "")
+                    val cleanString = s.toString().replace("[Rp,.\\s]".toRegex(), "")
 
                     if (cleanString.isNotEmpty()) {
                         try {
                             val parsed = BigDecimal(cleanString)
-                            val formatted = numberFormatter.format(parsed.toDouble())
-
-                            current = formatted
+                            val formatted = currencyFormatter.format(parsed.toDouble())
+                            currentValue = formatted
                             editText.setText(formatted)
                             editText.setSelection(formatted.length)
                         } catch (e: NumberFormatException) {
+                            // Handle silently
                         }
                     } else {
-                        current = ""
-                        editText.setText("") // Hapus teks jika input kosong
+                        currentValue = ""
+                        editText.setText("")
                     }
+
                     editText.addTextChangedListener(this)
                 }
             }
         })
+    }
+
+    // ==================== Helper Methods ====================
+
+    private fun parseCurrencyInput(editText: TextInputEditText): BigDecimal {
+        val cleanString = editText.text.toString()
+            .replace("[Rp,.\\s]".toRegex(), "")
+            .trim()
+        return try {
+            if (cleanString.isEmpty()) BigDecimal.ZERO else BigDecimal(cleanString)
+        } catch (e: NumberFormatException) {
+            BigDecimal.ZERO
+        }
+    }
+
+    private fun parseWeightInput(editText: TextInputEditText): BigDecimal {
+        val cleanString = editText.text.toString().trim()
+        return try {
+            if (cleanString.isEmpty()) BigDecimal.ZERO else BigDecimal(cleanString)
+        } catch (e: NumberFormatException) {
+            BigDecimal.ZERO
+        }
+    }
+
+    private fun formatCurrency(value: BigDecimal): String {
+        return currencyFormatter.format(value.setScale(0, BigDecimal.ROUND_HALF_UP).toDouble())
+    }
+
+    private fun showValidationError(message: String, editText: TextInputEditText) {
+        showAlert(
+            title = "Peringatan!",
+            message = message,
+            backgroundColorRes = R.color.primary,
+            iconRes = R.drawable.info
+        )
+        editText.error = message
+    }
+
+    private fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
+        Toast.makeText(requireContext(), message, duration).show()
+    }
+
+    private fun navigateBack() {
+        openUserFragment(UserDashboardFragment(), "UserDashboard")
+        bottomNavViewModel.show()
+    }
+
+    private fun navigateToPrintPreview(transactionId: Int) {
+        val bundle = Bundle().apply {
+            putInt("transactionId", transactionId)
+        }
+        val fragment = PrintPreviewFragment().apply {
+            arguments = bundle
+        }
+        openUserFragment(fragment, "PrintPreviewLaundry")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // 💾 Simpan otomatis ketika user keluar ke Home atau ganti fragment
+        transactionViewModel.saveStateToPrefs(requireContext())
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        bottomNavViewModel.show()
+        _binding = null
     }
 }

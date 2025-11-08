@@ -1,10 +1,12 @@
 package dev.ferynnd.baguslaundry.ui.admin
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -20,6 +22,7 @@ import dev.ferynnd.baguslaundry.ui.admin.product.rental.AdminListProductRentalFr
 import dev.ferynnd.baguslaundry.ui.admin.report.laundry.AdminListReportLaundryFragment
 import dev.ferynnd.baguslaundry.ui.admin.report.rental.AdminListReportRentalFragment
 
+@RequiresApi(Build.VERSION_CODES.O)
 class AdminActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAdminBinding

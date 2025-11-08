@@ -2,7 +2,6 @@ package dev.ferynnd.baguslaundry.controller.user
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -14,25 +13,12 @@ import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
 
-class LaundryTransactionMenuAdapter :
-    ListAdapter<ProductLaundry, LaundryTransactionMenuAdapter.MenuProductLaundryViewHolder>(
-        MenuProductLaundryDiffCallback()
-    ) {
+class LaundryTransactionMenuAdapter(
+    private val onWeightChanged: (ProductLaundry, BigDecimal) -> Unit
+) : ListAdapter<ProductLaundry, LaundryTransactionMenuAdapter.MenuProductLaundryViewHolder>(
+    MenuProductLaundryDiffCallback()
+) {
 
-    // 1. Definisikan interface listener
-    interface OnItemWeightChangeListener {
-        fun onWeightChanged()
-    }
-
-    // 2. Variabel untuk menyimpan listener
-    private var itemWeightChangeListener: OnItemWeightChangeListener? = null
-
-    // 3. Setter untuk listener
-    fun setOnItemWeightChangeListener(listener: OnItemWeightChangeListener) {
-        this.itemWeightChangeListener = listener
-    }
-
-    // Tambahkan formatter mata uang di adapter juga untuk konsistensi tampilan
     private val numberFormatter: NumberFormat =
         NumberFormat.getCurrencyInstance(Locale("in", "ID")).apply {
             isGroupingUsed = true
@@ -40,13 +26,56 @@ class LaundryTransactionMenuAdapter :
             minimumFractionDigits = 0
         }
 
-    inner class MenuProductLaundryViewHolder(val binding: CardItemDetailTransactionLaundryBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    inner class MenuProductLaundryViewHolder(
+        val binding: CardItemDetailTransactionLaundryBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): MenuProductLaundryViewHolder {
+        private var isUpdating = false
+
+        fun bind(product: ProductLaundry) {
+            binding.apply {
+                textName.text = product.name_laundry_item
+                textPrice.text = numberFormatter.format(product.price_laundry_item ?: 0.0)
+
+                // Set weight tanpa trigger listener
+                val currentWeight = product.weight?.takeIf { it > BigDecimal.ZERO }?.toString() ?: ""
+                if (textWeightItem.text.toString() != currentWeight && !textWeightItem.hasFocus()) {
+                    isUpdating = true
+                    textWeightItem.setText(currentWeight)
+                    isUpdating = false
+                }
+
+                // Setup listener untuk weight changes
+                textWeightItem.setOnFocusChangeListener { _, hasFocus ->
+                    if (!hasFocus && !isUpdating) {
+                        validateAndUpdateWeight(product)
+                    }
+                }
+            }
+        }
+
+        private fun validateAndUpdateWeight(product: ProductLaundry) {
+            val input = binding.textWeightItem.text?.toString()?.trim() ?: ""
+            val newWeight = input.toBigDecimalOrNull() ?: BigDecimal.ZERO
+
+            when {
+                input.isEmpty() -> {
+                    binding.textWeightItem.error = "Berat wajib diisi"
+                }
+                newWeight <= BigDecimal.ZERO -> {
+                    binding.textWeightItem.error = "Berat harus > 0"
+                }
+                else -> {
+                    binding.textWeightItem.error = null
+                    if (product.weight != newWeight) {
+                        onWeightChanged(product, newWeight)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MenuProductLaundryViewHolder {
         val binding = CardItemDetailTransactionLaundryBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
@@ -54,36 +83,8 @@ class LaundryTransactionMenuAdapter :
     }
 
     override fun onBindViewHolder(holder: MenuProductLaundryViewHolder, position: Int) {
-        val product = getItem(position)
-        holder.binding.apply {
-            textName.text = product.name_laundry_item
-            textPrice.text = numberFormatter.format(product.price_laundry_item ?: 0.0)
-
-            var isEditing = false
-            val watcher = object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                    isEditing = true
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-                override fun afterTextChanged(s: Editable?) {
-                    if (!isEditing) return
-                    isEditing = false
-                    val input = s?.toString()?.toBigDecimalOrNull()
-                    product.weight = input ?: BigDecimal.ZERO
-                    itemWeightChangeListener?.onWeightChanged()
-                }
-            }
-
-        }
+        holder.bind(getItem(position))
     }
-
 }
 
 class MenuProductLaundryDiffCallback : DiffUtil.ItemCallback<ProductLaundry>() {
@@ -92,8 +93,6 @@ class MenuProductLaundryDiffCallback : DiffUtil.ItemCallback<ProductLaundry>() {
     }
 
     override fun areContentsTheSame(oldItem: ProductLaundry, newItem: ProductLaundry): Boolean {
-        // Ini harus membandingkan semua properti yang relevan untuk menentukan perubahan konten.
-        // Jika hanya membandingkan id, perubahan berat tidak akan terdeteksi.
         return oldItem.id_laundry_item == newItem.id_laundry_item &&
                 oldItem.name_laundry_item == newItem.name_laundry_item &&
                 oldItem.price_laundry_item == newItem.price_laundry_item &&

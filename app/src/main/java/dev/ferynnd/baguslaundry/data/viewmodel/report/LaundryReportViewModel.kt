@@ -64,62 +64,62 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
     /**
      * Load semua branches untuk timezone mapping
      */
-private fun loadBranches() {
-    viewModelScope.launch {
-        try {
-            val response = branchRepository.getBranch()
-            if (response.success) {
-                branches = response.data
-                response.data.forEach { branch ->
-                    branch.id_branch?.let { id ->
-                        branchesMap[id] = branch
+    private fun loadBranches() {
+        viewModelScope.launch {
+            try {
+                val response = branchRepository.getBranch()
+                if (response.success) {
+                    branches = response.data
+                    response.data.forEach { branch ->
+                        branch.id_branch?.let { id ->
+                            branchesMap[id] = branch
+                        }
                     }
                 }
+            } catch (e: Exception) {
             }
-        } catch (e: Exception) {
         }
     }
-}
 
-/**
- * Konversi waktu UTC dari API ke timezone branch
- */
-private fun formatTimeForBranch(utcTime: String?, branchId: Int?): String {
-    if (utcTime == null || branchId == null) {
-        return "-"
+    /**
+     * Konversi waktu UTC dari API ke timezone branch
+     */
+    private fun formatTimeForBranch(utcTime: String?, branchId: Int?): String {
+        if (utcTime == null || branchId == null) {
+            return "-"
+        }
+
+        val branch = branchesMap[branchId]
+        val timezone = branch?.timezone_branch ?: "Asia/Jakarta" // Default timezone
+
+
+        val formattedTime = TimezoneHelper.convertUtcToBranchTimezone(
+            utcTimeString = utcTime,
+            branchTimezone = timezone,
+            outputFormat = "dd MMM yyyy, HH:mm"
+        )
+
+        return formattedTime
     }
 
-    val branch = branchesMap[branchId]
-    val timezone = branch?.timezone_branch ?: "Asia/Jakarta" // Default timezone
+    /**
+     * Transform data dari API dengan konversi timezone
+     */
+    private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
+        val formattedFirstDate = formatTimeForBranch(
+            report.first_date_transaction_laundry,
+            report.id_branch_transaction_laundry
+        )
+        val formattedLastDate = formatTimeForBranch(
+            report.last_date_transaction_laundry,
+            report.id_branch_transaction_laundry
+        )
 
-
-    val formattedTime = TimezoneHelper.convertUtcToBranchTimezone(
-        utcTimeString = utcTime,
-        branchTimezone = timezone,
-        outputFormat = "dd MMM yyyy, HH:mm"
-    )
-
-    return formattedTime
-}
-
-/**
- * Transform data dari API dengan konversi timezone
- */
-private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
-    val formattedFirstDate = formatTimeForBranch(
-        report.first_date_transaction_laundry,
-        report.id_branch_transaction_laundry
-    )
-    val formattedLastDate = formatTimeForBranch(
-        report.last_date_transaction_laundry,
-        report.id_branch_transaction_laundry
-    )
-
-    return report.copy(
-        formatted_first_date = formattedFirstDate,
-        formatted_last_date = formattedLastDate
-    )
-}
+        return report.copy(
+            formatted_first_date = formattedFirstDate,
+            formatted_last_date = formattedLastDate
+        )
+    }
 
     /**
      * Get all laundry reports dengan timezone conversion

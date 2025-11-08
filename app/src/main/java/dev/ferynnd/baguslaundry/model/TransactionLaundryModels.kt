@@ -1,5 +1,7 @@
 package dev.ferynnd.baguslaundry.model
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import java.math.BigDecimal
 
 data class TransactionData(
@@ -24,3 +26,12 @@ data class TransactionData(
     val list_transaction_laundry: List<ListTransactionLaundry>
 )
 
+@Parcelize
+data class LaundryTransactionState(
+    val clientName: String = "",
+    val cashAmount: BigDecimal = BigDecimal.ZERO,
+    val notes: String = "",
+    val additionalCost: BigDecimal = BigDecimal.ZERO,
+    val promoAmount: BigDecimal = BigDecimal.ZERO,
+     val selectedItems: List<ProductLaundry> = emptyList()
+) : Parcelable

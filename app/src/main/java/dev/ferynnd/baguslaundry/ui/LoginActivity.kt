@@ -40,6 +40,7 @@ class LoginActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        userViewModel.init(this)
         sharedPreferences = SharePrefrenceHelper(this)
         networkViewModel = ViewModelProvider(this)[NetworkViewModel::class.java]
 
@@ -129,8 +130,7 @@ class LoginActivity : AppCompatActivity() {
      private fun checkLogin() {
         val token = sharedPreferences.getString(Constant.PREF_USER_TOKEN, null)
         if (token.isNullOrEmpty()) {
-            // Token tidak ada, arahkan pengguna ke halaman login
-            return // Tidak perlu panggil LoginActivity lagi
+            return
         } else {
             // Token ada, periksa role
             val role = sharedPreferences.getString(Constant.PREF_USER_ROLE, null)

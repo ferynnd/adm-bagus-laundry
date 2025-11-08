@@ -4,19 +4,19 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import androidx.activity.enableEdgeToEdge
+import android.util.Log
+import android.view.View
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import dev.ferynnd.baguslaundry.R
-import dev.ferynnd.baguslaundry.controller.user.KurirProductAdapter
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_LAST_FRAGMENT
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.data.viewmodel.BottomNavViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.NetworkViewModel
 import dev.ferynnd.baguslaundry.databinding.ActivityUserBinding
 import dev.ferynnd.baguslaundry.ui.BluetoothPairingFragment
@@ -31,48 +31,67 @@ class UserActivity : AppCompatActivity() {
     private var noInternetDialog: AlertDialog? = null
     private lateinit var sharedPreferences: SharePrefrenceHelper
 
+    private val bottomNavViewModel: BottomNavViewModel by viewModels()
+
+    private var isSyncingBottomNav = false
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
+
         binding = ActivityUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (savedInstanceState != null) {
+            return
+        }
+
+        bottomNavViewModel.isVisible.observe(this) { visible ->
+            binding.bottomNav.visibility = if (visible) View.VISIBLE else View.GONE
+        }
+
         networkViewModel = ViewModelProvider(this)[NetworkViewModel::class.java]
         sharedPreferences = SharePrefrenceHelper(this)
+
 
         networkViewModel.isConnected.observe(this) { isConnected ->
             if (isConnected) {
                 dismissNoInternetDialog()
-                if (savedInstanceState == null) {
-                    val lastFragmentTag = sharedPreferences.getString(PREF_LAST_FRAGMENT)
-                    val fragment = when (lastFragmentTag) {
-                        "ListItemTransactionLaundry" -> ListItemTransactionLaundryFragment()
-                        "MenuTransactionLaundry" -> LaundryTransactionMenuFragment()
-                        "PrintPreviewLaundry" -> PrintPreviewFragment()
-                        "PrintPreviewRental" -> PrintPreviewRentalFragment()
-                        "KurirTransactionReport" -> KurirTransactionReportFragment()
-                        "KurirProduct" -> KurirProductFragment()
-                        "CreateTransactionRental" -> CreateListTransaksiRentalFragment()
-                        "UserProfile" -> UserProfileFragment()
-                        "Bluetooth" -> BluetoothPairingFragment()
-                        else -> UserDashboardFragment()
-                    }
 
-                    openFragment(fragment, lastFragmentTag ?: "UserDashboard")
+                val lastFragmentTag = sharedPreferences.getString(PREF_LAST_FRAGMENT).toString()
 
-                    syncBottomNavigation(lastFragmentTag)
+                val fragment = when (lastFragmentTag) {
+                    "ListItemTransactionLaundry" -> ListItemTransactionLaundryFragment()
+                    "MenuTransactionLaundry" -> LaundryTransactionMenuFragment()
+                    "PrintPreviewLaundry" -> PrintPreviewFragment()
+                    "PrintPreviewRental" -> PrintPreviewRentalFragment()
+                    "KurirTransactionReport" -> KurirTransactionReportFragment()
+                    "KurirProduct" -> KurirProductFragment()
+                    "CreateTransactionRental" -> CreateListTransaksiRentalFragment()
+                    "UserProfile" -> UserProfileFragment()
+                    "Bluetooth" -> BluetoothPairingFragment()
+                    else -> UserDashboardFragment()
                 }
+                 val addToBackStack = lastFragmentTag != "UserDashboard"
+                openFragment(fragment, lastFragmentTag, addToBackStack)
+                syncBottomNavigation(lastFragmentTag)
             } else {
                 showNoInternetDialog()
             }
         }
 
-         supportFragmentManager.addOnBackStackChangedListener {
+        supportFragmentManager.addOnBackStackChangedListener {
             val currentFragment = supportFragmentManager.findFragmentById(R.id.host_fragment_user)
             val tag = currentFragment?.tag ?: "UserDashboard"
             sharedPreferences.put(PREF_LAST_FRAGMENT, tag)
         }
 
-       binding.bottomNav.setOnItemSelectedListener {
+        binding.bottomNav.setOnItemSelectedListener {
+             if (isSyncingBottomNav) {
+                return@setOnItemSelectedListener true
+            }
+
             when (it.itemId) {
                 R.id.transactionMenu -> {
                     openFragment(UserDashboardFragment(), "UserDashboard", false)
@@ -88,8 +107,7 @@ class UserActivity : AppCompatActivity() {
                 }
                 else -> false
             }
-       }
-
+        }
     }
 
     private fun showNoInternetDialog() {
@@ -111,27 +129,33 @@ class UserActivity : AppCompatActivity() {
     }
 
     fun openFragment(fragment: Fragment, tag: String, addToBackStack: Boolean = true) {
-        sharedPreferences.put(PREF_LAST_FRAGMENT, tag)
-
         val transaction = supportFragmentManager.beginTransaction()
             .replace(R.id.host_fragment_user, fragment, tag)
-        if (addToBackStack) transaction.addToBackStack(tag)
+
+        if (addToBackStack) {
+            transaction.addToBackStack(tag)
+        }
+
         transaction.commit()
+        sharedPreferences.put(PREF_LAST_FRAGMENT, tag)
+
     }
 
     private fun syncBottomNavigation(tag: String?) {
-        when (tag) {
-            "UserDashboard" -> binding.bottomNav.selectedItemId = R.id.transactionMenu
-            "KurirProduct" -> binding.bottomNav.selectedItemId = R.id.itemMenu
-            "KurirTransactionReport" -> binding.bottomNav.selectedItemId = R.id.reportMenu
-            else -> binding.bottomNav.selectedItemId = R.id.transactionMenu
-        }
-    }
+        isSyncingBottomNav = true
 
-    override fun onDestroy() {
-        super.onDestroy()
-        sharedPreferences.put(PREF_LAST_FRAGMENT, "UserDashboard")
+        val selectedItem = when (tag) {
+            "UserDashboard" -> R.id.transactionMenu
+            "KurirProduct" -> R.id.itemMenu
+            "KurirTransactionReport" -> R.id.reportMenu
+            else -> R.id.transactionMenu
+        }
+
+        binding.bottomNav.selectedItemId = selectedItem
+
+        binding.bottomNav.postDelayed({
+            isSyncingBottomNav = false
+        }, 150)
     }
 
 }
-

@@ -21,6 +21,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.dantsu.escposprinter.EscPosPrinter
@@ -31,6 +32,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.data.viewmodel.BottomNavViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
@@ -39,6 +41,7 @@ import dev.ferynnd.baguslaundry.databinding.FragmentPrintPreviewBinding
 import dev.ferynnd.baguslaundry.model.LaundryPrintTransaction
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
+import dev.ferynnd.baguslaundry.ui.openUserFragment
 import dev.ferynnd.baguslaundry.ui.toBranchTime
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
@@ -59,6 +62,8 @@ class PrintPreviewFragment : Fragment() {
     private lateinit var userViewModel: UserViewModel
     private lateinit var branchViewModel: BranchViewModel
     private lateinit var productLaundryViewModel: LaundryProductViewModel
+
+    private val bottomNavViewModel : BottomNavViewModel by activityViewModels()
 
     private lateinit var sharePreferences: SharePrefrenceHelper
 
@@ -84,7 +89,15 @@ class PrintPreviewFragment : Fragment() {
     ): View {
         binding = FragmentPrintPreviewBinding.inflate(inflater, container, false)
         sharePreferences = SharePrefrenceHelper(requireContext())
-        activity?.findViewById<View>(R.id.bottomNav)?.visibility = View.GONE
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        view.postDelayed({
+            bottomNavViewModel.hide()
+        }, 300)
 
         binding.printButton.setOnClickListener {
             if (transactionId != null) {
@@ -99,18 +112,8 @@ class PrintPreviewFragment : Fragment() {
         }
 
         binding.backButton.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.host_fragment_user, KurirTransactionReportFragment())
-                .addToBackStack(null)
-                .commit()
+            openUserFragment(KurirTransactionReportFragment(), "KurirTransactionReport")
         }
-
-        hideBottomNavigationView()
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         if (transactionId == null) {
             Snackbar.make(binding.root, "ID transaksi tidak tersedia", Snackbar.LENGTH_LONG).show()
@@ -120,12 +123,9 @@ class PrintPreviewFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            // Loading observer
             laundryReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
                 binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             }
-
-            // Ambil semua product laundry terlebih dahulu
             productLaundryViewModel.laundryProducts.observe(viewLifecycleOwner) { list ->
                 productLaundryList = list
                 fetchTransactionData(transactionId!!)
@@ -209,11 +209,9 @@ class PrintPreviewFragment : Fragment() {
         // Filter cabang sesuai ID cabang dari transaksi
         val selectedBranch = branchList.find { it.id_branch == data.id_branch_transaction_laundry }
 
-        // Ambil data alamat dan timezone
         val storeAddress = selectedBranch?.full_address_branch ?: "Alamat tidak tersedia"
         val branchTimezone = selectedBranch?.timezone_branch ?: "Asia/Jakarta" // fallback
 
-        // Ambil logo dan convert ke Base64
         val logoBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.logo_bagus)
         val scaledLogo = Bitmap.createScaledBitmap(
             logoBitmap,
@@ -537,21 +535,10 @@ class PrintPreviewFragment : Fragment() {
         }
     }
 
-
-    private fun hideBottomNavigationView() {
-        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.GONE
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-        activity?.findViewById<View>(R.id.bottomNav)?.visibility = View.VISIBLE
+        bottomNavViewModel.show()
 
-        // Hapus file cache struk yang sudah tidak dipakai
         try {
             val cacheDir = File(requireContext().cacheDir, "receipts")
             if (cacheDir.exists()) {

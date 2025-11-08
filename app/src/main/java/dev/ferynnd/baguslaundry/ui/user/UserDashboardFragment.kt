@@ -1,9 +1,6 @@
 package dev.ferynnd.baguslaundry.ui.user
 
-import android.app.Dialog
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -11,13 +8,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +25,7 @@ import dev.ferynnd.baguslaundry.ui.user.transaksi_rental.CreateListTransaksiRent
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.ferynnd.baguslaundry.ui.BluetoothPairingFragment
 import dev.ferynnd.baguslaundry.controller.user.KurirLatestTransactionLaundryAdapter
+import dev.ferynnd.baguslaundry.data.viewmodel.BottomNavViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
@@ -53,9 +48,12 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
     private lateinit var kurirLatestTransactionLaundryAdapter: KurirLatestTransactionLaundryAdapter
     private lateinit var clientViewModel: ClientViewModel
     private lateinit var branchViewModel: BranchViewModel
+    private val bottomNavViewModel : BottomNavViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("UserDashboard", "onCreate() dipanggil")
+
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java].apply {
             init(requireContext())
         }
@@ -71,10 +69,9 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
+    ): View {
         binding = KurirFragmentUserDashboardBinding.inflate(inflater, container, false)
-        activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
+        bottomNavViewModel.show()
 
         kurirLatestTransactionLaundryAdapter = KurirLatestTransactionLaundryAdapter()
         kurirLatestTransactionLaundryAdapter.setOnTransactionActionListener(this)
@@ -86,10 +83,12 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
 
         sharePrefrences = SharePrefrenceHelper(requireContext())
         val userId = sharePrefrences.getString("PREF_USER_ID")?.toInt()
+
         if (userId != null) {
             viewLifecycleOwner.lifecycleScope.launch {
                 laundryReportViewModel.getReportLatestLaundry()
             }
+
             laundryReportViewModel.laundryReports.observe(viewLifecycleOwner) { transactions ->
                 if (transactions != null) {
                     kurirLatestTransactionLaundryAdapter.submitList(transactions)
@@ -110,7 +109,6 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
             binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
 
-         // Amati response dari update status
         laundryReportViewModel.updateTransactionResponse.observe(viewLifecycleOwner) { response ->
             if (response != null) {
                 if (response.success) {
@@ -148,7 +146,7 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
                 val nameUser = sharePrefrences.getString(PREF_USER_NAME, null)
                 binding.headerName.text = nameUser
             } catch (e: Exception) {
-                throw e
+                Log.e("UserDashboard", "Gagal ambil nama user: ${e.message}")
             }
         }
 
@@ -158,24 +156,20 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
             popup.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.menu_setting -> {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.host_fragment_user, UserProfileFragment())
-                            .addToBackStack("UserProfile")
-                            .commit()
+                        Log.d("UserDashboard", "Navigasi ke UserProfileFragment()")
+                        openUserFragment(UserProfileFragment(), "UserProfile")
                         true
                     }
                     R.id.menu_bluetooth -> {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.host_fragment_user, BluetoothPairingFragment())
-                            .addToBackStack("Bluetooth")
-                            .commit()
+                        Log.d("UserDashboard", "Navigasi ke BluetoothPairingFragment()")
+                        openUserFragment(BluetoothPairingFragment(), "Bluetooth")
                         true
                     }
                     R.id.menu_logout -> {
+                        Log.d("UserDashboard", "Klik Logout")
                         logoutDialog()
                         true
                     }
-
                     else -> false
                 }
             }
@@ -191,8 +185,9 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
         }
 
         return binding.root
-
     }
+
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCompleteTransactionClicked(reportLaundry: ReportLaundry) {
         showConfirmationAlert(
@@ -205,18 +200,17 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
                 viewLifecycleOwner.lifecycleScope.launch {
                     val transactionId = reportLaundry.id_transaction_laundry
                     if (transactionId != null) {
-
                         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-
                         val currentDateTime = LocalDateTime.now().format(formatter)
-                        val updatedReport = reportLaundry.copy(status_transaction_laundry = StatusReportLaundry.completed, notes_transaction_laundry = " ")
-
-                        laundryReportViewModel.updateTransactionStatus(
-                            updatedReport
+                        val updatedReport = reportLaundry.copy(
+                            status_transaction_laundry = StatusReportLaundry.completed,
+                            notes_transaction_laundry = " "
                         )
+
+                        laundryReportViewModel.updateTransactionStatus(updatedReport)
                         showAlert(
                             title = "Berhasil",
-                            message = "Transaksi dengan id ${transactionId}, telah diselesaikan",
+                            message = "Transaksi dengan id $transactionId telah diselesaikan",
                             backgroundColorRes = R.color.primary,
                             iconRes = R.drawable.success
                         )
@@ -242,7 +236,7 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
     }
 
     private fun logoutDialog() {
-         showConfirmationAlert(
+        showConfirmationAlert(
             title = "Konfirmasi Keluar",
             message = "Apakah kamu yakin ingin logout?",
             confirmText = "KELUAR",
@@ -253,7 +247,7 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
                 startActivity(Intent(requireContext(), LoginActivity::class.java))
                 showAlert(
                     title = "Berhasil!",
-                    message = "berhasil keluar dari akun",
+                    message = "Berhasil keluar dari akun",
                     iconRes = R.drawable.success
                 )
             } catch (e: Exception) {
@@ -267,7 +261,4 @@ class UserDashboardFragment : Fragment(), KurirLatestTransactionLaundryAdapter.O
             }
         }
     }
-
-
-
 }

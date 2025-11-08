@@ -6,11 +6,14 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.repository.UserRepository
 import dev.ferynnd.baguslaundry.data.repository.product.LaundryProductRepository
+import dev.ferynnd.baguslaundry.model.LaundryTransactionState
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -225,5 +228,56 @@ class LaundryProductViewModel(application: Application) : AndroidViewModel(appli
 
     suspend fun deleteProductLaundry(productLaundry: ProductLaundry) {
         productLaundry.id_laundry_item?.let { laundryProductRepository.deleteProductLaundry(it) }
+    }
+}
+
+class TransactionViewModel : ViewModel() {
+
+    private val _state = MutableLiveData(LaundryTransactionState())
+    val state: LiveData<LaundryTransactionState> = _state
+
+    fun updateClientName(name: String) {
+        _state.value = _state.value?.copy(clientName = name)
+    }
+
+    fun updateCash(amount: BigDecimal) {
+        _state.value = _state.value?.copy(cashAmount = amount)
+    }
+
+    fun updateNotes(notes: String) {
+        _state.value = _state.value?.copy(notes = notes)
+    }
+
+    fun updateAdditionalCost(cost: BigDecimal) {
+        _state.value = _state.value?.copy(additionalCost = cost)
+    }
+
+    fun updatePromoAmount(promo: BigDecimal) {
+        _state.value = _state.value?.copy(promoAmount = promo)
+    }
+
+    fun updateSelectedItems(items: List<ProductLaundry>) {
+        _state.value = _state.value?.copy(selectedItems = items)
+    }
+
+
+    fun saveStateToPrefs(context: Context) {
+        val prefs = context.getSharedPreferences("transaction_state", Context.MODE_PRIVATE)
+        val json = Gson().toJson(_state.value)
+        prefs.edit().putString("laundry_state_json", json).apply()
+    }
+
+    fun restoreStateFromPrefs(context: Context) {
+        val prefs = context.getSharedPreferences("transaction_state", Context.MODE_PRIVATE)
+        val json = prefs.getString("laundry_state_json", null)
+        if (json != null) {
+            val savedState = Gson().fromJson(json, LaundryTransactionState::class.java)
+            _state.value = savedState
+        }
+    }
+
+    fun clearSavedState(context: Context) {
+        val prefs = context.getSharedPreferences("transaction_state", Context.MODE_PRIVATE)
+        prefs.edit().remove("laundry_state_json").apply()
     }
 }

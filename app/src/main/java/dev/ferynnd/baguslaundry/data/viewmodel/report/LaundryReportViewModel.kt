@@ -72,27 +72,62 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
     /**
      * Load branches dan data secara berurutan
      */
-    private fun loadBranchesAndData() {
+    private fun loadBranches() {
         viewModelScope.launch {
             try {
-                // Load branches dulu
-                val branchResponse = branchRepository.getBranch()
-                if (branchResponse.success) {
-                    branches = branchResponse.data
-                    branchResponse.data.forEach { branch ->
+                val response = branchRepository.getBranch()
+                if (response.success) {
+                    branches = response.data
+                    response.data.forEach { branch ->
                         branch.id_branch?.let { id ->
                             branchesMap[id] = branch
                         }
                     }
                     Log.d("LaundryViewModel", "Branches loaded: ${branches.size}")
                 }
-
-                // Data akan di-load lewat getReportLaundry() yang dipanggil dari fragment
             } catch (e: Exception) {
-                Log.e("LaundryViewModel", "Failed to load branches: ${e.message}")
-                _error.postValue("Gagal memuat data cabang: ${e.message}")
             }
         }
+    }
+
+    /**
+     * Konversi waktu UTC dari API ke timezone branch
+     */
+    private fun formatTimeForBranch(utcTime: String?, branchId: Int?): String {
+        if (utcTime == null || branchId == null) {
+            return "-"
+        }
+
+        val branch = branchesMap[branchId]
+        val timezone = branch?.timezone_branch ?: "Asia/Jakarta" // Default timezone
+
+
+        val formattedTime = TimezoneHelper.convertUtcToBranchTimezone(
+            utcTimeString = utcTime,
+            branchTimezone = timezone,
+            outputFormat = "dd MMM yyyy, HH:mm"
+        )
+
+        return formattedTime
+    }
+
+    /**
+     * Transform data dari API dengan konversi timezone
+     */
+    private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
+        val formattedFirstDate = formatTimeForBranch(
+            report.first_date_transaction_laundry,
+            report.id_branch_transaction_laundry
+        )
+        val formattedLastDate = formatTimeForBranch(
+            report.last_date_transaction_laundry,
+            report.id_branch_transaction_laundry
+        )
+
+        return report.copy(
+            formatted_first_date = formattedFirstDate,
+            formatted_last_date = formattedLastDate
+        )
     }
 
     /**

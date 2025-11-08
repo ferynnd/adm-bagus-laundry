@@ -15,7 +15,8 @@ data class ReportRental(
     val time_transaction_rental : String? = null,
     val list_transaction_rentals : List<ListTransactionRental>,
     val deleted_at: Any? = null,
-    val formatted_time_transaction_rental: String? = null,
+    @Transient
+    var formatted_time_transaction_rental: String? = null,
 ) {
     override fun hashCode(): Int {
         return id_transaction_rental?.hashCode() ?: 0

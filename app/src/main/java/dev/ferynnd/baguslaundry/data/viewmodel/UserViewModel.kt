@@ -54,39 +54,59 @@
         }
 
         fun login(username: String, password: String) {
-                _loading.postValue(true) // Start loading
-                viewModelScope.launch {
-                    try {
-                        val result = userRepository.login(username, password)
-                        _loginResult.postValue(result)
-                        if (result.isSuccess) {
-                            sendAlert(AlertData(
+            val TAG = "LoginViewModel"
+
+//            Log.d(TAG, "=== MULAI LOGIN ===")
+//            Log.d(TAG, "Username: $username")
+
+            _loading.postValue(true) // Start loading
+
+            viewModelScope.launch {
+                try {
+//                    Log.d(TAG, "Memanggil repository login()...")
+                    val result = userRepository.login(username, password)
+
+//                    Log.d(TAG, "Hasil login: ${result.isSuccess}")
+                    _loginResult.postValue(result)
+
+                    if (result.isSuccess) {
+                        Log.i(TAG, "Login berhasil untuk user: $username")
+                        sendAlert(
+                            AlertData(
                                 title = "Login Berhasil",
                                 message = "Selamat datang, $username!",
                                 iconRes = R.drawable.success
-                            ))
-                        } else {
-                            sendAlert(AlertData(
+                            )
+                        )
+                    } else {
+                        Log.w(TAG, "Login gagal untuk user: $username")
+                        sendAlert(
+                            AlertData(
                                 title = "Login Gagal",
-                                message ="Login gagal untuk $username",
+                                message = "Login gagal untuk $username",
                                 backgroundColorRes = android.R.color.holo_red_dark,
                                 iconRes = R.drawable.failed,
                                 duration = 5000
-                            ))
-                        }
+                            )
+                        )
+                    }
 
-                    } catch (e: Exception) {
-                        sendAlert(AlertData(
+                } catch (e: Exception) {
+                    Log.e(TAG, "Terjadi exception saat login: ${e.message}", e)
+                    sendAlert(
+                        AlertData(
                             title = "Login Error",
                             message = "Terjadi kesalahan",
                             backgroundColorRes = android.R.color.holo_red_dark,
                             iconRes = R.drawable.failed,
                             duration = 5000
-                        ))
-                    } finally {
-                        _loading.postValue(false) // End loading
-                    }
+                        )
+                    )
+                } finally {
+                    _loading.postValue(false) // End loading
+//                    Log.d(TAG, "=== LOGIN SELESAI ===")
                 }
+            }
         }
 
         suspend fun getUserById(id: Int): DefaultRequest<User> {

@@ -29,6 +29,9 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
     // Cache untuk branches agar tidak perlu fetch berulang
     private val branchesMap = mutableMapOf<Int, Branch>()
 
+    // Flag untuk memastikan init hanya dipanggil sekali
+    private var isInitialized = false
+
     private val _laundryReports = MutableLiveData<List<ReportLaundry>>()
     val laundryReports: LiveData<List<ReportLaundry>> get() = _laundryReports
 
@@ -54,96 +57,84 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
     private var users: List<User> = emptyList()
 
     fun init(context: Context) {
+        if (isInitialized) return
+
         laundryReportRepository = LaundryReportRepository(context)
         userRepository = UserRepository(context)
         branchRepository = BranchRepository(context)
-        loadBranches()
-//        getAllReportLaundry()
+
+        isInitialized = true
+
+        // Load branches terlebih dahulu
+        loadBranchesAndData()
     }
 
     /**
-     * Load semua branches untuk timezone mapping
+     * Load branches dan data secara berurutan
      */
-private fun loadBranches() {
-    viewModelScope.launch {
-        try {
-            val response = branchRepository.getBranch()
-            if (response.success) {
-                branches = response.data
-                response.data.forEach { branch ->
-                    branch.id_branch?.let { id ->
-                        branchesMap[id] = branch
-                    }
-                }
-            }
-        } catch (e: Exception) {
-        }
-    }
-}
-
-/**
- * Konversi waktu UTC dari API ke timezone branch
- */
-private fun formatTimeForBranch(utcTime: String?, branchId: Int?): String {
-    if (utcTime == null || branchId == null) {
-        return "-"
-    }
-
-    val branch = branchesMap[branchId]
-    val timezone = branch?.timezone_branch ?: "Asia/Jakarta" // Default timezone
-
-
-    val formattedTime = TimezoneHelper.convertUtcToBranchTimezone(
-        utcTimeString = utcTime,
-        branchTimezone = timezone,
-        outputFormat = "dd MMM yyyy, HH:mm"
-    )
-
-    return formattedTime
-}
-
-/**
- * Transform data dari API dengan konversi timezone
- */
-private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
-    val formattedFirstDate = formatTimeForBranch(
-        report.first_date_transaction_laundry,
-        report.id_branch_transaction_laundry
-    )
-    val formattedLastDate = formatTimeForBranch(
-        report.last_date_transaction_laundry,
-        report.id_branch_transaction_laundry
-    )
-
-    return report.copy(
-        formatted_first_date = formattedFirstDate,
-        formatted_last_date = formattedLastDate
-    )
-}
-
-    /**
-     * Get all laundry reports dengan timezone conversion
-     */
-    private fun getAllReportLaundry() {
-        _loading.postValue(true)
-        _error.postValue("")
+    private fun loadBranchesAndData() {
         viewModelScope.launch {
             try {
-                val response = laundryReportRepository.getReportLaundry()
-                if (response.success) {
-                    // Transform semua data dengan konversi timezone
-                    val transformedData = response.data.map { transformReportLaundry(it) }
-                    _laundryReports.postValue(transformedData)
-                    _filteredLaundryReports.postValue(transformedData)
-                } else {
-                    _error.postValue(response.message ?: "Gagal mengambil data laundry")
+                // Load branches dulu
+                val branchResponse = branchRepository.getBranch()
+                if (branchResponse.success) {
+                    branches = branchResponse.data
+                    branchResponse.data.forEach { branch ->
+                        branch.id_branch?.let { id ->
+                            branchesMap[id] = branch
+                        }
+                    }
+                    Log.d("LaundryViewModel", "Branches loaded: ${branches.size}")
                 }
+
+                // Data akan di-load lewat getReportLaundry() yang dipanggil dari fragment
             } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan saat memuat transaksi laundry")
-            } finally {
-                _loading.postValue(false)
+                Log.e("LaundryViewModel", "Failed to load branches: ${e.message}")
+                _error.postValue("Gagal memuat data cabang: ${e.message}")
             }
         }
+    }
+
+    /**
+     * Konversi waktu UTC dari API ke timezone branch
+     */
+    private fun formatTimeForBranch(utcTime: String?, branchId: Int?): String {
+        if (utcTime == null || branchId == null) {
+            return "-"
+        }
+
+        val branch = branchesMap[branchId]
+        val timezone = branch?.timezone_branch ?: "Asia/Jakarta"
+
+        return try {
+            TimezoneHelper.convertUtcToBranchTimezone(
+                utcTimeString = utcTime,
+                branchTimezone = timezone,
+                outputFormat = "dd MMM yyyy, HH:mm"
+            )
+        } catch (e: Exception) {
+            Log.e("LaundryViewModel", "Error formatting time: ${e.message}")
+            utcTime
+        }
+    }
+
+    /**
+     * Transform data dari API dengan konversi timezone
+     */
+    private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
+        val formattedFirstDate = formatTimeForBranch(
+            report.first_date_transaction_laundry,
+            report.id_branch_transaction_laundry
+        )
+        val formattedLastDate = formatTimeForBranch(
+            report.last_date_transaction_laundry,
+            report.id_branch_transaction_laundry
+        )
+
+        return report.copy(
+            formatted_first_date = formattedFirstDate,
+            formatted_last_date = formattedLastDate
+        )
     }
 
     /**
@@ -153,20 +144,27 @@ private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
         _loading.postValue(true)
         _error.postValue("")
         try {
+            Log.d("LaundryViewModel", "Getting laundry reports...")
+
             val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
             if (userId == null) {
                 _error.postValue("ID user tidak ditemukan")
+                _loading.postValue(false)
                 return
             }
 
             val userResponse = userRepository.getUserById(userId)
             if (!userResponse.success) {
                 _error.postValue("Gagal mengambil data user")
+                _loading.postValue(false)
                 return
             }
 
             val branchId = userResponse.data?.id_branch_user
+            Log.d("LaundryViewModel", "User branch ID: $branchId")
+
             val response = laundryReportRepository.getReportLaundry()
+            Log.d("LaundryViewModel", "API Response success: ${response.success}, data size: ${response.data?.size ?: 0}")
 
             if (response.success) {
                 // Filter dan transform data
@@ -174,12 +172,15 @@ private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
                     .filter { it.id_branch_transaction_laundry == branchId }
                     .map { transformReportLaundry(it) }
 
+                Log.d("LaundryViewModel", "Filtered laundry reports: ${filteredList.size}")
+
                 _laundryReports.postValue(filteredList)
                 _filteredLaundryReports.postValue(filteredList)
             } else {
                 _error.postValue("Gagal mengambil transaksi laundry: ${response.message}")
             }
         } catch (e: Exception) {
+            Log.e("LaundryViewModel", "Error getting laundry reports", e)
             _error.postValue(e.message ?: "Terjadi kesalahan")
         } finally {
             _loading.postValue(false)
@@ -196,12 +197,14 @@ private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
             val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
             if (userId == null) {
                 _error.postValue("ID user tidak ditemukan")
+                _loading.postValue(false)
                 return
             }
 
             val userResponse = userRepository.getUserById(userId)
             if (!userResponse.success) {
                 _error.postValue("Gagal mengambil data user")
+                _loading.postValue(false)
                 return
             }
 
@@ -212,8 +215,8 @@ private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
                 val filteredList = response.data
                     .filter {
                         it.id_branch_transaction_laundry == branchId &&
-                        (it.status_transaction_laundry == StatusReportLaundry.paid ||
-                         it.status_transaction_laundry == StatusReportLaundry.unpaid)
+                                (it.status_transaction_laundry == StatusReportLaundry.paid ||
+                                        it.status_transaction_laundry == StatusReportLaundry.unpaid)
                     }
                     .map { transformReportLaundry(it) }
 
@@ -258,13 +261,6 @@ private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
 
         return try {
             val response = laundryReportRepository.getLaundryPrint(id)
-
-            // Transform waktu jika ada data
-            if (response.success && response.data != null) {
-                // Anda bisa menambahkan transformasi waktu di sini jika diperlukan
-                // untuk LaundryPrintTransaction
-            }
-
             response
         } catch (e: Exception) {
             val errorMessage = e.message ?: "Terjadi kesalahan"
@@ -285,7 +281,6 @@ private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
         return try {
             val response = laundryReportRepository.getReportLaundryById(id)
 
-            // Transform data jika berhasil
             if (response.success && response.data != null) {
                 val transformedData = transformReportLaundry(response.data)
                 DefaultRequest(
@@ -362,8 +357,8 @@ private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
                 }?.username ?: ""
 
                 report.id_transaction_laundry.toString().contains(query, ignoreCase = true) ||
-                branchName.contains(query, ignoreCase = true) ||
-                userName.contains(query, ignoreCase = true)
+                        branchName.contains(query, ignoreCase = true) ||
+                        userName.contains(query, ignoreCase = true)
             }
         }
     }

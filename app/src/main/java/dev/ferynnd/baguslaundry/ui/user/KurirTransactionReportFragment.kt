@@ -42,7 +42,6 @@ class KurirTransactionReportFragment : Fragment() {
     private lateinit var clientViewModel: ClientViewModel
     private lateinit var branchViewModel: BranchViewModel
 
-
     private var userId: Int = 0
     private var clientList : List<Client>? = null
     private var userList : List<User>? = null
@@ -52,9 +51,16 @@ class KurirTransactionReportFragment : Fragment() {
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
         clientViewModel.init(requireContext())
-        laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java].apply { init(requireContext()) }
-        rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java].apply { init(requireContext()) }
-        branchViewModel = ViewModelProvider(this)[BranchViewModel::class.java].apply { init(requireContext()) }
+
+        laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java].apply {
+            init(requireContext())
+        }
+        rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java].apply {
+            init(requireContext())
+        }
+        branchViewModel = ViewModelProvider(this)[BranchViewModel::class.java].apply {
+            init(requireContext())
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -66,6 +72,8 @@ class KurirTransactionReportFragment : Fragment() {
         sharePrefrences = SharePrefrenceHelper(requireContext())
         userId = sharePrefrences.getString(PREF_USER_ID)?.toIntOrNull() ?: 0
 
+        Log.d("KurirFragment", "onCreateView: userId = $userId")
+
         kurirTransactionListAdapter = KurirTransactionListAdapter(parentFragmentManager)
         binding.recyclerViewTransaksiLaundry.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -74,9 +82,15 @@ class KurirTransactionReportFragment : Fragment() {
 
         // Tab event
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) = fetchDataForTab(tab.position)
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                Log.d("KurirFragment", "Tab selected: ${tab.position}")
+                fetchDataForTab(tab.position)
+            }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                Log.d("KurirFragment", "Tab reselected: ${tab?.position}")
+                tab?.position?.let { fetchDataForTab(it) }
+            }
         })
 
         // Tambahkan listener pencarian
@@ -91,52 +105,68 @@ class KurirTransactionReportFragment : Fragment() {
             }
         })
 
-        laundryReportViewModel.laundryReports.observe(viewLifecycleOwner) { laundry ->
+        // Observer laundry reports - gunakan filteredLaundryReports
+        laundryReportViewModel.filteredLaundryReports.observe(viewLifecycleOwner) { laundry ->
+            Log.d("KurirFragment", "Laundry reports observed: ${laundry?.size ?: 0} items")
             if (isLaundryTabSelected()) {
-                val filterStatus = laundry?.filter { it.status_transaction_laundry == StatusReportLaundry.completed }
+                val filterStatus = laundry?.filter {
+                    it.status_transaction_laundry == StatusReportLaundry.completed
+                } ?: emptyList()
+
+                Log.d("KurirFragment", "Completed laundry: ${filterStatus.size} items")
                 updateTransactionReportList(filterStatus)
-                updateCounter(laundry?.size ?: 0, "Laundry")
+                updateCounter(filterStatus.size, "Laundry")
             }
         }
 
-        // Observer produk rental
-        rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { rental ->
+        // Observer rental reports - gunakan filteredRentalReports
+        rentalReportViewModel.filteredRentalReports.observe(viewLifecycleOwner) { rental ->
+            Log.d("KurirFragment", "Rental reports observed: ${rental?.size ?: 0} items")
             if (isRentalTabSelected()) {
-                updateTransactionReportList(rental)
+                updateTransactionReportList(rental ?: emptyList())
                 updateCounter(rental?.size ?: 0, "Persewaan")
             }
         }
 
         // Loading observer
         laundryReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            Log.d("KurirFragment", "Laundry loading: $isLoading")
             if (isLaundryTabSelected()) updateLoadingState(isLoading)
         }
+
         rentalReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            Log.d("KurirFragment", "Rental loading: $isLoading")
             if (isRentalTabSelected()) updateLoadingState(isLoading)
         }
 
         // Error observer
         laundryReportViewModel.error.observe(viewLifecycleOwner) { error ->
             if (error.isNotBlank() && isLaundryTabSelected()) {
+                Log.e("KurirFragment", "Laundry error: $error")
                 showToast(error)
                 laundryReportViewModel.resetErrorMessage()
             }
         }
+
         rentalReportViewModel.error.observe(viewLifecycleOwner) { error ->
             if (error.isNotBlank() && isRentalTabSelected()) {
+                Log.e("KurirFragment", "Rental error: $error")
                 showToast(error)
                 rentalReportViewModel.resetErrorMessage()
             }
         }
 
+        // User dan Client observers
         userViewModel.users.observe(viewLifecycleOwner) { users ->
+            Log.d("KurirFragment", "Users loaded: ${users?.size ?: 0}")
             userList = users
-            kurirTransactionListAdapter.setUsers(users)
+            kurirTransactionListAdapter.setUsers(users ?: emptyList())
         }
 
         clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
+            Log.d("KurirFragment", "Clients loaded: ${clients?.size ?: 0}")
             clientList = clients
-            kurirTransactionListAdapter.setClients(clients)
+            kurirTransactionListAdapter.setClients(clients ?: emptyList())
         }
 
         // Load data tab pertama saat fragment tampil
@@ -147,37 +177,72 @@ class KurirTransactionReportFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun fetchDataForTab(position: Int) {
+        Log.d("KurirFragment", "fetchDataForTab: position = $position")
+
         // Reset pencarian setiap kali tab berpindah
         binding.searchView.setQuery("", false)
         binding.searchView.clearFocus()
+
+        // Tampilkan loading state
+        updateLoadingState(true)
+
         when (position) {
             0 -> {
+                Log.d("KurirFragment", "Fetching Laundry data...")
                 viewLifecycleOwner.lifecycleScope.launch {
-                    laundryReportViewModel.getReportLaundry()
+                    try {
+                        laundryReportViewModel.getReportLaundry()
+                    } catch (e: Exception) {
+                        Log.e("KurirFragment", "Error fetching laundry data", e)
+                        updateLoadingState(false)
+                        showToast("Gagal memuat data laundry: ${e.message}")
+                    }
                 }
             }
             1 -> {
+                Log.d("KurirFragment", "Fetching Rental data...")
                 viewLifecycleOwner.lifecycleScope.launch {
-                    rentalReportViewModel.getReportRental()
+                    try {
+                        rentalReportViewModel.getReportRental()
+                    } catch (e: Exception) {
+                        Log.e("KurirFragment", "Error fetching rental data", e)
+                        updateLoadingState(false)
+                        showToast("Gagal memuat data rental: ${e.message}")
+                    }
                 }
             }
         }
     }
 
-    private fun updateTransactionReportList(data: List<Any>?) {
+    private fun updateTransactionReportList(data: List<Any>) {
+        Log.d("KurirFragment", "updateTransactionReportList: ${data.size} items")
+
         kurirTransactionListAdapter.submitList(data)
-        val isEmpty = data.isNullOrEmpty()
+
+        val isEmpty = data.isEmpty()
         binding.recyclerViewTransaksiLaundry.visibility = if (!isEmpty) View.VISIBLE else View.GONE
+
+        // Tampilkan pesan jika kosong
+        if (isEmpty && !isLoadingState()) {
+            showToast("Tidak ada data tersedia")
+        }
     }
 
     private fun updateLoadingState(isLoading: Boolean) {
+        Log.d("KurirFragment", "updateLoadingState: $isLoading")
         binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+
         if (isLoading) {
             binding.recyclerViewTransaksiLaundry.visibility = View.GONE
         }
     }
 
+    private fun isLoadingState(): Boolean {
+        return binding.progresBar.visibility == View.VISIBLE
+    }
+
     private fun updateCounter(count: Int, label: String) {
+        Log.d("KurirFragment", "updateCounter: $count $label")
         binding.countData.text = count.toString()
         binding.countKeterangan.text = label
     }
@@ -188,4 +253,11 @@ class KurirTransactionReportFragment : Fragment() {
 
     private fun isLaundryTabSelected() = binding.tabLayout.selectedTabPosition == 0
     private fun isRentalTabSelected() = binding.tabLayout.selectedTabPosition == 1
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("KurirFragment", "onResume - refreshing current tab")
+        // Refresh data saat fragment kembali aktif
+        fetchDataForTab(binding.tabLayout.selectedTabPosition)
+    }
 }

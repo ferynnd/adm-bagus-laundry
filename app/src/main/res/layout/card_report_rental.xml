@@ -11,285 +11,298 @@
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="500dp"
-        app:cardBackgroundColor="@color/orage"
+        app:cardBackgroundColor="@color/blueGray"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardForeground"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="445dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="0dp"
-        app:layout_constraintStart_toStartOf="@id/cardBackground"
-        app:layout_constraintEnd_toEndOf="@id/cardBackground"
-        app:layout_constraintBottom_toBottomOf="@id/cardBackground"
-        />
-
-    <TextView
-        android:id="@+id/idTransactionRental"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="CAB001234"
-        android:fontFamily="@font/inter_medium"
-        android:textSize="18sp"
-        android:textColor="@color/gray900"
-        android:layout_marginStart="20dp"
-        app:layout_constraintBottom_toTopOf="@id/cardForeground"
-        app:layout_constraintStart_toStartOf="@id/cardBackground"
-        app:layout_constraintTop_toTopOf="@id/cardBackground"
-        android:translationZ="2dp"
-        />
-
-    <ImageView
-        android:id="@+id/buttonDetail"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/detail"
-        android:translationZ="2dp"
-        app:tint="@color/gray900"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintBottom_toTopOf="@id/cardForeground"
-        app:layout_constraintTop_toTopOf="@id/cardBackground"
-        app:layout_constraintEnd_toEndOf="@id/cardBackground" />
-
-    <TableLayout
-        android:id="@+id/tableLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        app:layout_constraintStart_toStartOf="@id/cardForeground"
-        app:layout_constraintEnd_toEndOf="@id/cardForeground"
-        app:layout_constraintTop_toTopOf="@id/cardForeground"
         >
 
-        <TableRow>
-            <TextView
-                android:text="WAKTU"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:layout_marginStart="10dp"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/wadah_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="14dp"
+            tools:ignore="MissingConstraints">
 
             <TextView
-                android:id="@+id/inputTime"
-                tools:text="27 Oktober 2025 18:31"
-                android:padding="10dp"
-                android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                android:textAlignment="textEnd"
+                android:id="@+id/idTransactionRental"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                tools:text="CAB001234"
+                android:fontFamily="@font/inter_medium"
+                android:textSize="18sp"
+                android:textColor="@color/white"
+                android:layout_marginStart="20dp"
+                app:layout_constraintStart_toStartOf="@id/wadah_header"
+                app:layout_constraintTop_toTopOf="@id/wadah_header"
+                android:translationZ="2dp"
                 />
-        </TableRow>
 
-        <TableRow>
-            <TextView
-                android:text="CABANG"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:layout_marginStart="10dp"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/buttonDetail"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/detail"
+                android:translationZ="2dp"
+                app:tint="@color/white"
+                android:layout_marginEnd="20dp"
+                app:layout_constraintTop_toTopOf="@id/wadah_header"
+                app:layout_constraintEnd_toEndOf="@id/wadah_header" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardForeground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            android:layout_marginTop="60dp"
+            app:layout_constraintBottom_toBottomOf="@id/cardBackground"
+            app:layout_constraintEnd_toEndOf="@id/cardBackground"
+            app:layout_constraintStart_toStartOf="@id/cardBackground"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/wadah"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
+                tools:ignore="MissingConstraints">
 
-            <TextView
-                android:id="@+id/inputBranch"
-                tools:text="CABANG"
-                android:padding="10dp"
-                android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
+                <TableLayout
+                    android:id="@+id/tableLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintEnd_toEndOf="@id/wadah"
+                    app:layout_constraintStart_toStartOf="@id/wadah"
+                    app:layout_constraintTop_toTopOf="@id/wadah">
 
-        <TableRow>
-            <TextView
-                android:text="KLIEN"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:layout_marginStart="10dp"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
+                    <TableRow>
 
-            <TextView
-                android:id="@+id/inputCLient"
-                tools:text="ERA PHONE"
-                android:padding="10dp"
-                android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter"
+                            android:padding="10dp"
+                            android:text="WAKTU"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/blue900"
+                            android:textSize="12sp" />
 
-        <TableRow>
-            <TextView
-                android:text="PENERIMA"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:layout_marginStart="10dp"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
+                        <TextView
+                            android:id="@+id/inputTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter_semibold"
+                            android:padding="10dp"
+                            android:textAlignment="textEnd"
+                            android:textColor="@color/blue900"
+                            android:textSize="14sp"
+                            tools:text="27 Oktober 2025 18:31" />
+                    </TableRow>
 
-            <TextView
-                android:id="@+id/inputRecipient"
-                tools:text="NANDOO"
-                android:padding="10dp"
-                android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
+                    <TableRow>
 
-        <TableRow>
-            <TextView
-                android:text="KURIR"
-                android:padding="10dp"
-                android:textSize="12sp"
-                android:layout_marginStart="10dp"
-                android:fontFamily="@font/inter"
-                android:textColor="@color/blue900"
-                android:textAlignment="textStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter"
+                            android:padding="10dp"
+                            android:text="CABANG"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/blue900"
+                            android:textSize="12sp" />
 
-            <TextView
-                android:id="@+id/inputSender"
-                tools:text="KAKAKA"
-                android:padding="10dp"
-                android:textSize="14sp"
-                android:layout_marginEnd="10dp"
-                android:fontFamily="@font/inter_semibold"
-                android:textColor="@color/blue900"
-                android:textAlignment="textEnd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-        </TableRow>
+                        <TextView
+                            android:id="@+id/inputBranch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter_semibold"
+                            android:padding="10dp"
+                            android:textAlignment="textEnd"
+                            android:textColor="@color/blue900"
+                            android:textSize="14sp"
+                            tools:text="CABANG" />
+                    </TableRow>
 
-    </TableLayout>
+                    <TableRow>
 
-    <TextView
-        android:id="@+id/titleNotes"
-        android:text="CATATAN"
-        android:padding="10dp"
-        android:textSize="12sp"
-        android:layout_marginStart="10dp"
-        android:fontFamily="@font/inter"
-        android:textColor="@color/blue900"
-        android:textAlignment="textStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tableLayout"
-        app:layout_constraintStart_toStartOf="@id/cardForeground"
-        />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter"
+                            android:padding="10dp"
+                            android:text="KLIEN"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/blue900"
+                            android:textSize="12sp" />
 
-    <TextView
-        android:id="@+id/inputNotes"
-        tools:text=" Ini catatan Ku "
-        android:padding="10dp"
-        android:textSize="12sp"
-        android:translationZ="20dp"
-        android:fontFamily="@font/inter"
-        android:textColor="@color/gray900"
-        android:textAlignment="textStart"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/cardNotes"
-        app:layout_constraintEnd_toEndOf="@id/cardNotes"
-        app:layout_constraintTop_toTopOf="@id/cardNotes"
-        />
+                        <TextView
+                            android:id="@+id/inputCLient"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter_semibold"
+                            android:padding="10dp"
+                            android:textAlignment="textEnd"
+                            android:textColor="@color/blue900"
+                            android:textSize="14sp"
+                            tools:text="ERA PHONE" />
+                    </TableRow>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardNotes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="60dp"
-        app:cardBackgroundColor="@color/blueBase"
-        app:cardCornerRadius="10dp"
-        android:layout_marginHorizontal="15dp"
-        app:cardElevation="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/titleNotes"
-        app:layout_constraintStart_toStartOf="@id/cardForeground"
-        app:layout_constraintEnd_toEndOf="@id/cardForeground"
-        />
+                    <TableRow>
 
-    <!-- SECTION LAYANAN / LIST ITEMS -->
-    <TextView
-        android:id="@+id/titleLayanan"
-        android:text="LAYANAN"
-        android:padding="10dp"
-        android:textSize="12sp"
-        android:layout_marginStart="10dp"
-        android:fontFamily="@font/inter"
-        android:textColor="@color/blue900"
-        android:textAlignment="textStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/cardNotes"
-        app:layout_constraintStart_toStartOf="@id/cardForeground"
-        />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter"
+                            android:padding="10dp"
+                            android:text="PENERIMA"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/blue900"
+                            android:textSize="12sp" />
 
-    <LinearLayout
-        android:id="@+id/layoutItemsContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/titleLayanan"
-        app:layout_constraintStart_toStartOf="@id/cardForeground"
-        tools:ignore="MissingConstraints" />
+                        <TextView
+                            android:id="@+id/inputRecipient"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter_semibold"
+                            android:padding="10dp"
+                            android:textAlignment="textEnd"
+                            android:textColor="@color/blue900"
+                            android:textSize="14sp"
+                            tools:text="NANDOO" />
+                    </TableRow>
+
+                    <TableRow>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter"
+                            android:padding="10dp"
+                            android:text="KURIR"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/blue900"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/inputSender"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/inter_semibold"
+                            android:padding="10dp"
+                            android:textAlignment="textEnd"
+                            android:textColor="@color/blue900"
+                            android:textSize="14sp"
+                            tools:text="KAKAKA" />
+                    </TableRow>
+
+                </TableLayout>
+
+                <TextView
+                    android:id="@+id/titleNotes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:fontFamily="@font/inter"
+                    android:padding="10dp"
+                    android:text="CATATAN"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/blue900"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="@id/wadah"
+                    app:layout_constraintTop_toBottomOf="@id/tableLayout" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    app:cardBackgroundColor="@color/blueBase"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="0dp"
+                    app:layout_constraintEnd_toEndOf="@id/wadah"
+                    app:layout_constraintStart_toStartOf="@id/wadah"
+                    app:layout_constraintTop_toBottomOf="@+id/titleNotes">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/inputNotes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter"
+                            android:padding="10dp"
+                            android:text="note"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/gray900"
+                            android:textSize="12sp"
+                            android:translationZ="20dp"
+                            tools:text=" Ini catatan Ku " />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- SECTION LAYANAN / LIST ITEMS -->
+                <TextView
+                    android:id="@+id/titleLayanan"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:fontFamily="@font/inter"
+                    android:padding="10dp"
+                    android:text="LAYANAN"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/blue900"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/wadah"
+                    app:layout_constraintTop_toBottomOf="@id/cardNotes" />
+
+                <LinearLayout
+                    android:id="@+id/layoutItemsContainer"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:paddingBottom="15dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/titleLayanan"
+                    tools:ignore="MissingConstraints" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

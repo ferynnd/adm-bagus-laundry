@@ -64,13 +64,11 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         branchRepository = BranchRepository(context)
 
         isInitialized = true
-
-        // Load branches terlebih dahulu
-        loadBranchesAndData()
+        loadBranches()
     }
 
     /**
-     * Load branches dan data secara berurutan
+     * Load branches untuk caching timezone
      */
     private fun loadBranches() {
         viewModelScope.launch {
@@ -86,6 +84,7 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
                     Log.d("LaundryViewModel", "Branches loaded: ${branches.size}")
                 }
             } catch (e: Exception) {
+                Log.e("LaundryViewModel", "Error loading branches: ${e.message}")
             }
         }
     }
@@ -94,49 +93,7 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
      * Konversi waktu UTC dari API ke timezone branch
      */
     private fun formatTimeForBranch(utcTime: String?, branchId: Int?): String {
-        if (utcTime == null || branchId == null) {
-            return "-"
-        }
-
-        val branch = branchesMap[branchId]
-        val timezone = branch?.timezone_branch ?: "Asia/Jakarta" // Default timezone
-
-
-        val formattedTime = TimezoneHelper.convertUtcToBranchTimezone(
-            utcTimeString = utcTime,
-            branchTimezone = timezone,
-            outputFormat = "dd MMM yyyy, HH:mm"
-        )
-
-        return formattedTime
-    }
-
-    /**
-     * Transform data dari API dengan konversi timezone
-     */
-    private fun transformReportLaundry(report: ReportLaundry): ReportLaundry {
-        val formattedFirstDate = formatTimeForBranch(
-            report.first_date_transaction_laundry,
-            report.id_branch_transaction_laundry
-        )
-        val formattedLastDate = formatTimeForBranch(
-            report.last_date_transaction_laundry,
-            report.id_branch_transaction_laundry
-        )
-
-        return report.copy(
-            formatted_first_date = formattedFirstDate,
-            formatted_last_date = formattedLastDate
-        )
-    }
-
-    /**
-     * Konversi waktu UTC dari API ke timezone branch
-     */
-    private fun formatTimeForBranch(utcTime: String?, branchId: Int?): String {
-        if (utcTime == null || branchId == null) {
-            return "-"
-        }
+        if (utcTime == null || branchId == null) return "-"
 
         val branch = branchesMap[branchId]
         val timezone = branch?.timezone_branch ?: "Asia/Jakarta"
@@ -179,35 +136,25 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         _loading.postValue(true)
         _error.postValue("")
         try {
-            Log.d("LaundryViewModel", "Getting laundry reports...")
-
             val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
             if (userId == null) {
                 _error.postValue("ID user tidak ditemukan")
-                _loading.postValue(false)
                 return
             }
 
             val userResponse = userRepository.getUserById(userId)
             if (!userResponse.success) {
                 _error.postValue("Gagal mengambil data user")
-                _loading.postValue(false)
                 return
             }
 
             val branchId = userResponse.data?.id_branch_user
-            Log.d("LaundryViewModel", "User branch ID: $branchId")
-
             val response = laundryReportRepository.getReportLaundry()
-            Log.d("LaundryViewModel", "API Response success: ${response.success}, data size: ${response.data?.size ?: 0}")
 
             if (response.success) {
-                // Filter dan transform data
                 val filteredList = response.data
                     .filter { it.id_branch_transaction_laundry == branchId }
                     .map { transformReportLaundry(it) }
-
-                Log.d("LaundryViewModel", "Filtered laundry reports: ${filteredList.size}")
 
                 _laundryReports.postValue(filteredList)
                 _filteredLaundryReports.postValue(filteredList)
@@ -232,14 +179,12 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
             val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
             if (userId == null) {
                 _error.postValue("ID user tidak ditemukan")
-                _loading.postValue(false)
                 return
             }
 
             val userResponse = userRepository.getUserById(userId)
             if (!userResponse.success) {
                 _error.postValue("Gagal mengambil data user")
-                _loading.postValue(false)
                 return
             }
 
@@ -251,7 +196,7 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
                     .filter {
                         it.id_branch_transaction_laundry == branchId &&
                                 (it.status_transaction_laundry == StatusReportLaundry.paid ||
-                                        it.status_transaction_laundry == StatusReportLaundry.unpaid)
+                                 it.status_transaction_laundry == StatusReportLaundry.unpaid)
                     }
                     .map { transformReportLaundry(it) }
 
@@ -267,9 +212,6 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    /**
-     * Update transaction status
-     */
     suspend fun updateTransactionStatus(reportToUpdate: ReportLaundry) {
         _loading.postValue(true)
         _error.postValue("")
@@ -277,9 +219,7 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         try {
             val response = laundryReportRepository.updateReportLaundry(reportToUpdate)
             _updateTransactionResponse.postValue(response)
-            if (response.success) {
-                getReportLatestLaundry()
-            }
+            if (response.success) getReportLatestLaundry()
         } catch (e: Exception) {
             _error.postValue(e.message ?: "Gagal memperbarui status transaksi")
         } finally {
@@ -287,27 +227,18 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    /**
-     * Get print data dengan timezone conversion
-     */
     suspend fun getLaundryPrint(id: Int): DefaultRequestPrint<LaundryPrintTransaction> {
         _loading.postValue(true)
         _error.postValue("")
-
         return try {
-            val response = laundryReportRepository.getLaundryPrint(id)
-            response
+            laundryReportRepository.getLaundryPrint(id)
         } catch (e: Exception) {
             val errorMessage = e.message ?: "Terjadi kesalahan"
             _error.postValue(errorMessage)
-            DefaultRequestPrint(
-                data = null,
-                message = errorMessage,
-                success = false
-            )
+            DefaultRequestPrint(false, errorMessage, false)
         } finally {
             _loading.postValue(false)
-        }
+        } as DefaultRequestPrint<LaundryPrintTransaction>
     }
 
     suspend fun getReportLaundryById(id: Int): DefaultRequest<ReportLaundry> {
@@ -315,20 +246,13 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         _error.postValue("")
         return try {
             val response = laundryReportRepository.getReportLaundryById(id)
-
             if (response.success && response.data != null) {
-                val transformedData = transformReportLaundry(response.data)
-                DefaultRequest(
-                    success = true,
-                    message = response.message,
-                    data = transformedData
-                )
-            } else {
-                response
-            }
+                val transformed = transformReportLaundry(response.data)
+                DefaultRequest(true, response.message, transformed)
+            } else response
         } catch (e: Exception) {
             _error.postValue(e.message ?: "Terjadi kesalahan")
-            DefaultRequest(success = false, message = e.message.toString(), data = null)
+            DefaultRequest(false, e.message.toString(), null)
         } finally {
             _loading.postValue(false)
         } as DefaultRequest<ReportLaundry>
@@ -357,15 +281,12 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
             laundryReportRepository.exportLaundryMonthly(exportReportLaundry)
         } catch (e: Exception) {
             _error.postValue(e.message ?: "Terjadi kesalahan saat mengekspor")
-            DefaultRequest(success = false, message = e.message.toString(), data = null)
+            DefaultRequest(false, e.message.toString(), null)
         } finally {
             _loading.postValue(false)
         } as DefaultRequest<ReportLaundryResponse>
     }
 
-    /**
-     * Filter by branch
-     */
     fun filterClient(branchId: Int?) {
         val allLaundryReports = _laundryReports.value ?: return
         _filteredLaundryReports.value = if (branchId == null || branchId == -1) {
@@ -375,9 +296,6 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    /**
-     * Search reports
-     */
     fun searchLaundryReports(query: String) {
         val allLaundryReports = _laundryReports.value ?: return
         if (query.isBlank()) {
@@ -391,14 +309,13 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
                     it.id_user == report.id_kurir_transaction_laundry
                 }?.username ?: ""
 
-                report.id_transaction_laundry.toString().contains(query, ignoreCase = true) ||
-                        branchName.contains(query, ignoreCase = true) ||
-                        userName.contains(query, ignoreCase = true)
+                report.id_transaction_laundry.toString().contains(query, true) ||
+                        branchName.contains(query, true) ||
+                        userName.contains(query, true)
             }
         }
     }
 
-    // Setter methods
     fun setBranches(data: List<Branch>) {
         branches = data
         data.forEach { branch ->
@@ -416,7 +333,6 @@ class LaundryReportViewModel(application: Application) : AndroidViewModel(applic
         _printData.postValue(data)
     }
 
-    // Clear methods
     fun clearCreateTransactionResponse() {
         _createTransactionResponse.value = null
     }

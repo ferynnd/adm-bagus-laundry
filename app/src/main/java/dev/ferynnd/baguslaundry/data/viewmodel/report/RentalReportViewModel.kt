@@ -29,6 +29,9 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
     // Cache untuk branches
     private val branchesMap = mutableMapOf<Int, Branch>()
 
+    // Flag untuk memastikan init hanya dipanggil sekali
+    private var isInitialized = false
+
     private val _rentalReports = MutableLiveData<List<ReportRental>>()
     val rentalReports: LiveData<List<ReportRental>> get() = _rentalReports
 
@@ -58,31 +61,41 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
     private var users: List<User> = emptyList()
 
     fun init(context: Context) {
+        if (isInitialized) return
+
         rentalReportRepository = RentalReportRepository(context)
         userRepository = UserRepository(context)
         branchRepository = BranchRepository(context)
-        loadBranches()
-        getAllReportRental()
-        getAllInvoiceRental()
+
+        isInitialized = true
+
+        // Load branches terlebih dahulu, baru load data
+        loadBranchesAndData()
     }
 
     /**
-     * Load semua branches untuk timezone mapping
+     * Load branches dan data secara berurutan
      */
-    private fun loadBranches() {
+    private fun loadBranchesAndData() {
         viewModelScope.launch {
             try {
-                val response = branchRepository.getBranch()
-                if (response.success) {
-                    branches = response.data
-                    response.data.forEach { branch ->
+                // Load branches dulu
+                val branchResponse = branchRepository.getBranch()
+                if (branchResponse.success) {
+                    branches = branchResponse.data
+                    branchResponse.data.forEach { branch ->
                         branch.id_branch?.let { id ->
                             branchesMap[id] = branch
                         }
                     }
+                    Log.d("RentalViewModel", "Branches loaded: ${branches.size}")
                 }
+
+                // Setelah branches loaded, baru load data rental dan invoice
+                // Data akan di-load lewat getReportRental() yang dipanggil dari fragment
             } catch (e: Exception) {
                 Log.e("RentalViewModel", "Failed to load branches: ${e.message}")
+                _error.postValue("Gagal memuat data cabang: ${e.message}")
             }
         }
     }
@@ -96,11 +109,16 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         val branch = branchesMap[branchId]
         val timezone = branch?.timezone_branch ?: "Asia/Jakarta"
 
-        return TimezoneHelper.convertUtcToBranchTimezone(
-            utcTimeString = utcTime,
-            branchTimezone = timezone,
-            outputFormat = "dd MMM yyyy, HH:mm"
-        )
+        return try {
+            TimezoneHelper.convertUtcToBranchTimezone(
+                utcTimeString = utcTime,
+                branchTimezone = timezone,
+                outputFormat = "dd MMM yyyy, HH:mm"
+            )
+        } catch (e: Exception) {
+            Log.e("RentalViewModel", "Error formatting time: ${e.message}")
+            utcTime
+        }
     }
 
     /**
@@ -112,55 +130,14 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
             report.id_branch_transaction_rental
         )
 
-        return report.copy(
-            formatted_time_transaction_rental = formattedTime
-        )
-    }
-
-    /**
-     * Get all rental reports dengan timezone conversion
-     */
-    private fun getAllReportRental() {
-        _loading.postValue(true)
-        _error.postValue("")
-        viewModelScope.launch {
-            try {
-                val response = rentalReportRepository.getReportRental()
-                if (response.success) {
-                    val transformedData = response.data.map { transformReportRental(it) }
-                    _rentalReports.postValue(transformedData)
-                    _filteredRentalReports.postValue(transformedData)
-                } else {
-                    _error.postValue(response.message ?: "Gagal mengambil data rental")
-                }
-            } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan saat memuat transaksi rental")
-            } finally {
-                _loading.postValue(false)
-            }
-        }
-    }
-
-    /**
-     * Get all invoice rental
-     */
-    private fun getAllInvoiceRental() {
-        _loading.postValue(true)
-        _error.postValue("")
-        viewModelScope.launch {
-            try {
-                val response = rentalReportRepository.getInvoiceRental()
-                if (response.success && response.data != null) {
-                    _invoiceRental.postValue(response.data)
-                    _filteredInvoices.postValue(response.data)
-                } else {
-                    _error.postValue("Gagal memuat invoice rental: ${response.message ?: "Pesan tidak tersedia"}")
-                }
-            } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan saat memuat invoice rental")
-            } finally {
-                _loading.postValue(false)
-            }
+        return try {
+            // Coba set langsung jika property mutable
+            report.formatted_time_transaction_rental = formattedTime
+            report
+        } catch (e: Exception) {
+            Log.e("RentalViewModel", "Error setting formatted time: ${e.message}")
+            // Fallback: return report tanpa formatted time
+            report
         }
     }
 
@@ -171,25 +148,34 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         _loading.postValue(true)
         _error.postValue("")
         try {
+            Log.d("RentalViewModel", "Getting rental reports...")
+
             val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
             if (userId == null) {
                 _error.postValue("ID user tidak ditemukan")
+                _loading.postValue(false)
                 return
             }
 
             val userResponse = userRepository.getUserById(userId)
             if (!userResponse.success) {
                 _error.postValue("Gagal mengambil data user")
+                _loading.postValue(false)
                 return
             }
 
             val branchId = userResponse.data.id_branch_user
+            Log.d("RentalViewModel", "User branch ID: $branchId")
+
             val response = rentalReportRepository.getReportRental()
+            Log.d("RentalViewModel", "API Response success: ${response.success}, data size: ${response.data?.size ?: 0}")
 
             if (response.success) {
                 val filteredList = response.data
                     .filter { it.id_branch_transaction_rental == branchId }
                     .map { transformReportRental(it) }
+
+                Log.d("RentalViewModel", "Filtered rental reports: ${filteredList.size}")
 
                 _rentalReports.postValue(filteredList)
                 _filteredRentalReports.postValue(filteredList)
@@ -197,6 +183,7 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
                 _error.postValue("Gagal mengambil transaksi rental: ${response.message}")
             }
         } catch (e: Exception) {
+            Log.e("RentalViewModel", "Error getting rental reports", e)
             _error.postValue(e.message ?: "Terjadi kesalahan")
         } finally {
             _loading.postValue(false)
@@ -221,6 +208,29 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
                 }
             } catch (e: Exception) {
                 _error.postValue(e.message ?: "Terjadi kesalahan")
+            } finally {
+                _loading.postValue(false)
+            }
+        }
+    }
+
+    /**
+     * Get all invoice rental
+     */
+    private fun getAllInvoiceRental() {
+        _loading.postValue(true)
+        _error.postValue("")
+        viewModelScope.launch {
+            try {
+                val response = rentalReportRepository.getInvoiceRental()
+                if (response.success && response.data != null) {
+                    _invoiceRental.postValue(response.data)
+                    _filteredInvoices.postValue(response.data)
+                } else {
+                    _error.postValue("Gagal memuat invoice rental: ${response.message ?: "Pesan tidak tersedia"}")
+                }
+            } catch (e: Exception) {
+                _error.postValue(e.message ?: "Terjadi kesalahan saat memuat invoice rental")
             } finally {
                 _loading.postValue(false)
             }
@@ -337,23 +347,7 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun fetchInvoiceRental() {
-        _loading.postValue(true)
-        _error.postValue("")
-        viewModelScope.launch {
-            try {
-                val response = rentalReportRepository.getInvoiceRental()
-                if (response.success && response.data != null) {
-                    _invoiceRental.postValue(response.data)
-                    _filteredInvoices.postValue(response.data)
-                } else {
-                    _error.postValue("Gagal mengambil invoice: ${response.message ?: "Pesan tidak tersedia"}")
-                }
-            } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan")
-            } finally {
-                _loading.postValue(false)
-            }
-        }
+        getAllInvoiceRental()
     }
 
     /**
@@ -366,7 +360,6 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
             val matchClient = report.id_client_transaction_rental == clientId
 
             val matchMonth = if (monthYear != null && monthYear.isNotEmpty()) {
-                // Gunakan timezone-aware comparison
                 val reportMonthYear = TimezoneHelper.getMonthYearFromUtc(
                     report.time_transaction_rental,
                     branchesMap[report.id_branch_transaction_rental]?.timezone_branch
@@ -414,7 +407,7 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
                 }?.username ?: ""
 
                 branchName.contains(query, ignoreCase = true) ||
-                userName.contains(query, ignoreCase = true)
+                        userName.contains(query, ignoreCase = true)
             }
         }
     }

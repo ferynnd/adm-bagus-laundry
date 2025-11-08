@@ -29,7 +29,7 @@ import java.net.ConnectException
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private val userViewModel: UserViewModel by viewModels()
+    private lateinit var userViewModel: UserViewModel
     private lateinit var sharedPreferences: SharePrefrenceHelper
     private lateinit var networkViewModel: NetworkViewModel
     private var noInternetDialog: AlertDialog? = null
@@ -43,6 +43,8 @@ class LoginActivity : AppCompatActivity() {
         userViewModel.init(this)
         sharedPreferences = SharePrefrenceHelper(this)
         networkViewModel = ViewModelProvider(this)[NetworkViewModel::class.java]
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        userViewModel.init(this)
 
         networkViewModel.isConnected.observe(this) { isConnected ->
             if (isConnected) {

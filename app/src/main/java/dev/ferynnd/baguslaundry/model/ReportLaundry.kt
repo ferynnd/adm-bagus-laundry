@@ -23,7 +23,9 @@ data class ReportLaundry(
     val first_date_transaction_laundry: String? = null,
     val last_date_transaction_laundry: String? = null,
     val deleted_at: String?,
+    @Transient
     val formatted_first_date: String?,
+    @Transient
     val formatted_last_date: String?,
 )
 

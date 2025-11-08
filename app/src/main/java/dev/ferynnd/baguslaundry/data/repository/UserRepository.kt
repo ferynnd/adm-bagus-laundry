@@ -33,23 +33,27 @@ class UserRepository(context: Context) {
 
     suspend fun login(username: String, password: String): Result<LoginResponse> {
         return try {
+//            Log.d("LoginViewModel", "Login attempt: username=$username")
             val response = authApiService.login(username, password)
+//            Log.d("LoginViewModel", "Response code: ${response.code()}")
+//            Log.d("LoginViewModel", "Response body: ${response.body()}")
+//            Log.d("LoginViewModel", "Response error: ${response.errorBody()?.string()}")
+
             val body = response.body()
             if (response.isSuccessful && body != null) {
-                if (body.success) {
-                    Result.success(body) // login benar
-                } else {
-                    Result.failure(Exception(body.message ?: "Username atau password salah"))
-                }
+//                Log.d("LoginViewModel", "Login success: ${body.message}")
+                if (body.success) Result.success(body)
+                else Result.failure(Exception(body.message ?: "Username atau password salah"))
             } else {
-                val errorMsg = response.errorBody()?.string()
+                val errorMsg = response.errorBody()?.string() ?: "Login gagal: Response kosong"
+                Log.e("LoginViewModel", "Login failed: $errorMsg")
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
+            Log.e("LoginViewModel", "Exception: ${e.message}", e)
             Result.failure(e)
         }
     }
-
 
     suspend fun getUser(): ApiResponse<User> {
         val response = userApiService.getUser(role)

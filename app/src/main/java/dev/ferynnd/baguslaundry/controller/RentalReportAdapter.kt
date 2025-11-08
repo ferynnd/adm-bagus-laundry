@@ -18,9 +18,11 @@ import dev.ferynnd.baguslaundry.databinding.CardReportRentalBinding
 import dev.ferynnd.baguslaundry.databinding.ItemRentalServiceBinding
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.Client
+import dev.ferynnd.baguslaundry.model.ConditionListTransactionRental
 import dev.ferynnd.baguslaundry.model.ListTransactionRental
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.StatusListTransactionRental
 import dev.ferynnd.baguslaundry.model.User
 import java.util.Locale
 
@@ -125,7 +127,7 @@ class RentalReportAdapter(
                     inputNotes.text = transactionReportRental.notes_transaction_rental.takeIf {
                         !it.isNullOrBlank()
                     } ?: "-"
-                    inputTime.text = transactionReportRental.formatted_time_transaction_rental
+                    inputTime.text = transactionReportRental.time_transaction_rental
                     idTransactionRental.text = transactionReportRental.number_transaction_rental.toString()
 
                     // Setup RecyclerView untuk list items dengan null check
@@ -140,6 +142,9 @@ class RentalReportAdapter(
             is HeaderViewHolder -> {
                 val header = item as String
                 holder.binding.inputNameBranch.text = header
+                val context = holder.binding.root.context
+                val color = ContextCompat.getColor(context, R.color.blueGray)
+                holder.binding.root.setCardBackgroundColor(color)
             }
         }
     }
@@ -152,6 +157,8 @@ class RentalReportAdapter(
         val matchingItems = rentalListItem.filter {
             it.id_rental_transaction == transaction.id_transaction_rental
         }
+
+        Log.d("RentalAdapter", "Transaction ID: ${transaction.id_transaction_rental}, Matching items: ${matchingItems.size}")
 
         if (matchingItems.isEmpty()) {
             val emptyView = TextView(holder.itemView.context).apply {
@@ -177,10 +184,25 @@ class RentalReportAdapter(
             val itemView = inflater.inflate(R.layout.item_rental_service, container, false)
             val bindingItem = ItemRentalServiceBinding.bind(itemView)
 
+
+            val dataCondition = when(item.condition_list_transaction_rental) {
+                ConditionListTransactionRental.dirty -> "Kotor"
+                ConditionListTransactionRental.clean -> "Bersih"
+                ConditionListTransactionRental.damaged -> "Rusak"
+                else -> "Unknown"
+            }
+
+            val dataStatus = when(item.status_list_transaction_rental) {
+                StatusListTransactionRental.IN -> "Masuk"
+                StatusListTransactionRental.OUT -> "Keluar"
+                StatusListTransactionRental.CANCELLED -> "Dibatalkan"
+                else -> "Unknown"
+            }
+
             bindingItem.apply {
                 tvServiceName.text = productName
                 tvConditionStatus.text =
-                    "${item.condition_list_transaction_rental ?: "-"} - ${item.status_list_transaction_rental ?: "-"}"
+                    "${dataCondition ?: "-"} - ${dataStatus ?: "-"}"
                 tvWeight.text = "${item.weight_list_transaction_rental ?: 0.0} Kg"
                 tvQuantity.text = "${item.count_list_transaction_rental ?: 0} PCS"
             }
@@ -188,7 +210,6 @@ class RentalReportAdapter(
             container.addView(itemView)
         }
     }
-
 
     class DiffCallback : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {

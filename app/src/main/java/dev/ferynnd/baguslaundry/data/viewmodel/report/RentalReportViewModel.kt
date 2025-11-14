@@ -26,10 +26,7 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
     private lateinit var branchRepository: BranchRepository
     private val sharedPreferences = SharePrefrenceHelper(application)
 
-    // Cache untuk branches
     private val branchesMap = mutableMapOf<Int, Branch>()
-
-    // Flag untuk memastikan init hanya dipanggil sekali
     private var isInitialized = false
 
     private val _rentalReports = MutableLiveData<List<ReportRental>>()
@@ -40,6 +37,12 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
 
     private val _createTransactionResponse = MutableLiveData<DefaultRequest<RentalTransactionData>?>()
     val createTransactionResponse: LiveData<DefaultRequest<RentalTransactionData>?> get() = _createTransactionResponse
+
+    private val _updateTransactionResponse = MutableLiveData<DefaultRequest<ReportRental>?>()
+    val updateTransactionResponse: LiveData<DefaultRequest<ReportRental>?> get() = _updateTransactionResponse
+
+    private val _deleteTransactionResponse = MutableLiveData<DefaultRequest<ReportRental>?>()
+    val deleteTransactionResponse: LiveData<DefaultRequest<ReportRental>?> get() = _deleteTransactionResponse
 
     private val _printData = MutableLiveData<RentalPrintTransaction>()
     val printData: LiveData<RentalPrintTransaction> get() = _printData
@@ -68,18 +71,12 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         branchRepository = BranchRepository(context)
 
         isInitialized = true
-
-        // Load branches terlebih dahulu, baru load data
         loadBranchesAndData()
     }
 
-    /**
-     * Load branches dan data secara berurutan
-     */
     private fun loadBranchesAndData() {
         viewModelScope.launch {
             try {
-                // Load branches dulu
                 val branchResponse = branchRepository.getBranch()
                 if (branchResponse.success) {
                     branches = branchResponse.data
@@ -90,9 +87,6 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
                     }
                     Log.d("RentalViewModel", "Branches loaded: ${branches.size}")
                 }
-
-                // Setelah branches loaded, baru load data rental dan invoice
-                // Data akan di-load lewat getReportRental() yang dipanggil dari fragment
             } catch (e: Exception) {
                 Log.e("RentalViewModel", "Failed to load branches: ${e.message}")
                 _error.postValue("Gagal memuat data cabang: ${e.message}")
@@ -100,9 +94,6 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    /**
-     * Konversi waktu UTC dari API ke timezone branch
-     */
     private fun formatTimeForBranch(utcTime: String?, branchId: Int?): String {
         if (utcTime == null || branchId == null) return "-"
 
@@ -121,9 +112,6 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    /**
-     * Transform data rental dengan konversi timezone
-     */
     private fun transformReportRental(report: ReportRental): ReportRental {
         val formattedTime = formatTimeForBranch(
             report.time_transaction_rental,
@@ -131,92 +119,192 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         )
 
         return try {
-            // Coba set langsung jika property mutable
             report.formatted_time_transaction_rental = formattedTime
             report
         } catch (e: Exception) {
             Log.e("RentalViewModel", "Error setting formatted time: ${e.message}")
-            // Fallback: return report tanpa formatted time
             report
         }
     }
 
-    /**
-     * Get reports filtered by user's branch
-     */
     suspend fun getReportRental() {
         _loading.postValue(true)
         _error.postValue("")
         try {
-            Log.d("RentalViewModel", "Getting rental reports...")
-
-            val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
-            if (userId == null) {
-                _error.postValue("ID user tidak ditemukan")
-                _loading.postValue(false)
-                return
-            }
-
-            val userResponse = userRepository.getUserById(userId)
-            if (!userResponse.success) {
-                _error.postValue("Gagal mengambil data user")
-                _loading.postValue(false)
-                return
-            }
-
-            val branchId = userResponse.data.id_branch_user
-            Log.d("RentalViewModel", "User branch ID: $branchId")
+            Log.d("RentalViewModel", "📡 Fetching rental reports from API...")
 
             val response = rentalReportRepository.getReportRental()
-            Log.d("RentalViewModel", "API Response success: ${response.success}, data size: ${response.data?.size ?: 0}")
+            Log.d("RentalViewModel", "📊 API Response - Success: ${response.success}, Data size: ${response.data?.size ?: 0}")
 
             if (response.success) {
-                val filteredList = response.data
-                    .filter { it.id_branch_transaction_rental == branchId }
-                    .map { transformReportRental(it) }
+                // ✅ FIX: Ambil semua data tanpa filter branch
+                val transformedList = response.data.map { transformReportRental(it) }
 
-                Log.d("RentalViewModel", "Filtered rental reports: ${filteredList.size}")
+                Log.d("RentalViewModel", "✅ Total reports after transform: ${transformedList.size}")
 
-                _rentalReports.postValue(filteredList)
-                _filteredRentalReports.postValue(filteredList)
+                _rentalReports.postValue(transformedList)
+                _filteredRentalReports.postValue(transformedList)
             } else {
                 _error.postValue("Gagal mengambil transaksi rental: ${response.message}")
             }
         } catch (e: Exception) {
-            Log.e("RentalViewModel", "Error getting rental reports", e)
+            Log.e("RentalViewModel", "❌ Error getting rental reports", e)
             _error.postValue(e.message ?: "Terjadi kesalahan")
         } finally {
             _loading.postValue(false)
         }
     }
 
-    /**
-     * Fetch all reports (refresh)
-     */
-    fun fetchReportRental() {
+    suspend fun getReportRentalKurir() {
         _loading.postValue(true)
         _error.postValue("")
+        try {
+            Log.d("RentalViewModel", "📡 Fetching rental reports from API...")
+            val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
+            if (userId == null) {
+                _error.postValue("ID user tidak ditemukan")
+                return
+            }
+
+            val userResponse = userRepository.getUserById(userId)
+            if (!userResponse.success) {
+                _error.postValue("Gagal mengambil data user")
+                return
+            }
+            val branchId = userResponse.data?.id_branch_user
+
+
+            val response = rentalReportRepository.getReportRental()
+            Log.d("RentalViewModel", "📊 API Response - Success: ${response.success}, Data size: ${response.data?.size ?: 0}")
+
+            if (response.success) {
+                // ✅ FIX: Ambil semua data tanpa filter branch
+                val transformedList = response.data
+                    .filter {
+                        it.id_branch_transaction_rental == branchId ||
+                                it.id_kurir_transaction_rental == userId
+                    }
+                    .map { transformReportRental(it) }
+
+                Log.d("RentalViewModel", "✅ Total reports after transform: ${transformedList.size}")
+
+                _rentalReports.postValue(transformedList)
+                _filteredRentalReports.postValue(transformedList)
+            } else {
+                _error.postValue("Gagal mengambil transaksi rental: ${response.message}")
+            }
+        } catch (e: Exception) {
+            Log.e("RentalViewModel", "❌ Error getting rental reports", e)
+            _error.postValue(e.message ?: "Terjadi kesalahan")
+        } finally {
+            _loading.postValue(false)
+        }
+    }
+
+    suspend fun fetchReportRental() {
+        _loading.postValue(true)
+        _error.postValue("")
+        try {
+            val userId = sharedPreferences.getString("PREF_USER_ID")?.toIntOrNull()
+            if (userId == null) {
+                _error.postValue("ID user tidak ditemukan")
+                return
+            }
+
+            val userResponse = userRepository.getUserById(userId)
+            if (!userResponse.success) {
+                _error.postValue("Gagal mengambil data user")
+                return
+            }
+            val branchId = userResponse.data?.id_branch_user
+
+            val response = rentalReportRepository.getReportRental()
+            if (response.success && response.data != null) {
+                val transformedData = response.data
+                    .filter {
+                        it.id_branch_transaction_rental == branchId
+                                || it.id_kurir_transaction_rental == userId
+                    }
+                    .map { transformReportRental(it) }
+                _rentalReports.postValue(transformedData)
+                // ✅ FIX: Jangan set filteredRentalReports di sini
+                // Biarkan Fragment yang re-apply filter
+            } else {
+                _error.postValue("Gagal mengambil laporan rental: ${response.message ?: "Pesan tidak tersedia"}")
+            }
+        } catch (e: Exception) {
+            _error.postValue(e.message ?: "Terjadi kesalahan")
+        } finally {
+            _loading.postValue(false)
+        }
+    }
+
+    // UPDATE TRANSACTION
+    fun updateRentalTransaction(id: Int, updateRequest: UpdateRentalTransactionRequest) {
+        _loading.postValue(true)
+        _error.postValue("")
+        _updateTransactionResponse.postValue(null)
         viewModelScope.launch {
             try {
-                val response = rentalReportRepository.getReportRental()
-                if (response.success && response.data != null) {
-                    val transformedData = response.data.map { transformReportRental(it) }
-                    _rentalReports.postValue(transformedData)
-                    _filteredRentalReports.postValue(transformedData)
-                } else {
-                    _error.postValue("Gagal mengambil laporan rental: ${response.message ?: "Pesan tidak tersedia"}")
+                val response = rentalReportRepository.updateReportRental(id, updateRequest)
+                _updateTransactionResponse.postValue(response)
+
+                if (response.success) {
+                    // ✅ FIX: Refresh data tanpa reset filter
+                    fetchReportRental()
                 }
             } catch (e: Exception) {
-                _error.postValue(e.message ?: "Terjadi kesalahan")
+                _error.postValue(e.message ?: "Terjadi kesalahan saat mengupdate transaksi")
             } finally {
                 _loading.postValue(false)
             }
         }
     }
 
-    /**
-     * Get all invoice rental
-     */
+    // SOFT DELETE TRANSACTION
+    fun deleteRentalTransaction(id: Int) {
+        _loading.postValue(true)
+        _error.postValue("")
+        _deleteTransactionResponse.postValue(null)
+        viewModelScope.launch {
+            try {
+                val response = rentalReportRepository.deleteReportRental(id)
+                _deleteTransactionResponse.postValue(response)
+
+                if (response.success) {
+                    // ✅ FIX: Refresh data tanpa reset filter
+                    fetchReportRental()
+                }
+            } catch (e: Exception) {
+                _error.postValue(e.message ?: "Terjadi kesalahan saat menghapus transaksi")
+            } finally {
+                _loading.postValue(false)
+            }
+        }
+    }
+
+    // FORCE DELETE TRANSACTION
+    fun forceDeleteRentalTransaction(id: Int) {
+        _loading.postValue(true)
+        _error.postValue("")
+        _deleteTransactionResponse.postValue(null)
+        viewModelScope.launch {
+            try {
+                val response = rentalReportRepository.forceDeleteReportRental(id)
+                _deleteTransactionResponse.postValue(response)
+
+                if (response.success) {
+                    // ✅ FIX: Refresh data tanpa reset filter
+                    fetchReportRental()
+                }
+            } catch (e: Exception) {
+                _error.postValue(e.message ?: "Terjadi kesalahan saat menghapus permanen transaksi")
+            } finally {
+                _loading.postValue(false)
+            }
+        }
+    }
+
     private fun getAllInvoiceRental() {
         _loading.postValue(true)
         _error.postValue("")
@@ -237,9 +325,6 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    /**
-     * Get print data dengan timezone conversion
-     */
     suspend fun getRentalPrint(id: Int): DefaultRequestPrint<RentalPrintTransaction> {
         _loading.postValue(true)
         _error.postValue("")
@@ -350,28 +435,38 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         getAllInvoiceRental()
     }
 
-    /**
-     * Filter by client and month dengan timezone consideration
-     */
     fun filterByClientAndMonth(clientId: Int?, monthYear: String?) {
         val allReports = rentalReports.value ?: return
+
+        Log.d("RentalViewModel", "🔍 Starting filter - Total reports: ${allReports.size}, ClientID: $clientId, Month: $monthYear")
 
         val filteredReports = allReports.filter { report ->
             val matchClient = report.id_client_transaction_rental == clientId
 
             val matchMonth = if (monthYear != null && monthYear.isNotEmpty()) {
-                val reportMonthYear = TimezoneHelper.getMonthYearFromUtc(
-                    report.time_transaction_rental,
-                    branchesMap[report.id_branch_transaction_rental]?.timezone_branch
-                )
-                reportMonthYear == monthYear
+                // ✅ FIX: Parse date dari time_transaction_rental
+                val reportDate = report.time_transaction_rental
+                if (reportDate != null) {
+                    try {
+                        // Format dari database biasanya: "2025-11-05" atau "2025-11-05 14:30:00"
+                        val reportYearMonth = reportDate.substring(0, 7) // Ambil "2025-11"
+                        Log.d("RentalViewModel", "📅 Transaction ${report.id_transaction_rental}: $reportYearMonth vs $monthYear")
+                        reportYearMonth == monthYear
+                    } catch (e: Exception) {
+                        Log.e("RentalViewModel", "Error parsing date: $reportDate", e)
+                        false
+                    }
+                } else {
+                    false
+                }
             } else {
-                true
+                true  // Jika tidak ada filter bulan, ambil semua
             }
 
             matchClient && matchMonth
         }
 
+        Log.d("RentalViewModel", "✅ Filter complete - Results: ${filteredReports.size}")
         _filteredRentalReports.value = filteredReports
     }
 
@@ -412,7 +507,6 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    // Setter methods
     fun setBranches(data: List<Branch>) {
         branches = data
         data.forEach { branch ->
@@ -434,12 +528,33 @@ class RentalReportViewModel(application: Application) : AndroidViewModel(applica
         _printData.postValue(data)
     }
 
-    // Clear/Reset methods
     fun resetCreateTransactionResponse() {
         _createTransactionResponse.value = null
     }
 
+    fun resetUpdateTransactionResponse() {
+        _updateTransactionResponse.value = null
+    }
+
+    fun resetDeleteTransactionResponse() {
+        _deleteTransactionResponse.value = null
+    }
+
     fun resetErrorMessage() {
         _error.postValue("")
+    }
+
+    var currentFilterBranch: Branch? = null
+        private set
+    var currentFilterClient: Client? = null
+        private set
+    var currentFilterMonth: String? = null
+        private set
+
+    fun setCurrentFilter(branch: Branch?, client: Client?, month: String?) {
+        currentFilterBranch = branch
+        currentFilterClient = client
+        currentFilterMonth = month
+        Log.d("RentalViewModel", "💾 Filter saved - Branch: ${branch?.name_branch}, Client: ${client?.name_client}, Month: $month")
     }
 }

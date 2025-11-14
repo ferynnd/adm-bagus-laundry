@@ -15,7 +15,6 @@ class RentalReportRepository(context: Context) {
     private val role: String
         get() = sharedPreferences.getString("PREF_USER_ROLE", "kurir") ?: "kurir"
 
-    // Hanya mengambil data mentah dari API
     suspend fun getReportRental(): ApiResponse<ReportRental> {
         return rentalReportApiService.getReportRental(role)
     }
@@ -26,6 +25,18 @@ class RentalReportRepository(context: Context) {
 
     suspend fun createReportRental(rentalTransactionRequest: RentalTransactionRequest): DefaultRequest<RentalTransactionData> {
         return rentalReportApiService.createReportRental(role, rentalTransactionRequest)
+    }
+
+    suspend fun updateReportRental(id: Int, updateRequest: UpdateRentalTransactionRequest): DefaultRequest<ReportRental> {
+        return rentalReportApiService.updateReportRental(role, id, updateRequest)
+    }
+
+    suspend fun deleteReportRental(id: Int): DefaultRequest<ReportRental> {
+        return rentalReportApiService.deleteReportRental(role, id)
+    }
+
+    suspend fun forceDeleteReportRental(id: Int): DefaultRequest<ReportRental> {
+        return rentalReportApiService.forceDeleteReportRental(role, id)
     }
 
     suspend fun exportRentalMonthly(exportReport: ExportReportRental): DefaultRequest<ReportRentalResponse> {

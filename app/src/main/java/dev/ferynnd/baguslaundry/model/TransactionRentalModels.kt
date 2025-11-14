@@ -1,5 +1,7 @@
 package dev.ferynnd.baguslaundry.model
 
+import com.google.gson.annotations.SerializedName
+
 data class RentalTransactionRequest(
     val id_transaction_rental: Int? = null,
     val id_kurir_transaction_rental: Int,
@@ -57,4 +59,24 @@ data class RentalTransactionItemDetail(
     val deleted_at: String? = null,
     val created_at: String,
     val updated_at: String
+)
+
+data class UpdateRentalTransactionRequest(
+    @SerializedName("id_kurir_transaction_rental")
+    val id_kurir_transaction_rental: Int,
+
+    @SerializedName("id_branch_transaction_rental")
+    val id_branch_transaction_rental: Int,
+
+    @SerializedName("id_client_transaction_rental")
+    val id_client_transaction_rental: Int,
+
+    @SerializedName("recipient_name_transaction_rental")
+    val recipient_name_transaction_rental: String?,
+
+    @SerializedName("number_transaction_rental")
+    val number_transaction_rental: Int,
+
+    @SerializedName("notes_transaction_rental")
+    val notes_transaction_rental: String?
 )

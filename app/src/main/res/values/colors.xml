@@ -42,5 +42,7 @@
     <color name="black_overlay">#66000000</color>
     <color name="gray500">#aaaaaa</color>
     <color name="gray200">#E1E1E1</color>
+    <color name="red_dialog">#F44336</color>
+    <color name="orange_dialog">#FF9800</color>
 
 </resources>

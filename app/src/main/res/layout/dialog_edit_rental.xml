@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/titleDialog"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Edit Transaksi Rental"
+        android:textSize="20sp"
+        android:textColor="@color/blue900"
+        android:fontFamily="@font/inter_bold"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- Nomor Transaksi -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutNumberTransaction"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Nomor Transaksi"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxStrokeColor="@color/blue900"
+        app:hintTextColor="@color/blue900"
+        app:layout_constraintTop_toBottomOf="@id/titleDialog"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputNumberTransaction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:textColor="@color/blue900"
+            android:fontFamily="@font/inter"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Nama Penerima -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutRecipientName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Nama Penerima"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxStrokeColor="@color/blue900"
+        app:hintTextColor="@color/blue900"
+        app:layout_constraintTop_toBottomOf="@id/layoutNumberTransaction"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputRecipientName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName|textCapWords"
+            android:textColor="@color/blue900"
+            android:fontFamily="@font/inter"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Catatan -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutNotes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Catatan"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxStrokeColor="@color/blue900"
+        app:hintTextColor="@color/blue900"
+        app:layout_constraintTop_toBottomOf="@id/layoutRecipientName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:maxLines="5"
+            android:gravity="top"
+            android:textColor="@color/blue900"
+            android:fontFamily="@font/inter"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/layoutNotes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp">
+
+        <Button
+            android:id="@+id/buttonCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Batal"
+            android:textColor="@color/blue900"
+            android:backgroundTint="@color/blueBase"
+            android:fontFamily="@font/inter_semibold"
+            android:layout_marginEnd="10dp"/>
+
+        <Button
+            android:id="@+id/buttonSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Simpan"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/blue900"
+            android:fontFamily="@font/inter_semibold"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

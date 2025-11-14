@@ -3,6 +3,7 @@ package dev.ferynnd.baguslaundry.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -17,28 +18,40 @@ fun Instant.toBranchTime(branchTimezone: String?, pattern: String = "dd MMM yyyy
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun String.toBranchTime(branchTimezone: String?, pattern: String = "dd MMM yyyy HH:mm:ss"): String {
-if (this.isEmpty()) return ""
+    if (this.isEmpty()) return ""
 
-    // Parsing string dari DB, misal "2025-11-02 16:33:57"
-    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-    val localDateTime = java.time.LocalDateTime.parse(this, inputFormatter)
+    return try {
+        // 1. Parsing input "2025-11-14 20:10:32" sebagai LOCAL TIME cabang
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val localDateTime = LocalDateTime.parse(this, inputFormatter)
 
-    // Konversi ke timezone branch
-    val zoneId = ZoneId.of(branchTimezone ?: "Asia/Jakarta")
-    val zonedDateTime = localDateTime.atZone(ZoneId.of("UTC")).withZoneSameInstant(zoneId)
+        // 2. Tentukan timezone cabang asal
+        val branchZone = ZoneId.of(branchTimezone ?: "Asia/Jakarta")
 
-    // Format output
-    val outputFormatter = DateTimeFormatter.ofPattern(pattern)
-    val formattedTime = zonedDateTime.format(outputFormatter)
+        // 3. Local time → zoned date time (LOCAL BRANCH TIME)
+        val branchZoned = localDateTime.atZone(branchZone)
 
-    // Tambahkan label zona waktu
-    val zoneLabel = when (zoneId.id) {
-        "Asia/Jakarta" -> "WIB"
-        "Asia/Makassar" -> "WITA"
-        "Asia/Jayapura" -> "WIT"
-        else -> zoneId.id // fallback pakai ID timezone
+        // 4. Konversi ke UTC
+        val utcZoned = branchZoned.withZoneSameInstant(ZoneId.of("UTC"))
+
+        // 5. Konversi UTC → branch timezone lagi (sesuai kebutuhan)
+        val finalBranchZoned = utcZoned.withZoneSameInstant(branchZone)
+
+        // 6. Format output
+        val outputFormatter = DateTimeFormatter.ofPattern(pattern)
+        val formattedTime = finalBranchZoned.format(outputFormatter)
+
+        // 7. Label WIB/WITA/WIT
+        val zoneLabel = when (branchZone.id) {
+            "Asia/Jakarta" -> "WIB"
+            "Asia/Makassar" -> "WITA"
+            "Asia/Jayapura" -> "WIT"
+            else -> branchZone.id
+        }
+
+        "$formattedTime $zoneLabel"
+    } catch (e: Exception) {
+        "-"
     }
-
-    return "$formattedTime $zoneLabel"
 }
 

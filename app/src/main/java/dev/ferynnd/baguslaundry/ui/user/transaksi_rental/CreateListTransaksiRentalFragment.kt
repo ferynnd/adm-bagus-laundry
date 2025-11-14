@@ -80,6 +80,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        userViewModel.init(requireContext())
         rentalProductViewModel =
             ViewModelProvider(this)[RentalProductViewModel::class.java].apply { init(requireContext()) }
         rentalReportViewModel =

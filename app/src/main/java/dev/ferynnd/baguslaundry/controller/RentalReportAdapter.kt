@@ -27,7 +27,9 @@ import dev.ferynnd.baguslaundry.model.User
 import java.util.Locale
 
 class RentalReportAdapter(
-    private val onDetail: (ReportRental) -> Unit
+    private val onDetail: (ReportRental) -> Unit,
+    private val onEdit: (ReportRental) -> Unit,
+    private val onDelete: (ReportRental) -> Unit
 ) : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
 
     private var branches: List<Branch> = emptyList()
@@ -130,11 +132,22 @@ class RentalReportAdapter(
                     inputTime.text = transactionReportRental.time_transaction_rental
                     idTransactionRental.text = transactionReportRental.number_transaction_rental.toString()
 
-                    // Setup RecyclerView untuk list items dengan null check
+                    // Setup RecyclerView untuk list items
                     setupItemsRecyclerView(holder, transactionReportRental)
 
+                    // Button Detail
                     buttonDetail.setOnClickListener {
                         onDetail(transactionReportRental)
+                    }
+
+                    // Button Edit
+                    buttonEdit.setOnClickListener {
+                        onEdit(transactionReportRental)
+                    }
+
+                    // Button Delete
+                    buttonDelete.setOnClickListener {
+                        onDelete(transactionReportRental)
                     }
                 }
             }
@@ -153,7 +166,6 @@ class RentalReportAdapter(
         val container = holder.binding.layoutItemsContainer
         container.removeAllViews()
 
-        // Ambil semua item transaksi dari rentalListItem yang sesuai dengan transaksi ini
         val matchingItems = rentalListItem.filter {
             it.id_rental_transaction == transaction.id_transaction_rental
         }
@@ -184,7 +196,6 @@ class RentalReportAdapter(
             val itemView = inflater.inflate(R.layout.item_rental_service, container, false)
             val bindingItem = ItemRentalServiceBinding.bind(itemView)
 
-
             val dataCondition = when(item.condition_list_transaction_rental) {
                 ConditionListTransactionRental.dirty -> "Kotor"
                 ConditionListTransactionRental.clean -> "Bersih"
@@ -201,8 +212,7 @@ class RentalReportAdapter(
 
             bindingItem.apply {
                 tvServiceName.text = productName
-                tvConditionStatus.text =
-                    "${dataCondition ?: "-"} - ${dataStatus ?: "-"}"
+                tvConditionStatus.text = "$dataCondition - $dataStatus"
                 tvWeight.text = "${item.weight_list_transaction_rental ?: 0.0} Kg"
                 tvQuantity.text = "${item.count_list_transaction_rental ?: 0} PCS"
             }

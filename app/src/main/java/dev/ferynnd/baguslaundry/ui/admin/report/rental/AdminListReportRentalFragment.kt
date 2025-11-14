@@ -25,11 +25,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputEditText
 import dev.ferynnd.baguslaundry.R
-import dev.ferynnd.baguslaundry.controller.FilterBranchAdapter
 import dev.ferynnd.baguslaundry.controller.RentalReportAdapter
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
@@ -38,13 +35,10 @@ import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.ListTransactionReportRentalViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.report.RentalReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentAdminListReportRentalBinding
-import dev.ferynnd.baguslaundry.model.Branch
-import dev.ferynnd.baguslaundry.model.Client
-import dev.ferynnd.baguslaundry.model.ExportReportRental
-import dev.ferynnd.baguslaundry.model.ProductRental
-import dev.ferynnd.baguslaundry.model.ReportRental
+import dev.ferynnd.baguslaundry.model.*
 import dev.ferynnd.baguslaundry.ui.admin.AdminDashboardFragment
 import dev.ferynnd.baguslaundry.ui.openAdminFragment
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -58,12 +52,11 @@ class AdminListReportRentalFragment : Fragment() {
     private lateinit var rentalReportViewModel: RentalReportViewModel
     private lateinit var rentalReportAdapter: RentalReportAdapter
     private lateinit var branchViewModel: BranchViewModel
-    private lateinit var rentalProductViewModel : RentalProductViewModel
+    private lateinit var rentalProductViewModel: RentalProductViewModel
     private lateinit var userViewModel: UserViewModel
     private lateinit var clientViewModel: ClientViewModel
     private lateinit var listTransactionReportRentalViewModel: ListTransactionReportRentalViewModel
 
-    // Variables to store filter values
     private var selectedFilterBranch: Branch? = null
     private var selectedFilterClient: Client? = null
     private var selectedFilterMonth: String? = null
@@ -76,10 +69,18 @@ class AdminListReportRentalFragment : Fragment() {
         branchViewModel = ViewModelProvider(this)[BranchViewModel::class.java]
         branchViewModel.init(requireContext())
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        userViewModel.init(requireContext())
         clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java].apply { init(requireContext()) }
         rentalProductViewModel = ViewModelProvider(this)[RentalProductViewModel::class.java].apply { init(requireContext()) }
         listTransactionReportRentalViewModel = ViewModelProvider(this)[ListTransactionReportRentalViewModel::class.java]
         listTransactionReportRentalViewModel.init(requireContext())
+
+        // ✅ TAMBAH DI AKHIR onCreate()
+        selectedFilterBranch = rentalReportViewModel.currentFilterBranch
+        selectedFilterClient = rentalReportViewModel.currentFilterClient
+        selectedFilterMonth = rentalReportViewModel.currentFilterMonth
+
+        Log.d("RentalFragment", "🔄 Restored filter - Branch: ${selectedFilterBranch?.name_branch}, Client: ${selectedFilterClient?.name_client}, Month: $selectedFilterMonth")
     }
 
     override fun onCreateView(
@@ -89,9 +90,9 @@ class AdminListReportRentalFragment : Fragment() {
         binding = FragmentAdminListReportRentalBinding.inflate(layoutInflater)
 
         rentalReportAdapter = RentalReportAdapter(
-            onDetail = { transactionReport ->
-                onDetail(transactionReport)
-            }
+            onDetail = { transactionReport -> onDetail(transactionReport) },
+            onEdit = { transactionReport -> showEditDialog(transactionReport) },
+            onDelete = { transactionReport -> showDeleteDialog(transactionReport) }
         )
 
         binding.recyclerView.apply {
@@ -99,6 +100,24 @@ class AdminListReportRentalFragment : Fragment() {
             adapter = rentalReportAdapter
         }
 
+        Log.d("RentalRepot", "🔄 Initializing and fetching rental reports...")
+        viewLifecycleOwner.lifecycleScope.launch {
+            rentalReportViewModel.getReportRental()
+
+            delay(500)
+            if (selectedFilterClient != null) {
+                Log.d("RentalFragment", "🎯 Re-applying saved filter on init...")
+                filterReports(selectedFilterBranch, selectedFilterClient, selectedFilterMonth)
+            }
+        }
+
+        setupObservers()
+        setupClickListeners()
+
+        return binding.root
+    }
+
+    private fun setupClickListeners() {
         binding.btnRoutes.setOnClickListener {
             showFilterBottomSheet(requireContext()) { selectedBranch, selectedClient, selectedMonth ->
                 filterReports(selectedBranch, selectedClient, selectedMonth)
@@ -116,72 +135,6 @@ class AdminListReportRentalFragment : Fragment() {
                 return true
             }
         })
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                rentalReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-                    binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-                    binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
-                }
-
-                rentalReportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-                    if (errorMessage.isNotBlank()) {
-                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                        rentalReportViewModel.resetErrorMessage()
-                    }
-                }
-
-                rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { products ->
-                    products?.let {
-                        rentalReportAdapter.setRentalProducts(it)
-                    }
-                }
-
-                rentalReportViewModel.filteredRentalReports.observe(viewLifecycleOwner) { filteredReports ->
-                    if (selectedFilterClient != null) {
-                        rentalReportAdapter.submitList(filteredReports)
-                    } else {
-                        rentalReportAdapter.submitList(emptyList())
-                    }
-                }
-
-                branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
-                    rentalReportAdapter.setBranches(branches)
-                    rentalReportViewModel.setBranches(branches)
-
-                    if (isFirstLoad && branches.isNotEmpty()) {
-                        isFirstLoad = false
-                        showFilterBottomSheet(requireContext()) { selectedBranch, selectedClient, selectedMonth ->
-                            filterReports(selectedBranch, selectedClient, selectedMonth)
-                        }
-                    }
-                }
-
-                userViewModel.users.observe(viewLifecycleOwner) { users ->
-                    rentalReportAdapter.setSender(users)
-                    rentalReportViewModel.setUsers(users)
-                }
-
-                clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
-                    rentalReportAdapter.setClient(clients)
-                    rentalReportViewModel.setClient(clients)
-                }
-
-                rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { products ->
-                    if (selectedFilterClient != null) {
-                        setReportRental(products)
-                    } else {
-                        rentalReportAdapter.submitList(emptyList())
-                    }
-                }
-
-                listTransactionReportRentalViewModel.listTransactionRentalReports.observe(viewLifecycleOwner) { listTransaksi ->
-                    rentalReportAdapter.setRentalList(listTransaksi)
-                }
-            } catch (e: Exception) {
-                throw e
-            }
-        }
 
         binding.iconExel.setOnClickListener {
             if (selectedFilterClient == null) {
@@ -204,8 +157,243 @@ class AdminListReportRentalFragment : Fragment() {
         binding.arrowBack.setOnClickListener {
             openAdminFragment(AdminDashboardFragment(), "AdminDashboard")
         }
+    }
 
-        return binding.root
+    private fun setupObservers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                rentalReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                    Log.d("RentalRepot", "⏳ Loading state: $isLoading")
+                    binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                    binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+                }
+
+                rentalReportViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                    if (errorMessage.isNotBlank()) {
+                        Log.e("RentalRepot", "❌ Error: $errorMessage")
+                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                        rentalReportViewModel.resetErrorMessage()
+                    }
+                }
+
+                rentalProductViewModel.rentalProducts.observe(viewLifecycleOwner) { products ->
+                    products?.let {
+                        Log.d("RentalRepot", "📦 Rental products loaded: ${it.size}")
+                        rentalReportAdapter.setRentalProducts(it)
+                    }
+                }
+
+                // ✅ FIX 2: Gunakan hanya filteredRentalReports untuk display
+                rentalReportViewModel.filteredRentalReports.observe(viewLifecycleOwner) { filteredReports ->
+                    Log.d("RentalRepot", "📋 Filtered reports received: ${filteredReports.size}")
+                    Log.d("RentalRepot", "👤 Selected client: ${selectedFilterClient?.name_client}")
+
+                    if (selectedFilterClient != null && filteredReports.isNotEmpty()) {
+                        setReportRental(filteredReports)
+                    } else if (selectedFilterClient != null) {
+                        // Client dipilih tapi tidak ada data
+                        Log.w("RentalRepot", "⚠️ Client selected but no data")
+                        rentalReportAdapter.submitList(emptyList())
+                    } else {
+                        // Belum pilih client
+                        Log.d("RentalRepot", "ℹ️ No client selected yet")
+                        rentalReportAdapter.submitList(emptyList())
+                    }
+                }
+
+                // ✅ Observer untuk raw data (hanya untuk logging)
+                rentalReportViewModel.rentalReports.observe(viewLifecycleOwner) { reports ->
+                    Log.d("RentalRepot", "📊 Raw reports loaded: ${reports.size}")
+                    
+                    if (selectedFilterClient != null) {
+                        Log.d("RentalFragment", "🔄 Auto re-applying filter...")
+                        filterReports(selectedFilterBranch, selectedFilterClient, selectedFilterMonth)
+                    }
+                }
+
+                branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
+                    Log.d("RentalRepot", "🏢 Branches loaded: ${branches.size}")
+                    rentalReportAdapter.setBranches(branches)
+                    rentalReportViewModel.setBranches(branches)
+
+                    if (isFirstLoad && branches.isNotEmpty() && selectedFilterClient == null) {
+                        isFirstLoad = false
+                        // ✅ FIX 3: Delay kecil untuk memastikan data ready
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            delay(500)
+                            Log.d("RentalRepot", "🎯 Showing filter dialog...")
+                            showFilterBottomSheet(requireContext()) { selectedBranch, selectedClient, selectedMonth ->
+                                filterReports(selectedBranch, selectedClient, selectedMonth)
+                            }
+                        }
+                    }
+                }
+
+                userViewModel.users.observe(viewLifecycleOwner) { users ->
+                    Log.d("RentalRepot", "👥 Users loaded: ${users.size}")
+                    rentalReportAdapter.setSender(users)
+                    rentalReportViewModel.setUsers(users)
+                }
+
+                clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
+                    Log.d("RentalRepot", "🏪 Clients loaded: ${clients.size}")
+                    rentalReportAdapter.setClient(clients)
+                    rentalReportViewModel.setClient(clients)
+                }
+
+                listTransactionReportRentalViewModel.listTransactionRentalReports.observe(viewLifecycleOwner) { listTransaksi ->
+                    Log.d("RentalRepot", "📝 List transactions loaded: ${listTransaksi.size}")
+                    rentalReportAdapter.setRentalList(listTransaksi)
+                }
+
+                // Observer untuk response update
+                rentalReportViewModel.updateTransactionResponse.observe(viewLifecycleOwner) { response ->
+                    response?.let {
+                        if (it.success) {
+                            Log.d("RentalRepot", "✅ Update success")
+                            Toast.makeText(requireContext(), "Transaksi berhasil diupdate", Toast.LENGTH_SHORT).show()
+                            rentalReportViewModel.resetUpdateTransactionResponse()
+                        } else {
+                            Log.e("RentalRepot", "❌ Update failed: ${it.message}")
+                            Toast.makeText(requireContext(), "Gagal update: ${it.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+                // Observer untuk response delete
+                rentalReportViewModel.deleteTransactionResponse.observe(viewLifecycleOwner) { response ->
+                    response?.let {
+                        if (it.success) {
+                            Log.d("RentalRepot", "✅ Delete success")
+                            Toast.makeText(requireContext(), "Transaksi berhasil dihapus", Toast.LENGTH_SHORT).show()
+                            rentalReportViewModel.resetDeleteTransactionResponse()
+                        } else {
+                            Log.e("RentalRepot", "❌ Delete failed: ${it.message}")
+                            Toast.makeText(requireContext(), "Gagal hapus: ${it.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("RentalRepot", "❌ Error in observers", e)
+                throw e
+            }
+        }
+    }
+
+    private fun showEditDialog(report: ReportRental) {
+        Log.d("RentalRepot", "✏️ Opening edit dialog for: ${report.number_transaction_rental}")
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.dialog_edit_rental)
+        dialog.window?.apply {
+            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            setBackgroundDrawableResource(android.R.color.transparent)
+        }
+
+        val inputNumber = dialog.findViewById<TextInputEditText>(R.id.inputNumberTransaction)
+        val inputRecipient = dialog.findViewById<TextInputEditText>(R.id.inputRecipientName)
+        val inputNotes = dialog.findViewById<TextInputEditText>(R.id.inputNotes)
+        val buttonSave = dialog.findViewById<Button>(R.id.buttonSave)
+        val buttonCancel = dialog.findViewById<Button>(R.id.buttonCancel)
+
+        inputNumber.setText(report.number_transaction_rental.toString())
+        inputRecipient.setText(report.recipient_name_transaction_rental)
+        inputNotes.setText(report.notes_transaction_rental)
+
+        buttonSave.setOnClickListener {
+            val numberText = inputNumber.text.toString()
+            val recipientText = inputRecipient.text.toString()
+            val notesText = inputNotes.text.toString()
+
+            if (numberText.isBlank()) {
+                Toast.makeText(requireContext(), "Nomor transaksi tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val updateRequest = UpdateRentalTransactionRequest(
+                id_kurir_transaction_rental = report.id_kurir_transaction_rental ?: 0,
+                id_branch_transaction_rental = report.id_branch_transaction_rental ?: 0,
+                id_client_transaction_rental = report.id_client_transaction_rental ?: 0,
+                recipient_name_transaction_rental = recipientText.ifBlank { null },
+                number_transaction_rental = numberText.toIntOrNull() ?: 0,
+                notes_transaction_rental = notesText.ifBlank { null }
+            )
+
+            Log.d("RentalRepot", "💾 Updating transaction: ${report.id_transaction_rental}")
+            viewLifecycleOwner.lifecycleScope.launch {
+                rentalReportViewModel.updateRentalTransaction(
+                    report.id_transaction_rental ?: 0,
+                    updateRequest
+                )
+            }
+
+            dialog.dismiss()
+        }
+
+        buttonCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showDeleteDialog(report: ReportRental) {
+        Log.d("RentalRepot", "🗑️ Opening delete dialog for: ${report.number_transaction_rental}")
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.dialog_delete_rental)
+        dialog.window?.apply {
+            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            setBackgroundDrawableResource(android.R.color.transparent)
+        }
+
+        val textTransactionNumber = dialog.findViewById<TextView>(R.id.textTransactionNumber)
+        val textRecipient = dialog.findViewById<TextView>(R.id.textRecipient)
+        val buttonSoftDelete = dialog.findViewById<Button>(R.id.buttonSoftDelete)
+        val buttonPermanentDelete = dialog.findViewById<Button>(R.id.buttonPermanentDelete)
+        val buttonCancel = dialog.findViewById<Button>(R.id.buttonCancel)
+
+        textTransactionNumber.text = "No. Transaksi: ${report.number_transaction_rental}"
+        textRecipient.text = "Penerima: ${report.recipient_name_transaction_rental ?: "-"}"
+
+        buttonSoftDelete.setOnClickListener {
+            Log.d("RentalRepot", "📦 Soft deleting transaction: ${report.id_transaction_rental}")
+            viewLifecycleOwner.lifecycleScope.launch {
+                rentalReportViewModel.deleteRentalTransaction(report.id_transaction_rental ?: 0)
+            }
+            dialog.dismiss()
+        }
+
+        buttonPermanentDelete.setOnClickListener {
+            val confirmDialog = Dialog(requireContext())
+            val confirmView = LayoutInflater.from(requireContext()).inflate(
+                R.layout.dialog_confirm_permanent_delete, null
+            )
+            confirmDialog.setContentView(confirmView)
+            confirmDialog.window?.apply {
+                setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                setBackgroundDrawableResource(android.R.color.transparent)
+            }
+
+            confirmView.findViewById<Button>(R.id.buttonConfirmYes)?.setOnClickListener {
+                Log.d("RentalRepot", "⚠️ Force deleting transaction: ${report.id_transaction_rental}")
+                viewLifecycleOwner.lifecycleScope.launch {
+                    rentalReportViewModel.forceDeleteRentalTransaction(report.id_transaction_rental ?: 0)
+                }
+                confirmDialog.dismiss()
+                dialog.dismiss()
+            }
+
+            confirmView.findViewById<Button>(R.id.buttonConfirmNo)?.setOnClickListener {
+                confirmDialog.dismiss()
+            }
+
+            confirmDialog.show()
+        }
+
+        buttonCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun onDetail(productRental: ReportRental) {
@@ -223,9 +411,11 @@ class AdminListReportRentalFragment : Fragment() {
     }
 
     private fun setReportRental(newReportRentals: List<ReportRental>) {
+        Log.d("RentalRepot", "📦 Setting report rental, input size: ${newReportRentals.size}")
         val tempGroupedData = mutableListOf<Any>()
 
         if (newReportRentals.isEmpty()) {
+            Log.w("RentalRepot", "⚠️ No reports to display")
             rentalReportAdapter.submitList(tempGroupedData)
             return
         }
@@ -243,6 +433,7 @@ class AdminListReportRentalFragment : Fragment() {
                     val date = parser.parse(dateStr)
                     monthKeyFormatter.format(date ?: Date())
                 } catch (e: Exception) {
+                    Log.e("RentalRepot", "Error parsing date: $dateStr", e)
                     "0000-00"
                 }
             } ?: "0000-00"
@@ -262,24 +453,30 @@ class AdminListReportRentalFragment : Fragment() {
             tempGroupedData.addAll(groupedByMonth[monthKey] ?: emptyList())
         }
 
+        Log.d("RentalRepot", "📦 Grouped data size: ${tempGroupedData.size}")
         rentalReportAdapter.submitList(tempGroupedData)
     }
 
     private fun filterReports(selectedBranch: Branch?, selectedClient: Client?, selectedMonth: String?) {
-        // Update stored filter values
+        Log.d("RentalRepot", "🔍 Filtering reports - Branch: ${selectedBranch?.name_branch}, Client: ${selectedClient?.name_client}, Month: $selectedMonth")
+
         selectedFilterBranch = selectedBranch
         selectedFilterClient = selectedClient
         selectedFilterMonth = selectedMonth
 
         if (selectedClient == null) {
+            Log.w("RentalRepot", "⚠️ No client selected")
             rentalReportAdapter.submitList(emptyList())
             return
         }
 
+        // ✅ FIX: Langsung filter dengan data yang ada, tidak perlu cek kosong
         val clientId = selectedClient.id_client
         val monthYear = selectedMonth?.let { convertMonthYearToFormat(it) }
 
+        Log.d("RentalRepot", "🎯 Applying filter - ClientID: $clientId, MonthYear: $monthYear")
         rentalReportViewModel.filterByClientAndMonth(clientId, monthYear)
+        rentalReportViewModel.setCurrentFilter(selectedBranch, selectedClient, selectedMonth)
     }
 
     private fun convertMonthYearToFormat(monthYearString: String): String {
@@ -299,6 +496,7 @@ class AdminListReportRentalFragment : Fragment() {
                 ""
             }
         } catch (e: Exception) {
+            Log.e("RentalRepot", "Error converting month-year: $monthYearString", e)
             ""
         }
     }
@@ -460,7 +658,7 @@ class AdminListReportRentalFragment : Fragment() {
         context: Context,
         onFilterSelected: (Branch?, Client?, String?) -> Unit
     ) {
-        val bottomSheetDialog = BottomSheetDialog(context)
+        val bottomSheetDialog = com.google.android.material.bottomsheet.BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_filter_rental_report, null)
 
         val spinnerMonthYear = view.findViewById<AutoCompleteTextView>(R.id.inputBulanTahun)
@@ -473,7 +671,6 @@ class AdminListReportRentalFragment : Fragment() {
         var tempSelectedClient: Client? = selectedFilterClient
         var tempSelectedMonth: String? = selectedFilterMonth
 
-        // Restore previous selections
         selectedFilterBranch?.let { branch ->
             spinnerBranch.setText(branch.name_branch, false)
         }
@@ -484,7 +681,6 @@ class AdminListReportRentalFragment : Fragment() {
             spinnerMonthYear.setText(month, false)
         }
 
-        // Setup Month-Year options
         val months = listOf(
             "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
             "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
@@ -508,14 +704,12 @@ class AdminListReportRentalFragment : Fragment() {
             tempSelectedMonth = monthYearItems[position]
         }
 
-        // Setup Branch options
         branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
             val branchAdapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, branches)
             spinnerBranch.setAdapter(branchAdapter)
             spinnerBranch.setOnItemClickListener { _, _, position, _ ->
                 tempSelectedBranch = branches[position]
 
-                // Filter clients by selected branch
                 clientViewModel.clients.observe(viewLifecycleOwner) { allClients ->
                     val filteredClients = allClients.filter { client ->
                         client.id_branch_client == tempSelectedBranch?.id_branch
@@ -525,7 +719,6 @@ class AdminListReportRentalFragment : Fragment() {
                         filteredClients.map { it.name_client ?: "" })
                     spinnerClient.setAdapter(clientAdapter)
 
-                    // Clear client selection if branch changed
                     if (tempSelectedBranch?.id_branch != selectedFilterBranch?.id_branch) {
                         spinnerClient.text?.clear()
                         tempSelectedClient = null
@@ -534,7 +727,6 @@ class AdminListReportRentalFragment : Fragment() {
             }
         }
 
-        // Setup Client selection
         clientViewModel.clients.observe(viewLifecycleOwner) { allClients ->
             spinnerClient.setOnItemClickListener { _, _, position, _ ->
                 val filteredClients = allClients.filter { client ->
@@ -551,12 +743,12 @@ class AdminListReportRentalFragment : Fragment() {
                 Toast.makeText(context, "Klien wajib dipilih!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            Log.d("RentalRepot", "✅ Filter applied - Client: ${tempSelectedClient?.name_client}")
             onFilterSelected(tempSelectedBranch, tempSelectedClient, tempSelectedMonth)
             bottomSheetDialog.dismiss()
         }
 
         exitButton?.setOnClickListener {
-            // Only allow closing if client is selected (except for first time)
             if (selectedFilterClient != null || isFirstLoad) {
                 bottomSheetDialog.dismiss()
             } else {

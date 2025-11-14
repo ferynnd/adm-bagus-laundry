@@ -1,19 +1,7 @@
 package dev.ferynnd.baguslaundry.data.api
 
-
-import dev.ferynnd.baguslaundry.model.ReportRental
-import dev.ferynnd.baguslaundry.model.RentalTransactionRequest
-import dev.ferynnd.baguslaundry.model.ExportInvoicePdfRentalRequest
-import dev.ferynnd.baguslaundry.model.ExportReportRental
-import dev.ferynnd.baguslaundry.model.InvoiceRentalResponse
-import dev.ferynnd.baguslaundry.model.PostInvoiceRentalRequest
-import dev.ferynnd.baguslaundry.model.RentalPrintTransaction
-import dev.ferynnd.baguslaundry.model.RentalTransactionData
-import dev.ferynnd.baguslaundry.model.ReportRentalResponse
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import dev.ferynnd.baguslaundry.model.*
+import retrofit2.http.*
 
 interface RentalReportApiService {
 
@@ -21,14 +9,35 @@ interface RentalReportApiService {
     suspend fun getReportRental(@Path("role") role: String): ApiResponse<ReportRental>
 
     @GET("api/{role}/transaction_rentals/{id}")
-    suspend fun getReportRentalById(@Path("role") role: String,@Path("id") id: Int): DefaultRequest<ReportRental>
-
+    suspend fun getReportRentalById(
+        @Path("role") role: String,
+        @Path("id") id: Int
+    ): DefaultRequest<ReportRental>
 
     @POST("api/{role}/create_transaction_rentals")
     suspend fun createReportRental(
         @Path("role") role: String,
         @Body rentalTransactionRequest: RentalTransactionRequest
     ): DefaultRequest<RentalTransactionData>
+
+    @PUT("api/{role}/edit_transaction_rentals/{id}")
+    suspend fun updateReportRental(
+        @Path("role") role: String,
+        @Path("id") id: Int,
+        @Body updateRequest: UpdateRentalTransactionRequest
+    ): DefaultRequest<ReportRental>
+
+    @DELETE("api/{role}/delete_transaction_rentals/{id}")
+    suspend fun deleteReportRental(
+        @Path("role") role: String,
+        @Path("id") id: Int
+    ): DefaultRequest<ReportRental>
+
+    @DELETE("api/{role}/force_destroy_transaction_rentals/{id}")
+    suspend fun forceDeleteReportRental(
+        @Path("role") role: String,
+        @Path("id") id: Int
+    ): DefaultRequest<ReportRental>
 
     @POST("api/admin/export_transaction_monthly")
     suspend fun exportRentalMonthly(
@@ -52,5 +61,5 @@ interface RentalReportApiService {
     suspend fun getRentalPrint(
         @Path("role") role: String,
         @Path("id") id: Int?
-    ) : DefaultRequestPrint<RentalPrintTransaction>
+    ): DefaultRequestPrint<RentalPrintTransaction>
 }

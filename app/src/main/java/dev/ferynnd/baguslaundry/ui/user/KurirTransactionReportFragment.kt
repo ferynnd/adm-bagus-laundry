@@ -49,15 +49,15 @@ class KurirTransactionReportFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        userViewModel.init(requireContext())
         clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
         clientViewModel.init(requireContext())
 
         laundryReportViewModel = ViewModelProvider(this)[LaundryReportViewModel::class.java].apply {
             init(requireContext())
         }
-        rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java].apply {
-            init(requireContext())
-        }
+        rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java]
+        rentalReportViewModel.init(requireContext())
         branchViewModel = ViewModelProvider(this)[BranchViewModel::class.java].apply {
             init(requireContext())
         }
@@ -123,8 +123,12 @@ class KurirTransactionReportFragment : Fragment() {
         rentalReportViewModel.filteredRentalReports.observe(viewLifecycleOwner) { rental ->
             Log.d("KurirFragment", "Rental reports observed: ${rental?.size ?: 0} items")
             if (isRentalTabSelected()) {
-                updateTransactionReportList(rental ?: emptyList())
-                updateCounter(rental?.size ?: 0, "Persewaan")
+                val filter = rental?.filter {
+                    it.id_kurir_transaction_rental == userId
+                } ?: emptyList()
+
+                updateTransactionReportList(filter)
+                updateCounter(filter.size , "Persewaan")
             }
         }
 
@@ -203,7 +207,7 @@ class KurirTransactionReportFragment : Fragment() {
                 Log.d("KurirFragment", "Fetching Rental data...")
                 viewLifecycleOwner.lifecycleScope.launch {
                     try {
-                        rentalReportViewModel.getReportRental()
+                        rentalReportViewModel.getReportRentalKurir()
                     } catch (e: Exception) {
                         Log.e("KurirFragment", "Error fetching rental data", e)
                         updateLoadingState(false)

@@ -40,7 +40,6 @@ class LoginActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        userViewModel.init(this)
         sharedPreferences = SharePrefrenceHelper(this)
         networkViewModel = ViewModelProvider(this)[NetworkViewModel::class.java]
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]

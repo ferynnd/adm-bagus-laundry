@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -25,6 +26,8 @@ import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ProductLaundry
 import dev.ferynnd.baguslaundry.model.Status
 import dev.ferynnd.baguslaundry.ui.admin.AdminDashboardFragment
+import dev.ferynnd.baguslaundry.ui.showAlert
+import dev.ferynnd.baguslaundry.ui.user.AdminCreateItemLaundryFragment
 import kotlinx.coroutines.launch
 
 class AdminListProductLaundryFragment : Fragment()  {
@@ -52,12 +55,27 @@ class AdminListProductLaundryFragment : Fragment()  {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAdminListProductLaundryBinding.inflate(layoutInflater)
-        // Inflate the layout for this fragment
+
         laundryProductAdapter = LaundryProductAdapter()
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = laundryProductAdapter
+        }
+
+        // Set listener untuk edit item
+        laundryProductAdapter.setOnEditClickListener { productLaundry ->
+            openEditFragment(productLaundry.id_laundry_item)
+        }
+
+        // Set listener untuk delete item
+        laundryProductAdapter.setOnDeleteClickListener { productLaundry ->
+            showDeleteConfirmationDialog(productLaundry)
+        }
+
+        // Tombol FAB untuk membuat item baru
+        binding.fabAddProduct.setOnClickListener {
+            openCreateFragment()
         }
 
         binding.btnRoutes.setOnClickListener {
@@ -93,10 +111,8 @@ class AdminListProductLaundryFragment : Fragment()  {
 
             // Observe error messages
             laundryProductViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-                // Periksa apakah pesan error tidak kosong
                 if (errorMessage.isNotBlank()) {
                     Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                    // Panggil fungsi reset di ViewModel
                     laundryProductViewModel.resetErrorMessage()
                 }
             }
@@ -124,6 +140,69 @@ class AdminListProductLaundryFragment : Fragment()  {
         return binding.root
     }
 
+    private fun openCreateFragment() {
+        val fragment = AdminCreateItemLaundryFragment()
+        val bundle = Bundle().apply {
+            putBoolean("isAdmin", true)
+        }
+        fragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.host_fragment_admin, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun openEditFragment(productId: Int?) {
+        val fragment = AdminCreateItemLaundryFragment()
+        val bundle = Bundle().apply {
+            putInt("productLaundryID", productId ?: 0)
+            putBoolean("isAdmin", true)
+        }
+        fragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.host_fragment_admin, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun showDeleteConfirmationDialog(productLaundry: ProductLaundry) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Layanan")
+            .setMessage("Apakah Anda yakin ingin menghapus layanan \"${productLaundry.name_laundry_item}\"?")
+            .setPositiveButton("Hapus") { dialog, _ ->
+                deleteProductLaundry(productLaundry)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Batal") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun deleteProductLaundry(productLaundry: ProductLaundry) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                laundryProductViewModel.deleteProductLaundry(productLaundry)
+                showAlert(
+                    title = "Berhasil!",
+                    message = "Layanan berhasil dihapus",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.success
+                )
+            } catch (e: Exception) {
+                showAlert(
+                    title = "Gagal!",
+                    message = "Gagal menghapus layanan: ${e.message}",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                    duration = 4000
+                )
+            }
+        }
+    }
+
     private fun updateUIIfReady() {
         val products = productLaundryList
         val branches = branchList
@@ -149,7 +228,6 @@ class AdminListProductLaundryFragment : Fragment()  {
                 groupedData.add(branch)
                 groupedData.addAll(products)
             } else {
-                // 💡 Branch dummy dengan nama UNKNOWN
                 val unknownBranch = Branch(
                     id_branch = branchId,
                     name_branch = "UNKNOWN",
@@ -185,7 +263,6 @@ class AdminListProductLaundryFragment : Fragment()  {
         adapter.submitList(items)
 
         bottomSheetDialog.setContentView(view)
-        // Menentukan tinggi bottom sheet menjadi sepertiga dari tinggi layar perangkat
         val layoutParams = bottomSheetDialog.window?.attributes
         layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
         bottomSheetDialog.window?.attributes = layoutParams

@@ -94,12 +94,6 @@ class KurirProductFragment : Fragment() {
             if (isLaundryTabSelected()) {
                 updateProductList(products)
                 updateCounter(products?.size ?: 0, "Laundry")
-                binding.layoutButtonAdd.setOnClickListener {
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.host_fragment_user, CreateItemLaundryFragment())
-                        .addToBackStack("laundry")
-                        .commit()
-                }
             }
         }
 
@@ -107,12 +101,6 @@ class KurirProductFragment : Fragment() {
             if (isRentalTabSelected()) {
                 updateProductList(products)
                 updateCounter(products?.size ?: 0, "Persewaan")
-                binding.layoutButtonAdd.setOnClickListener {
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.host_fragment_user, CreateItemRentalFragment())
-                        .addToBackStack("laundry")
-                        .commit()
-                }
             }
         }
 

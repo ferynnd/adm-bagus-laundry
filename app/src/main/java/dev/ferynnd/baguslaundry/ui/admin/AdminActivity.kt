@@ -43,22 +43,37 @@ class AdminActivity : AppCompatActivity() {
                 dismissNoInternetDialog()
 
                 if (savedInstanceState == null) {
-                    val lastFragmentTag = sharedPreferences.getString(PREF_LAST_FRAGMENT)
-                    val fragment = when (lastFragmentTag) {
-                        "AdminBranch" -> AdminListBranchFragment()
-                        "AdminUser" -> AdminListUserFragment()
-                        "AdminClient" -> AdminListClientFragment()
-                        "AdminProfile" -> AdminProfileFragment()
-                        "AdminListReportRental" -> AdminListReportRentalFragment()
-                        "AdminListReportLaundry" -> AdminListReportLaundryFragment()
-                        "AdminListProductRental" -> AdminListProductRentalFragment()
-                        "AdminListProductLaundry" -> AdminListProductLaundryFragment()
-                        else -> AdminDashboardFragment()
+                    // ✅ FIX: Hanya gunakan lastFragment jika bukan saat app pertama kali dibuka
+                    val isAppJustLaunched = intent.getBooleanExtra("APP_JUST_LAUNCHED", true)
+
+                    val fragment = if (isAppJustLaunched) {
+                        // Pertama kali app dibuka, selalu tampilkan Dashboard
+                        Log.d("AdminActivity", "🏠 App just launched, showing Dashboard")
+                        AdminDashboardFragment()
+                    } else {
+                        // Bukan pertama kali, gunakan last fragment yang tersimpan
+                        val lastFragmentTag = sharedPreferences.getString(PREF_LAST_FRAGMENT)
+                        Log.d("AdminActivity", "🔄 Restoring last fragment: $lastFragmentTag")
+
+                        when (lastFragmentTag) {
+                            "AdminBranch" -> AdminListBranchFragment()
+                            "AdminUser" -> AdminListUserFragment()
+                            "AdminClient" -> AdminListClientFragment()
+                            "AdminProfile" -> AdminProfileFragment()
+                            "AdminListReportRental" -> AdminListReportRentalFragment()
+                            "AdminListReportLaundry" -> AdminListReportLaundryFragment()
+                            "AdminListProductRental" -> AdminListProductRentalFragment()
+                            "AdminListProductLaundry" -> AdminListProductLaundryFragment()
+                            else -> AdminDashboardFragment()
+                        }
                     }
 
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.host_fragment_admin, fragment, lastFragmentTag)
+                        .replace(R.id.host_fragment_admin, fragment, if (isAppJustLaunched) "AdminDashboard" else null)
                         .commit()
+
+                    // Tandai bahwa app sudah tidak lagi "just launched"
+                    intent.putExtra("APP_JUST_LAUNCHED", false)
                 }
             } else {
                 showNoInternetDialog()
@@ -101,7 +116,7 @@ class AdminActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        sharedPreferences.put(PREF_LAST_FRAGMENT, "AdminDashboard")
+        // ✅ OPTIONAL: Uncomment jika ingin selalu mulai dari Dashboard
+        // sharedPreferences.put(PREF_LAST_FRAGMENT, "AdminDashboard")
     }
-
 }

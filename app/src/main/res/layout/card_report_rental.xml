@@ -50,15 +50,15 @@
                 app:layout_constraintEnd_toEndOf="@id/wadah_header">
 
                 <!-- Button Detail -->
-                <ImageView
-                    android:id="@+id/buttonDetail"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/detail"
-                    android:translationZ="2dp"
-                    app:tint="@color/white"
-                    android:layout_marginEnd="10dp"
-                    android:contentDescription="Detail" />
+<!--                <ImageView-->
+<!--                    android:id="@+id/buttonDetail"-->
+<!--                    android:layout_width="30dp"-->
+<!--                    android:layout_height="30dp"-->
+<!--                    android:src="@drawable/detail"-->
+<!--                    android:translationZ="2dp"-->
+<!--                    app:tint="@color/white"-->
+<!--                    android:layout_marginEnd="10dp"-->
+<!--                    android:contentDescription="Detail" />-->
 
                 <!-- Button Edit -->
                 <ImageView

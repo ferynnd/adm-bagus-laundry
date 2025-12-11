@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Toast // Import Toast
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -23,9 +23,8 @@ import dev.ferynnd.baguslaundry.databinding.FragmentAdminListProductRentalBindin
 import dev.ferynnd.baguslaundry.model.Branch
 import dev.ferynnd.baguslaundry.model.ProductRental
 import dev.ferynnd.baguslaundry.model.Status
-import dev.ferynnd.baguslaundry.ui.admin.AdminDashboardFragment
+import dev.ferynnd.baguslaundry.ui.user.AdminCreateItemRentalFragment
 import kotlinx.coroutines.launch
-
 
 class AdminListProductRentalFragment : Fragment() {
 
@@ -50,19 +49,31 @@ class AdminListProductRentalFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAdminListProductRentalBinding.inflate(layoutInflater)
-        // Inflate the layout for this fragment
-        rentalProductAdapter = RentalProductAdapter()
+
+        rentalProductAdapter = RentalProductAdapter(
+            onEditClick = { productRental ->
+                navigateToEditItem(productRental)
+            },
+            onDeleteClick = { productRental ->
+                deleteProductRental(productRental)
+            }
+        )
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rentalProductAdapter
         }
 
+        // Tombol Create Item
+        binding.btnCreateItem.setOnClickListener {
+            navigateToCreateItem()
+        }
+
         binding.btnRoutes.setOnClickListener {
             branchViewModel.branches.value?.let { branches ->
                 showFilterBottomSheet(requireContext(), branches) { selectedBranch ->
                     if (selectedBranch.id_branch == -1) {
-                        rentalProductViewModel.filterClient(null) // Semua Cabang
+                        rentalProductViewModel.filterClient(null)
                     } else {
                         rentalProductViewModel.filterClient(selectedBranch.id_branch)
                     }
@@ -70,7 +81,7 @@ class AdminListProductRentalFragment : Fragment() {
             }
         }
 
-         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let { rentalProductViewModel.searchRentalProducts(it) }
                 return true
@@ -83,23 +94,22 @@ class AdminListProductRentalFragment : Fragment() {
         })
 
         viewLifecycleOwner.lifecycleScope.launch {
-            // Observe loading state
             rentalProductViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
                 binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
                 binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
             }
 
-            // Observe error messages
             rentalProductViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
                 if (errorMessage.isNotBlank()) {
                     Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                    rentalProductViewModel.resetErrorMessage() // Panggil fungsi reset di ViewModel
+                    rentalProductViewModel.resetErrorMessage()
                 }
             }
 
             rentalProductViewModel.filteredRentalProducts.observe(viewLifecycleOwner) { filteredProducts ->
                 rentalProductAdapter.submitList(filteredProducts)
             }
+
             branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
                 branchList = branches
                 updateUIIfReady()
@@ -119,6 +129,38 @@ class AdminListProductRentalFragment : Fragment() {
         return binding.root
     }
 
+    private fun navigateToCreateItem() {
+        val fragment = AdminCreateItemRentalFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.host_fragment_admin, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun navigateToEditItem(productRental: ProductRental) {
+        val fragment = AdminCreateItemRentalFragment()
+        val bundle = Bundle().apply {
+            putInt("productRentalID", productRental.id_rental_item ?: 0)
+        }
+        fragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.host_fragment_admin, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun deleteProductRental(productRental: ProductRental) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                rentalProductViewModel.deleteProductRental(productRental)
+                Toast.makeText(requireContext(), "Produk berhasil dihapus", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Gagal menghapus produk: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun updateUIIfReady() {
         val products = productRentalList
         val branches = branchList
@@ -130,9 +172,7 @@ class AdminListProductRentalFragment : Fragment() {
 
     private fun setProductRental(newProductRentals: List<ProductRental>) {
         val tempGroupedData = mutableListOf<Any>()
-
         val branchList = branchViewModel.branches.value ?: emptyList()
-
         val groupedMap = newProductRentals.groupBy { it.id_branch_rental_item }
 
         for ((branchId, products) in groupedMap) {
@@ -148,7 +188,6 @@ class AdminListProductRentalFragment : Fragment() {
                     is_active_branch = Status.active,
                     deleted_at = ""
                 )
-
                 tempGroupedData.add(unknownBranch)
                 tempGroupedData.addAll(products)
             }
@@ -176,7 +215,6 @@ class AdminListProductRentalFragment : Fragment() {
         adapter.submitList(items)
 
         bottomSheetDialog.setContentView(view)
-        // Menentukan tinggi bottom sheet menjadi sepertiga dari tinggi layar perangkat
         val layoutParams = bottomSheetDialog.window?.attributes
         layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
         bottomSheetDialog.window?.attributes = layoutParams

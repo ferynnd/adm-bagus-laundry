@@ -10,7 +10,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="190dp"
+        android:layout_height="230dp"
         app:cardBackgroundColor="@color/blueGray"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -23,7 +23,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardForeground"
         android:layout_width="match_parent"
-        android:layout_height="140dp"
+        android:layout_height="180dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
@@ -34,20 +34,24 @@
 
     <TextView
         android:id="@+id/inputName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="CAB001234"
         android:fontFamily="@font/inter_medium"
         android:textSize="18sp"
         android:textColor="@color/white"
         android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:maxLines="1"
+        android:ellipsize="end"
         app:layout_constraintBottom_toTopOf="@id/cardForeground"
         app:layout_constraintStart_toStartOf="@id/cardBackground"
+        app:layout_constraintEnd_toEndOf="@id/cardBackground"
         app:layout_constraintTop_toTopOf="@id/cardBackground"
         android:translationZ="2dp"
         />
 
-        <TableLayout
+    <TableLayout
         android:id="@+id/tableLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -70,24 +74,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                />
 
-             <TextView
-                 android:id="@+id/inputPrice"
-                tools:text="HARGA"
+            <TextView
+                android:id="@+id/inputPrice"
+                tools:text="Rp 10.000"
                 android:padding="10dp"
-                 android:textSize="14sp"
+                android:textSize="14sp"
                 android:layout_marginEnd="10dp"
                 android:fontFamily="@font/inter_semibold"
                 android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
+                android:textAlignment="textEnd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 />
         </TableRow>
 
-          <TableRow>
+        <TableRow>
             <TextView
                 android:text="WAKTU"
                 android:padding="10dp"
@@ -99,17 +103,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                />
 
             <TextView
-                 android:id="@+id/inputTime"
-                tools:text="1/2H"
+                android:id="@+id/inputTime"
+                tools:text="1/2 Hari"
                 android:padding="10dp"
-                 android:textSize="14sp"
+                android:textSize="14sp"
                 android:layout_marginEnd="10dp"
                 android:fontFamily="@font/inter_semibold"
                 android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
+                android:textAlignment="textEnd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -128,17 +132,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                />
 
-               <TextView
-                 android:id="@+id/inputBranch"
-                tools:text="BRANCH"
+            <TextView
+                android:id="@+id/inputBranch"
+                tools:text="Cabang Utama"
                 android:padding="10dp"
-                 android:textSize="14sp"
+                android:textSize="14sp"
                 android:layout_marginEnd="10dp"
                 android:fontFamily="@font/inter_semibold"
                 android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
+                android:textAlignment="textEnd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -148,7 +152,60 @@
 
     </TableLayout>
 
+    <!-- Container untuk tombol Edit dan Hapus -->
+    <LinearLayout
+        android:id="@+id/layoutButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:paddingHorizontal="15dp"
+        android:paddingVertical="10dp"
+        app:layout_constraintStart_toStartOf="@id/cardForeground"
+        app:layout_constraintEnd_toEndOf="@id/cardForeground"
+        app:layout_constraintBottom_toBottomOf="@id/cardForeground">
 
+        <!-- Tombol Edit -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="Edit"
+            android:textSize="12sp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter_medium"
+            app:icon="@android:drawable/ic_menu_edit"
+            app:iconSize="16dp"
+            app:iconTint="@color/white"
+            app:iconGravity="textStart"
+            app:iconPadding="4dp"
+            app:backgroundTint="@color/primary"
+            app:cornerRadius="8dp"
+            android:paddingHorizontal="16dp"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.MaterialComponents.Button"
+            />
 
+        <!-- Tombol Hapus -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="Hapus"
+            android:textSize="12sp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter_medium"
+            app:icon="@android:drawable/ic_menu_delete"
+            app:iconSize="16dp"
+            app:iconTint="@color/white"
+            app:iconGravity="textStart"
+            app:iconPadding="4dp"
+            app:backgroundTint="@color/red600"
+            app:cornerRadius="8dp"
+            android:paddingHorizontal="16dp"
+            style="@style/Widget.MaterialComponents.Button"
+            />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

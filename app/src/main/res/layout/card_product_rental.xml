@@ -10,43 +10,43 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="match_parent"
-        android:layout_height="155dp"
+        android:layout_height="185dp"
         app:cardBackgroundColor="@color/orage"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
-
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardForeground"
         android:layout_width="match_parent"
-        android:layout_height="105dp"
+        android:layout_height="135dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp"
         app:layout_constraintStart_toStartOf="@id/cardBackground"
         app:layout_constraintEnd_toEndOf="@id/cardBackground"
-        app:layout_constraintBottom_toBottomOf="@id/cardBackground"
-        />
+        app:layout_constraintBottom_toBottomOf="@id/cardBackground" />
 
     <TextView
         android:id="@+id/inputName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="CAB001234"
         android:fontFamily="@font/inter_medium"
         android:textSize="18sp"
         android:textColor="@color/gray900"
         android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         app:layout_constraintBottom_toTopOf="@id/cardForeground"
         app:layout_constraintStart_toStartOf="@id/cardBackground"
+        app:layout_constraintEnd_toEndOf="@id/cardBackground"
         app:layout_constraintTop_toTopOf="@id/cardBackground"
-        android:translationZ="2dp"
-        />
+        android:translationZ="2dp" />
 
     <TableLayout
         android:id="@+id/tableLayout"
@@ -55,8 +55,7 @@
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="@id/cardForeground"
         app:layout_constraintEnd_toEndOf="@id/cardForeground"
-        app:layout_constraintTop_toTopOf="@id/cardForeground"
-        >
+        app:layout_constraintTop_toTopOf="@id/cardForeground">
 
         <TableRow>
             <TextView
@@ -69,23 +68,20 @@
                 android:textAlignment="textStart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                android:layout_weight="1" />
 
-               <TextView
-                 android:id="@+id/inputBranch"
+            <TextView
+                android:id="@+id/inputBranch"
                 tools:text="BRANCH"
                 android:padding="10dp"
-                 android:textSize="14sp"
+                android:textSize="14sp"
                 android:layout_marginEnd="10dp"
                 android:fontFamily="@font/inter_semibold"
                 android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
+                android:textAlignment="textEnd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-
+                android:layout_weight="1" />
         </TableRow>
 
         <TableRow>
@@ -99,27 +95,74 @@
                 android:textAlignment="textStart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                /> <!-- kasih lebar minimum -->
+                android:layout_weight="1" />
 
-               <TextView
-                 android:id="@+id/inputPrice"
+            <TextView
+                android:id="@+id/inputPrice"
                 tools:text="Rp. 10.000"
                 android:padding="10dp"
-                 android:textSize="14sp"
+                android:textSize="14sp"
                 android:layout_marginEnd="10dp"
                 android:fontFamily="@font/inter_semibold"
                 android:textColor="@color/blue900"
-                 android:textAlignment="textEnd"
+                android:textAlignment="textEnd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                />
-
+                android:layout_weight="1" />
         </TableRow>
-
-
     </TableLayout>
 
+    <!-- Container untuk tombol Edit dan Delete -->
+    <LinearLayout
+        android:id="@+id/layoutButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintTop_toBottomOf="@id/tableLayout"
+        app:layout_constraintStart_toStartOf="@id/cardForeground"
+        app:layout_constraintEnd_toEndOf="@id/cardForeground"
+        app:layout_constraintBottom_toBottomOf="@id/cardForeground">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEdit"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Edit"
+            android:textSize="12sp"
+            android:fontFamily="@font/inter_medium"
+            android:textColor="@color/primary"
+            app:strokeColor="@color/primary"
+            app:strokeWidth="1dp"
+            app:cornerRadius="8dp"
+            android:paddingHorizontal="16dp"
+            android:layout_marginEnd="8dp"
+            app:icon="@android:drawable/ic_menu_edit"
+            app:iconTint="@color/primary"
+            app:iconSize="16dp"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDelete"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Hapus"
+            android:textSize="12sp"
+            android:fontFamily="@font/inter_medium"
+            android:textColor="@color/red600"
+            app:strokeColor="@color/red600"
+            app:strokeWidth="1dp"
+            app:cornerRadius="8dp"
+            android:paddingHorizontal="16dp"
+            app:icon="@android:drawable/ic_menu_delete"
+            app:iconTint="@color/red600"
+            app:iconSize="16dp"
+            app:iconGravity="textStart" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

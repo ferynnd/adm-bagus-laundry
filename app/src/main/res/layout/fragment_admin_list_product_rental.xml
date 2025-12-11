@@ -28,7 +28,7 @@
         android:orientation="horizontal"
         android:id="@+id/guidelineTop"/>
 
-       <ImageView
+    <ImageView
         android:id="@+id/arrowBack"
         android:layout_width="20dp"
         android:layout_height="20dp"
@@ -49,28 +49,27 @@
         app:layout_constraintEnd_toStartOf="@id/btnRoutes">
 
         <TextView
-        android:id="@+id/textHeaderLight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/inter_light"
-        android:padding="0dp"
-        android:paddingEnd="10dp"
-        android:text="PRODUK"
-        android:textColor="@color/blue900"
-        android:textSize="20sp"
-        tools:ignore="RtlSymmetry" />
+            android:id="@+id/textHeaderLight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_light"
+            android:padding="0dp"
+            android:paddingEnd="10dp"
+            android:text="PRODUK"
+            android:textColor="@color/blue900"
+            android:textSize="20sp"
+            tools:ignore="RtlSymmetry" />
 
         <TextView
-        android:id="@+id/textHeaderBold"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="0dp"
-        android:fontFamily="@font/inter_bold"
-        android:padding="0dp"
-        android:text="SEWA"
-        android:textColor="@color/blue900"
-        android:textSize="20sp"
-        />
+            android:id="@+id/textHeaderBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:fontFamily="@font/inter_bold"
+            android:padding="0dp"
+            android:text="SEWA"
+            android:textColor="@color/blue900"
+            android:textSize="20sp" />
 
     </LinearLayout>
 
@@ -85,8 +84,6 @@
         android:layout_margin="0dp"
         android:translationX="7dp"
         android:padding="0dp"/>
-
-
 
     <androidx.cardview.widget.CardView
         android:id="@+id/layoutSearch"
@@ -110,31 +107,19 @@
         app:layout_constraintTop_toTopOf="@id/layoutSearch"
         app:layout_constraintBottom_toBottomOf="@id/layoutSearch"/>
 
-    <!--    Nanti Ini Dihapus-->
-    <ListView
-        android:id="@+id/listView"
-        android:layout_width="0dp"
-        android:cacheColorHint="@color/blue900"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/searchView"
-        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
-        app:layout_constraintTop_toBottomOf="@id/searchView"
-        android:visibility="gone"
-        />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        tools:listitem="@layout/card_client"
         android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/layoutSearch"
-        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/guidelineRight"/>
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+        app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+        app:layout_constraintTop_toBottomOf="@id/layoutSearch"
+        tools:listitem="@layout/card_client" />
 
-        <com.google.android.material.progressindicator.CircularProgressIndicator
+    <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progresBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -143,5 +128,17 @@
         app:layout_constraintEnd_toStartOf="@+id/guidelineRight"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guidelineTop" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnCreateItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:contentDescription="Tambah Layanan Laundry"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="@color/primary"
+        app:tint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guidelineRight" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

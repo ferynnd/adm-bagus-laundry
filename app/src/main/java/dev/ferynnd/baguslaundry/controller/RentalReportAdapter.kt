@@ -136,9 +136,9 @@ class RentalReportAdapter(
                     setupItemsRecyclerView(holder, transactionReportRental)
 
                     // Button Detail
-                    buttonDetail.setOnClickListener {
-                        onDetail(transactionReportRental)
-                    }
+//                    buttonDetail.setOnClickListener {
+//                        onDetail(transactionReportRental)
+//                    }
 
                     // Button Edit
                     buttonEdit.setOnClickListener {

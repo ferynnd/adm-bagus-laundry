@@ -78,5 +78,9 @@ data class UpdateRentalTransactionRequest(
     val number_transaction_rental: Int,
 
     @SerializedName("notes_transaction_rental")
-    val notes_transaction_rental: String?
+    val notes_transaction_rental: String?,
+
+    val time_transaction_rental: String,
+
+//    val list_transaction_rentals: List<RentalTransactionItem>
 )

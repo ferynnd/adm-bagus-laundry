@@ -2,6 +2,10 @@ package dev.ferynnd.baguslaundry.ui.user.transaksi_rental
 
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +26,7 @@ import dev.ferynnd.baguslaundry.R
 import dev.ferynnd.baguslaundry.data.api.DefaultRequest
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
+import dev.ferynnd.baguslaundry.data.helper.TransactionDraftHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.product.RentalProductViewModel
@@ -47,19 +52,23 @@ class CreateListTransaksiRentalFragment : Fragment() {
     private lateinit var rentalProductViewModel: RentalProductViewModel
     private lateinit var rentalReportViewModel: RentalReportViewModel
     private lateinit var clientViewModel: ClientViewModel
+    private lateinit var draftHelper: TransactionDraftHelper
     private lateinit var sharePrefrences: SharePrefrenceHelper
 
     private var userId: Int = 0
     private var userIdBranch: Int = 0
-    private var clientId: Int = 0
 
     private var fullRentalList: List<ProductRental> = listOf()
     private var clientList: List<Client> = listOf()
 
-    // Untuk tracking data yang sudah dimuat
     private var isUserDataLoaded = false
     private var isRentalDataLoaded = false
     private var isClientDataLoaded = false
+    private var isRestoringState = false
+
+    // Handler untuk debounce save
+    private val saveHandler = Handler(Looper.getMainLooper())
+    private var saveRunnable: Runnable? = null
 
     data class FilterOption(val value: String, val displayName: String)
 
@@ -75,23 +84,23 @@ class CreateListTransaksiRentalFragment : Fragment() {
         FilterOption("damaged", "Rusak")
     )
 
-    private var rentalTransactionItems: MutableList<RentalTransactionItem> = mutableListOf()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         userViewModel.init(requireContext())
-        rentalProductViewModel =
-            ViewModelProvider(this)[RentalProductViewModel::class.java].apply { init(requireContext()) }
-        rentalReportViewModel =
-            ViewModelProvider(this)[RentalReportViewModel::class.java].apply { init(requireContext()) }
-        clientViewModel =
-            ViewModelProvider(this)[ClientViewModel::class.java].apply { init(requireContext()) }
+        rentalProductViewModel = ViewModelProvider(this)[RentalProductViewModel::class.java].apply { init(requireContext()) }
+        rentalReportViewModel = ViewModelProvider(this)[RentalReportViewModel::class.java].apply { init(requireContext()) }
+        clientViewModel = ViewModelProvider(this)[ClientViewModel::class.java].apply { init(requireContext()) }
+
+        // Initialize draft helper
+        draftHelper = TransactionDraftHelper(requireContext())
+
+        Log.d("FragmentLifecycle", "onCreate - Draft exists: ${draftHelper.hasUnsavedData()}")
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = KurirFragmentCreateListTransaksiRentalBinding.inflate(layoutInflater)
         hideBottomNavigationView()
 
@@ -100,19 +109,47 @@ class CreateListTransaksiRentalFragment : Fragment() {
 
         if (userId != 0) {
             updateLoadingState(true)
-            setupObservers() // Panggil setupObservers di sini untuk menginisialisasi semua observer
+            setupObservers()
             loadInitialData()
         } else {
             Toast.makeText(context, "Data pengguna tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
 
         setupClickListeners()
+
+        Log.d("FragmentLifecycle", "onCreateView")
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("FragmentLifecycle", "onResume - Will restore after data loaded")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Save current state when leaving
+        saveAllCurrentState()
+        Log.d("FragmentLifecycle", "onPause - State saved")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        saveHandler.removeCallbacksAndMessages(null)
         _binding = null
+        Log.d("FragmentLifecycle", "onDestroyView")
+    }
+
+    private fun setupObservers() {
+        rentalReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            if (isUserDataLoaded && isRentalDataLoaded && isClientDataLoaded) {
+                updateLoadingState(isLoading)
+            }
+        }
+
+        rentalReportViewModel.createTransactionResponse.observe(viewLifecycleOwner) { response ->
+            handleTransactionResponse(response)
+        }
     }
 
     private fun setupClickListeners() {
@@ -124,9 +161,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
             if (fullRentalList.isNotEmpty()) {
                 addRentalItemInput()
             } else {
-                Toast.makeText(
-                    requireContext(), "Data rental kosong untuk cabang ini", Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Data rental kosong untuk cabang ini", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -137,34 +172,13 @@ class CreateListTransaksiRentalFragment : Fragment() {
         }
     }
 
-    private fun setupObservers() {
-        // Observer khusus untuk transaction loading (untuk submit)
-        rentalReportViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            // Hanya update loading state jika sedang submit transaction
-            if (isUserDataLoaded && isRentalDataLoaded && isClientDataLoaded) {
-                updateLoadingState(isLoading)
-            }
-        }
-
-        // Observer untuk create transaction response
-        rentalReportViewModel.createTransactionResponse.observe(viewLifecycleOwner) { response ->
-            handleTransactionResponse(response)
-        }
-    }
-
     private fun loadInitialData() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                // Load semua data secara berurutan
                 loadUserData()
-
             } catch (e: Exception) {
                 updateLoadingState(false)
-                Toast.makeText(
-                    requireContext(),
-                    "Gagal memuat data: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(requireContext(), "Gagal memuat data: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -177,27 +191,17 @@ class CreateListTransaksiRentalFragment : Fragment() {
                 binding.namaKurir.text = userResponse.data.fullname_user ?: "-"
                 isUserDataLoaded = true
 
-                // Setelah user data berhasil, load data lainnya secara parallel
                 coroutineScope {
                     launch { loadRentalProductsData() }
                     launch { loadClientData() }
                 }
-
             } else {
                 updateLoadingState(false)
-                Toast.makeText(
-                    requireContext(),
-                    "Gagal memuat data pengguna",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(requireContext(), "Gagal memuat data pengguna", Toast.LENGTH_LONG).show()
             }
         } catch (e: Exception) {
             updateLoadingState(false)
-            Toast.makeText(
-                requireContext(),
-                "Gagal memuat data pengguna: ${e.message}",
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(requireContext(), "Gagal memuat data pengguna: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -210,15 +214,11 @@ class CreateListTransaksiRentalFragment : Fragment() {
             isRentalDataLoaded = true
             checkAllDataLoaded()
         } catch (e: Exception) {
-            Toast.makeText(
-                requireContext(),
-                "Gagal memuat data product item: ${e.message}",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "Gagal memuat data product item: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
-   private fun loadClientData() {
+    private fun loadClientData() {
         clientViewModel.getClient()
 
         clientViewModel.clients.observe(viewLifecycleOwner) { clients ->
@@ -236,10 +236,15 @@ class CreateListTransaksiRentalFragment : Fragment() {
         }
     }
 
-
     private fun checkAllDataLoaded() {
         if (isUserDataLoaded && isRentalDataLoaded && isClientDataLoaded) {
             updateLoadingState(false)
+
+            // Restore draft setelah semua data siap
+            restoreAllState()
+
+            // Setup text watchers AFTER restore
+            setupTextWatchers()
         }
     }
 
@@ -250,11 +255,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
         fullRentalList = filtered
 
         if (filtered.isEmpty()) {
-            Toast.makeText(
-                requireContext(),
-                "Tidak ada item rental untuk cabang ini",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "Tidak ada item rental untuk cabang ini", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -274,8 +275,15 @@ class CreateListTransaksiRentalFragment : Fragment() {
 
         binding.inputNamaClient.setOnItemClickListener { _, _, position, _ ->
             val selectedClient = clientList.getOrNull(position)
-            clientId = selectedClient?.id_client ?: 0
-            binding.alamatKlien.text = selectedClient?.full_address_client ?: "-"
+            val clientId = selectedClient?.id_client ?: 0
+            val clientName = selectedClient?.name_client ?: ""
+            val clientAddress = selectedClient?.full_address_client ?: "-"
+
+            if (!isRestoringState) {
+                draftHelper.saveClient(clientName, clientId, clientAddress)
+            }
+
+            binding.alamatKlien.text = clientAddress
         }
 
         if (clientList.isEmpty()) {
@@ -283,39 +291,95 @@ class CreateListTransaksiRentalFragment : Fragment() {
         }
     }
 
-    private fun handleTransactionResponse(response: DefaultRequest<RentalTransactionData>?) {
-        try {
-            if (response != null) {
-                if (response.success) {
-                    showAlert(
-                        title = "Berhasil!",
-                        message = "Transaksi berhasil disimpan",
-                        backgroundColorRes = R.color.primary,
-                        iconRes = R.drawable.success
-                    )
-                   val bundle = Bundle()
-                    bundle.putInt("transactionId", response.data.id_transaction_rental)
-                    val fragment = PrintPreviewRentalFragment()
-                    fragment.arguments = bundle
-
-                    openUserFragment(fragment, "PrintPreviewRental")
-
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        response.message ?: "Gagal membuat transaksi.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                rentalReportViewModel.resetCreateTransactionResponse()
-            }
-        } catch (e: Exception) {
-            Toast.makeText(
-                requireContext(),
-                "Gagal memproses response: ${e.message}",
-                Toast.LENGTH_SHORT
-            ).show()
+    private fun restoreAllState() {
+        if (!draftHelper.hasUnsavedData()) {
+            Log.d("RestoreState", "No draft data to restore")
+            return
         }
+
+        isRestoringState = true
+        Log.d("RestoreState", "Starting restore...")
+
+        // Restore form fields
+        val nomorNota = draftHelper.getNomorNota()
+        if (nomorNota.isNotEmpty()) {
+            binding.inputNomorNota.setText(nomorNota)
+            Log.d("RestoreState", "Restored nomor nota: $nomorNota")
+        }
+
+        val clientName = draftHelper.getClientName()
+        if (clientName.isNotEmpty()) {
+            binding.inputNamaClient.setText(clientName, false)
+            binding.alamatKlien.text = draftHelper.getClientAddress()
+            Log.d("RestoreState", "Restored client: $clientName")
+        }
+
+        val namaPenerima = draftHelper.getNamaPenerima()
+        if (namaPenerima.isNotEmpty()) {
+            binding.inputNamaPenerima.setText(namaPenerima)
+            Log.d("RestoreState", "Restored nama penerima: $namaPenerima")
+        }
+
+        val noteTransaksi = draftHelper.getNoteTransaksi()
+        if (noteTransaksi.isNotEmpty()) {
+            binding.inputNoteTransaksi.setText(noteTransaksi)
+            Log.d("RestoreState", "Restored note: $noteTransaksi")
+        }
+
+        // Restore rental items
+        val savedItems = draftHelper.getRentalItems()
+        Log.d("RestoreState", "Restoring ${savedItems.size} rental items")
+
+        savedItems.forEach { savedItem ->
+            val itemView = layoutInflater.inflate(
+                R.layout.kurir_list_item_transaksi_rental_input,
+                binding.containerRental,
+                false
+            )
+            setupRentalItemView(itemView, savedItem)
+            binding.containerRental.addView(itemView)
+        }
+
+        isRestoringState = false
+        Log.d("RestoreState", "Restore completed")
+    }
+
+    private fun setupTextWatchers() {
+        binding.inputNomorNota.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (!isRestoringState) {
+                    debouncedSave { draftHelper.saveNomorNota(s.toString()) }
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        binding.inputNamaPenerima.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (!isRestoringState) {
+                    debouncedSave { draftHelper.saveNamaPenerima(s.toString()) }
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        binding.inputNoteTransaksi.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (!isRestoringState) {
+                    debouncedSave { draftHelper.saveNoteTransaksi(s.toString()) }
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+    }
+
+    private fun debouncedSave(action: () -> Unit) {
+        saveRunnable?.let { saveHandler.removeCallbacks(it) }
+        saveRunnable = Runnable { action() }
+        saveHandler.postDelayed(saveRunnable!!, 500) // Save after 500ms idle
     }
 
     private fun addRentalItemInput() {
@@ -325,8 +389,24 @@ class CreateListTransaksiRentalFragment : Fragment() {
             false
         )
 
-        // Spinner setup
+        setupRentalItemView(itemView, null)
+        binding.containerRental.addView(itemView)
+
+        // Save immediately
+        saveAllRentalItems()
+
+        Log.d("AddItem", "Added new rental item, total views: ${binding.containerRental.childCount}")
+    }
+
+    private fun setupRentalItemView(itemView: View, savedState: TransactionDraftHelper.RentalItemDraft?) {
         val spinner = itemView.findViewById<Spinner>(R.id.spinnerRental)
+        val statusAutoComplete = itemView.findViewById<AutoCompleteTextView>(R.id.input_status_list_transaksi_rental)
+        val kondisiAutoComplete = itemView.findViewById<AutoCompleteTextView>(R.id.input_kondisi_list_transaksi_rental)
+        val beratEditText = itemView.findViewById<EditText>(R.id.input_berat_list_transaksi_rental)
+        val pcsEditText = itemView.findViewById<EditText>(R.id.input_pcs_list_transaksi_rental)
+        val trashIcon = itemView.findViewById<ImageView>(R.id.trash_create_list_transaksi)
+
+        // Setup spinner
         val spinnerAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -335,13 +415,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = spinnerAdapter
 
-        // AutoCompleteTextView setup
-        val statusAutoComplete =
-            itemView.findViewById<AutoCompleteTextView>(R.id.input_status_list_transaksi_rental)
-        val kondisiAutoComplete =
-            itemView.findViewById<AutoCompleteTextView>(R.id.input_kondisi_list_transaksi_rental)
-
-        // Tambahkan adapter dan item untuk status dan kondisi
+        // Setup status dropdown
         val statusAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
@@ -349,6 +423,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
         )
         statusAutoComplete.setAdapter(statusAdapter)
 
+        // Setup kondisi dropdown
         val conditionAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
@@ -356,52 +431,157 @@ class CreateListTransaksiRentalFragment : Fragment() {
         )
         kondisiAutoComplete.setAdapter(conditionAdapter)
 
-        // Listener spinner untuk menyimpan ID
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                spinner.setTag(R.id.spinnerRental, fullRentalList[position].id_rental_item)
-            }
+        // Restore saved state
+        if (savedState != null) {
+            Log.d("RestoreItem", "Restoring item: ${savedState.selectedItemName}")
 
+            if (savedState.selectedItemPosition >= 0 && savedState.selectedItemPosition < fullRentalList.size) {
+                spinner.setSelection(savedState.selectedItemPosition)
+            }
+            spinner.setTag(R.id.spinnerRental, savedState.selectedItemId)
+
+            if (savedState.status.isNotEmpty()) {
+                statusAutoComplete.setText(savedState.status, false)
+            }
+            if (savedState.kondisi.isNotEmpty()) {
+                kondisiAutoComplete.setText(savedState.kondisi, false)
+            }
+            if (savedState.berat.isNotEmpty()) {
+                beratEditText.setText(savedState.berat)
+            }
+            if (savedState.pcs.isNotEmpty()) {
+                pcsEditText.setText(savedState.pcs)
+            }
+        }
+
+        // Spinner listener
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedItem = fullRentalList.getOrNull(position)
+                if (selectedItem != null) {
+                    spinner.setTag(R.id.spinnerRental, selectedItem.id_rental_item)
+                    if (!isRestoringState) {
+                        debouncedSave { saveAllRentalItems() }
+                    }
+                }
+            }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        // Tombol hapus
-        val trashIcon = itemView.findViewById<ImageView>(R.id.trash_create_list_transaksi)
+        // Text watchers
+        val textWatcher = object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (!isRestoringState) {
+                    debouncedSave { saveAllRentalItems() }
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        }
+
+        statusAutoComplete.addTextChangedListener(textWatcher)
+        kondisiAutoComplete.addTextChangedListener(textWatcher)
+        beratEditText.addTextChangedListener(textWatcher)
+        pcsEditText.addTextChangedListener(textWatcher)
+
+        // Delete button
         trashIcon.setOnClickListener {
             binding.containerRental.removeView(itemView)
+            saveAllRentalItems()
+
+            Log.d("DeleteItem", "Removed item, remaining: ${binding.containerRental.childCount}")
+
             if (binding.containerRental.childCount == 0) {
                 Toast.makeText(requireContext(), "Semua item dihapus", Toast.LENGTH_SHORT).show()
             }
         }
-
-        // Tambahkan itemView ke container
-        binding.containerRental.addView(itemView)
     }
 
-    private fun validateRentalTransaction(): Boolean {
-        // Cek apakah ada item rental
-        if (binding.containerRental.childCount == 0) {
-            Toast.makeText(
-                requireContext(), "Tambahkan minimal satu item rental", Toast.LENGTH_SHORT
-            ).show()
-            return false
-        }
+    private fun saveAllRentalItems() {
+        val items = mutableListOf<TransactionDraftHelper.RentalItemDraft>()
 
-        // Validasi item rental satu per satu
         for (i in 0 until binding.containerRental.childCount) {
             val itemView = binding.containerRental.getChildAt(i)
             val spinner = itemView.findViewById<Spinner>(R.id.spinnerRental)
-            val pcsEditText =
-                itemView.findViewById<EditText>(R.id.input_pcs_list_transaksi_rental)
-            val kondisiDropdown =
-                itemView.findViewById<AutoCompleteTextView>(R.id.input_kondisi_list_transaksi_rental)
-            val statusDropdown =
-                itemView.findViewById<AutoCompleteTextView>(R.id.input_status_list_transaksi_rental)
+            val statusAutoComplete = itemView.findViewById<AutoCompleteTextView>(R.id.input_status_list_transaksi_rental)
+            val kondisiAutoComplete = itemView.findViewById<AutoCompleteTextView>(R.id.input_kondisi_list_transaksi_rental)
+            val beratEditText = itemView.findViewById<EditText>(R.id.input_berat_list_transaksi_rental)
+            val pcsEditText = itemView.findViewById<EditText>(R.id.input_pcs_list_transaksi_rental)
+
+            val selectedPosition = spinner.selectedItemPosition
+            val selectedItem = fullRentalList.getOrNull(selectedPosition)
+
+            val draft = TransactionDraftHelper.RentalItemDraft(
+                selectedItemId = selectedItem?.id_rental_item ?: 0,
+                selectedItemPosition = selectedPosition,
+                selectedItemName = selectedItem?.name_rental_item ?: "",
+                status = statusAutoComplete.text.toString(),
+                kondisi = kondisiAutoComplete.text.toString(),
+                berat = beratEditText.text.toString(),
+                pcs = pcsEditText.text.toString()
+            )
+
+            items.add(draft)
+        }
+
+        draftHelper.saveRentalItems(items)
+        Log.d("SaveDraft", "Saved ${items.size} rental items")
+    }
+
+    private fun saveAllCurrentState() {
+        // Save rental items
+        saveAllRentalItems()
+
+        // Save form fields (if not already saved by text watchers)
+        draftHelper.saveNomorNota(binding.inputNomorNota.text.toString())
+        draftHelper.saveNamaPenerima(binding.inputNamaPenerima.text.toString())
+        draftHelper.saveNoteTransaksi(binding.inputNoteTransaksi.text.toString())
+
+        Log.d("SaveState", "All state saved")
+    }
+
+    private fun handleTransactionResponse(response: DefaultRequest<RentalTransactionData>?) {
+        try {
+            if (response != null) {
+                if (response.success) {
+                    // Clear draft setelah sukses
+                    draftHelper.clearAllData()
+
+                    showAlert(
+                        title = "Berhasil!",
+                        message = "Transaksi berhasil disimpan",
+                        backgroundColorRes = R.color.primary,
+                        iconRes = R.drawable.success
+                    )
+
+                    val bundle = Bundle()
+                    bundle.putInt("transactionId", response.data.id_transaction_rental)
+                    val fragment = PrintPreviewRentalFragment()
+                    fragment.arguments = bundle
+
+                    openUserFragment(fragment, "PrintPreviewRental")
+                } else {
+                    Toast.makeText(requireContext(), response.message ?: "Gagal membuat transaksi.", Toast.LENGTH_SHORT).show()
+                }
+                rentalReportViewModel.resetCreateTransactionResponse()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Gagal memproses response: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun validateRentalTransaction(): Boolean {
+        if (binding.containerRental.childCount == 0) {
+            Toast.makeText(requireContext(), "Tambahkan minimal satu item rental", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        for (i in 0 until binding.containerRental.childCount) {
+            val itemView = binding.containerRental.getChildAt(i)
+            val spinner = itemView.findViewById<Spinner>(R.id.spinnerRental)
+            val pcsEditText = itemView.findViewById<EditText>(R.id.input_pcs_list_transaksi_rental)
+            val kondisiDropdown = itemView.findViewById<AutoCompleteTextView>(R.id.input_kondisi_list_transaksi_rental)
+            val statusDropdown = itemView.findViewById<AutoCompleteTextView>(R.id.input_status_list_transaksi_rental)
 
             val position = spinner.selectedItemPosition
             if (position < 0 || position >= fullRentalList.size) {
@@ -435,8 +615,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
             }
 
             val selectedStatus = statusDropdown.text.toString()
-            val selectedStatusValue =
-                statusOptions.find { it.displayName == selectedStatus }?.value
+            val selectedStatusValue = statusOptions.find { it.displayName == selectedStatus }?.value
             if (selectedStatusValue == null) {
                 showAlert(
                     title = "Peringatan!",
@@ -456,8 +635,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
             }
 
             val selectedKondisi = kondisiDropdown.text.toString()
-            val selectedKondisiValue =
-                conditionOptions.find { it.displayName == selectedKondisi }?.value
+            val selectedKondisiValue = conditionOptions.find { it.displayName == selectedKondisi }?.value
             if (selectedKondisiValue == null) {
                 showAlert(
                     title = "Peringatan!",
@@ -499,7 +677,7 @@ class CreateListTransaksiRentalFragment : Fragment() {
     }
 
     private fun processTransaction() {
-        rentalTransactionItems.clear()
+        val rentalTransactionItems = mutableListOf<RentalTransactionItem>()
 
         if (binding.containerRental.childCount == 0) {
             showAlert(
@@ -513,31 +691,19 @@ class CreateListTransaksiRentalFragment : Fragment() {
         for (i in 0 until binding.containerRental.childCount) {
             val itemView = binding.containerRental.getChildAt(i)
             val spinner = itemView.findViewById<Spinner>(R.id.spinnerRental)
-            val statusDropdown =
-                itemView.findViewById<AutoCompleteTextView>(R.id.input_status_list_transaksi_rental)
+            val statusDropdown = itemView.findViewById<AutoCompleteTextView>(R.id.input_status_list_transaksi_rental)
             val selectedStatusCondition = statusDropdown.text.toString()
-            val selectedStatusValue =
-                statusOptions.find { it.displayName == selectedStatusCondition }?.value
+            val selectedStatusValue = statusOptions.find { it.displayName == selectedStatusCondition }?.value
 
-            val kondisiDropdown =
-                itemView.findViewById<AutoCompleteTextView>(R.id.input_kondisi_list_transaksi_rental)
+            val kondisiDropdown = itemView.findViewById<AutoCompleteTextView>(R.id.input_kondisi_list_transaksi_rental)
             val selectedKondisiCondition = kondisiDropdown.text.toString()
-            val selectedKondisiValue =
-                conditionOptions.find { it.displayName == selectedKondisiCondition }?.value
+            val selectedKondisiValue = conditionOptions.find { it.displayName == selectedKondisiCondition }?.value
 
-            val beratEditText =
-                itemView.findViewById<EditText>(R.id.input_berat_list_transaksi_rental)
+            val beratEditText = itemView.findViewById<EditText>(R.id.input_berat_list_transaksi_rental)
             val beratText = beratEditText.text.toString().trim()
+            val berat = if (beratText.isEmpty()) 0.0 else beratText.toDoubleOrNull() ?: 0.0
 
-            // Handle empty weight - bisa null atau default value
-            val berat = if (beratText.isEmpty()) {
-                0.0 // atau bisa null jika data class mendukung nullable
-            } else {
-                beratText.toDoubleOrNull() ?: 0.0
-            }
-
-            val pcsEditText =
-                itemView.findViewById<EditText>(R.id.input_pcs_list_transaksi_rental)
+            val pcsEditText = itemView.findViewById<EditText>(R.id.input_pcs_list_transaksi_rental)
             val pcsText = pcsEditText.text.toString().trim()
             val pcs = pcsText.toIntOrNull() ?: 0
 
@@ -563,8 +729,9 @@ class CreateListTransaksiRentalFragment : Fragment() {
             rentalTransactionItems.add(transactionItem)
         }
 
-        val rentalTransactionRequest = RentalTransactionRequest(
+        val clientId = draftHelper.getClientId()
 
+        val rentalTransactionRequest = RentalTransactionRequest(
             id_kurir_transaction_rental = userId,
             id_branch_transaction_rental = userIdBranch,
             id_client_transaction_rental = clientId,
@@ -575,13 +742,6 @@ class CreateListTransaksiRentalFragment : Fragment() {
         )
 
         rentalReportViewModel.createRentalTransaction(rentalTransactionRequest)
-
-        showAlert(
-            title = "Berhasil!",
-            message = "Transaksi berhasil disimpan",
-            backgroundColorRes = R.color.primary,
-            iconRes = R.drawable.success
-        )
     }
 
     private fun updateLoadingState(isLoading: Boolean) {
@@ -597,5 +757,4 @@ class CreateListTransaksiRentalFragment : Fragment() {
         super.onDestroy()
         activity?.findViewById<BottomNavigationView>(R.id.bottomNav)?.visibility = View.VISIBLE
     }
-
 }

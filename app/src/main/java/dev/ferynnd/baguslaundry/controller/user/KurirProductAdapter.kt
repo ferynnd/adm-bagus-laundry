@@ -83,25 +83,25 @@ class KurirProductAdapter(
                 holder.harga.text = "Rp $harga_laundry"
                 holder.waktu.text = laundryItem.time_laundry_item.toString()
 
-                // Add edit button click listener
-                holder.binding.layoutButtonEdit.setOnClickListener {
-                    val fragment = CreateItemLaundryFragment().apply {
-                        arguments = Bundle().apply {
-                            putInt("productLaundryID", laundryItem.id_laundry_item!!)
-                        }
-                    }
-
-                    val fragmentManager = (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
-                    fragmentManager.beginTransaction()
-                        .replace(R.id.host_fragment_user, fragment)
-                        .addToBackStack(null)
-                        .commit()
-                }
-
-                // Add delete button click listener with ViewModel integration
-                holder.binding.layoutButtonDelete.setOnClickListener {
-                    onDeleteLaundry(laundryItem)
-                }
+//                // Add edit button click listener
+//                holder.binding.layoutButtonEdit.setOnClickListener {
+//                    val fragment = CreateItemLaundryFragment().apply {
+//                        arguments = Bundle().apply {
+//                            putInt("productLaundryID", laundryItem.id_laundry_item!!)
+//                        }
+//                    }
+//
+//                    val fragmentManager = (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
+//                    fragmentManager.beginTransaction()
+//                        .replace(R.id.host_fragment_user, fragment)
+//                        .addToBackStack(null)
+//                        .commit()
+//                }
+//
+//                // Add delete button click listener with ViewModel integration
+//                holder.binding.layoutButtonDelete.setOnClickListener {
+//                    onDeleteLaundry(laundryItem)
+//                }
             }
             is ProductRentalViewHolder -> {
                 val rentalItem = item as ProductRental
@@ -110,25 +110,25 @@ class KurirProductAdapter(
                 holder.status.text = branchName
                 holder.price.text = rentalItem.price_rental_item.toString()
 
-                // Add edit button click listener
-                holder.binding.layoutButtonEdit.setOnClickListener {
-                    val fragment = CreateItemRentalFragment().apply {
-                        arguments = Bundle().apply {
-                            putInt("productRentalID", rentalItem.id_rental_item!!)
-                        }
-                    }
-
-                    val fragmentManager = (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
-                    fragmentManager.beginTransaction()
-                        .replace(R.id.host_fragment_user, fragment)
-                        .addToBackStack(null)
-                        .commit()
-                }
-
-                // Add delete button click listener with ViewModel integration
-                holder.binding.layoutButtonDelete.setOnClickListener {
-                    onDeleteRental(rentalItem)
-                }
+//                // Add edit button click listener
+//                holder.binding.layoutButtonEdit.setOnClickListener {
+//                    val fragment = CreateItemRentalFragment().apply {
+//                        arguments = Bundle().apply {
+//                            putInt("productRentalID", rentalItem.id_rental_item!!)
+//                        }
+//                    }
+//
+//                    val fragmentManager = (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager
+//                    fragmentManager.beginTransaction()
+//                        .replace(R.id.host_fragment_user, fragment)
+//                        .addToBackStack(null)
+//                        .commit()
+//                }
+//
+//                // Add delete button click listener with ViewModel integration
+//                holder.binding.layoutButtonDelete.setOnClickListener {
+//                    onDeleteRental(rentalItem)
+//                }
             }
         }
     }

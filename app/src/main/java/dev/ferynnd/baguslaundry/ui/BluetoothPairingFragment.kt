@@ -419,8 +419,21 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
             val remoteDevice = bluetoothAdapter.getRemoteDevice(deviceItem.address)
 
             if (remoteDevice.bondState == BluetoothDevice.BOND_BONDED) {
-                // Jika sudah dipasangkan, langsung coba hubungkan
-                connectToDevice(remoteDevice)
+                saveSelectedPrinter(remoteDevice)
+
+                showAlert(
+                    title = "Berhasil!",
+                    message = "Printer dipilih: ${remoteDevice.name}",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.success
+                )
+
+                updateDeviceStatus(
+                    deviceItem.address,
+                    isPaired = true,
+                    isConnecting = false,
+                    isConnected = true
+                )
             } else {
                 // Jika belum dipasangkan, mulai proses pemasangan
                 updateDeviceStatus(deviceItem.address, isPaired = false, isConnecting = true, isConnected = false)
@@ -535,5 +548,14 @@ class BluetoothPairingFragment : Fragment(), BluetoothDeviceAdapter.OnDeviceClic
             BluetoothDevice.BOND_BONDED -> "BONDED"
             else -> "ERROR"
         }
+    }
+
+    private fun saveSelectedPrinter(device: BluetoothDevice) {
+        requireContext()
+            .getSharedPreferences("printer_pref", Context.MODE_PRIVATE)
+            .edit()
+            .putString("printer_address", device.address)
+            .putString("printer_name", device.name ?: "Printer")
+            .apply()
     }
 }

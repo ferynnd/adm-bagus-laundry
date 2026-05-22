@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "dev.ferynnd.baguslaundry"
+    namespace = "dev.ferynnd.admbaguslaundry"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "dev.ferynnd.baguslaundry"
+        applicationId = "dev.ferynnd.admbaguslaundry"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

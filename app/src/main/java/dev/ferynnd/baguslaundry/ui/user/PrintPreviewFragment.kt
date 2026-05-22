@@ -1,6 +1,7 @@
 package dev.ferynnd.baguslaundry.ui.user
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
@@ -40,8 +41,10 @@ import dev.ferynnd.baguslaundry.data.viewmodel.report.LaundryReportViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentPrintPreviewBinding
 import dev.ferynnd.baguslaundry.model.LaundryPrintTransaction
 import dev.ferynnd.baguslaundry.model.ProductLaundry
+import dev.ferynnd.baguslaundry.model.RentalPrintTransaction
 import dev.ferynnd.baguslaundry.model.StatusReportLaundry
 import dev.ferynnd.baguslaundry.ui.openUserFragment
+import dev.ferynnd.baguslaundry.ui.showAlert
 import dev.ferynnd.baguslaundry.ui.toBranchTime
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
@@ -202,7 +205,7 @@ class PrintPreviewFragment : Fragment() {
         }
     }
 
-    private suspend fun generateReceiptHtml(data: LaundryPrintTransaction): String {
+    private fun generateReceiptHtml(data: LaundryPrintTransaction): String {
         // Ambil daftar cabang dari ViewModel
         val branchList = branchViewModel.branches.value.orEmpty()
 
@@ -307,8 +310,10 @@ class PrintPreviewFragment : Fragment() {
     private fun setupReceiptPreview(htmlContent: String) {
         binding.receiptWebView.settings.apply {
             javaScriptEnabled = true
-            loadWithOverviewMode = true
-            useWideViewPort = true
+            loadWithOverviewMode = false
+            useWideViewPort = false
+            builtInZoomControls = false
+            displayZoomControls = false
         }
 
         // Set initial scale pada WebView langsung (bukan di WebSettings)
@@ -327,93 +332,246 @@ class PrintPreviewFragment : Fragment() {
 
     private fun printReceiptFromWebView() {
         try {
+            val printerAddress = requireContext()
+                .getSharedPreferences("printer_pref", Context.MODE_PRIVATE)
+                .getString("printer_address", null)
+
+            if (printerAddress == null) {
+                Snackbar.make(binding.root, "Printer belum dipilih", Snackbar.LENGTH_LONG).show()
+                return
+            }
+
             val printerConnection: DeviceConnection? =
-                BluetoothPrintersConnections.selectFirstPaired()
+                BluetoothPrintersConnections()
+                    .list
+                    ?.firstOrNull { it.device.address == printerAddress }
 
             if (printerConnection == null) {
                 Snackbar.make(binding.root, "Tidak ada printer yang terhubung", Snackbar.LENGTH_LONG).show()
                 return
             }
 
-            // Capture WebView untuk print dengan ukuran penuh
-            val bitmap = captureWebViewForPrint(binding.receiptWebView)
+            val data = currentTransactionData
+            if (data == null) {
+                Snackbar.make(binding.root, "Data transaksi tidak tersedia", Snackbar.LENGTH_LONG).show()
+                return
+            }
 
-            // Inisialisasi printer dengan parameter yang benar
-            // DPI: 203, Width: 58mm, Char per line: 32 (untuk 58mm printer)
-            val escposPrinter = EscPosPrinter(printerConnection, 203, 58f, 32)
-
-            // Hitung lebar printer dalam pixel (58mm dengan 203 DPI)
-            val printerWidthMm = 58f
-            val printerDpi = 203
-            val printerWidthPx = ((printerWidthMm / 25.4f) * printerDpi).toInt() // ~464 pixel
-
-            // Scale bitmap dengan mempertahankan aspect ratio
-            val scaledBitmap = Bitmap.createScaledBitmap(
-                bitmap,
-                printerWidthPx,
-                (bitmap.height.toFloat() / bitmap.width.toFloat() * printerWidthPx).toInt(),
-                true // Use filtering for better quality
+            val printer = EscPosPrinter(
+                printerConnection,
+                203,
+                48f,
+                30
             )
 
-            // Convert bitmap ke hexadecimal string untuk printer
-            val hexImage = PrinterTextParserImg.bitmapToHexadecimalString(
-                escposPrinter,
-                scaledBitmap,
-                false
-            )
+            val printText = generateReceiptEscPosText(data)
 
-            // Print dengan alignment center dan tambahkan line feed
-            escposPrinter.printFormattedText(
-                "[C]<img>$hexImage</img>\n" +
-                        "[L]\n" +
-                        "[L]\n"
-            )
+            printer.printFormattedText(printText)
 
-            Snackbar.make(binding.root, "Berhasil mencetak struk", Snackbar.LENGTH_SHORT).show()
+            showAlert(
+                title = "Berhasil!",
+                message = "Struk berhasil dicetak",
+                backgroundColorRes = R.color.primary,
+                iconRes = R.drawable.success
+            )
 
         } catch (e: Exception) {
-            Snackbar.make(binding.root, "Gagal mencetak: ${e.message}", Snackbar.LENGTH_LONG).show()
+            showAlert(
+                title = "Gagal!",
+                message = "Gagal mencetak: ${e.message}",
+                backgroundColorRes = R.color.red600,
+                iconRes = R.drawable.failed
+            )
             Log.e("PrinterError", e.stackTraceToString())
         }
     }
 
-    /**
-     * Fungsi untuk capture WebView dengan ukuran penuh untuk keperluan print
-     */
-    private fun captureWebViewForPrint(webView: WebView): Bitmap {
-        // Simpan ukuran layout saat ini
-        val originalWidth = webView.width
-        val originalHeight = webView.height
 
-        // Tentukan lebar yang diinginkan untuk print (dalam pixel)
-        // Untuk printer 58mm dengan 203 DPI: ~464 pixel
-        val printWidth = ((58f / 25.4f) * 203).toInt()
+    private fun generateReceiptEscPosText(
+        data: LaundryPrintTransaction
+    ): String {
+        val branchList = branchViewModel.branches.value.orEmpty()
+        val selectedBranch = branchList.find {
+            it.id_branch == data.id_branch_transaction_laundry
+        }
 
-        // Ukur WebView dengan lebar yang fixed
-        val widthSpec = View.MeasureSpec.makeMeasureSpec(printWidth, View.MeasureSpec.EXACTLY)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        val branchTimezone = selectedBranch?.timezone_branch ?: "Asia/Jakarta"
 
-        webView.measure(widthSpec, heightSpec)
-
-        // Layout dengan ukuran yang sudah diukur
-        webView.layout(0, 0, webView.measuredWidth, webView.measuredHeight)
-
-        // Buat bitmap dengan ukuran penuh dari konten WebView
-        val bitmap = Bitmap.createBitmap(
-            webView.measuredWidth,
-            webView.measuredHeight,
-            Bitmap.Config.ARGB_8888
+        val invoiceNumber = safeEscPos(data.number_transaction_laundry?.toString() ?: "-")
+        val clientName = safeEscPos(data.name_client_transaction_laundry.uppercase())
+        val transactionDate = safeEscPos(
+            data.first_date_transaction_laundry.toBranchTime(branchTimezone)
         )
+        val status = safeEscPos(data.status_transaction_laundry ?: "-")
 
-        val canvas = Canvas(bitmap)
-        // Set background putih untuk memastikan konten terlihat jelas
-        canvas.drawColor(android.graphics.Color.WHITE)
-        webView.draw(canvas)
+        val subtotal = formatCurrency(data.total_price_transaction_laundry)
+        val promo = formatCurrency(data.promo_transaction_laundry)
+        val additionalCost = formatCurrency(data.additional_cost_transaction_laundry)
+        val total = formatCurrency(data.total_transaction_laundry)
+        val cash = formatCurrency(data.cash_transaction_laundry)
+        val change = formatCurrency(data.change_money_transaction_laundry)
 
-        // Kembalikan layout ke ukuran semula
-        webView.layout(0, 0, originalWidth, originalHeight)
+        val SEP = "[C]------------------------------\n"
+        val SEPL = "[C]==============================\n"
 
-        return bitmap
+        return buildString {
+            append("[C]BAGUS LAUNDRY\n")
+            append("[C]Telp/WA : 082329197772\n")
+            append(SEP)
+            append("[C]STRUK LAUNDRY\n")
+            append(SEP)
+
+            append("[L]No Inv  : $invoiceNumber\n")
+            append("[L]Nama    : ${limitText(clientName, 20)}\n")
+            append("[L]Status  : ${limitText(status, 20)}\n")
+
+            wrapText("Tanggal : $transactionDate", 30).forEachIndexed { i, line ->
+                if (i == 0) append("[L]$line\n")
+                else append("[L]          $line\n")
+            }
+
+            append(SEP)
+            append("[C]DAFTAR LAYANAN\n")
+            append(SEP)
+
+            data.list_transaction_laundry.forEachIndexed { index, item ->
+                val itemName = safeEscPos(getLaundryServiceItemName(item.id_item_laundry))
+                val weight = formatWeight(item.weight_list_transaction_laundry)
+                val price = formatCurrency(item.total_price_list_transaction_laundry)
+
+                wrapText("${index + 1}. $itemName", 30).forEach { line ->
+                    append("[L]$line\n")
+                }
+
+                append("[L]   Berat : $weight kg\n")
+                append("[L]   Harga : $price\n")
+                append(SEP)
+            }
+
+            append("[C]RINGKASAN\n")
+            append(SEP)
+            appendPriceLine("Subtotal", subtotal)
+            appendPriceLine("Promo", "- $promo")
+            appendPriceLine("Biaya Tambahan", additionalCost)
+            append(SEPL)
+            appendPriceLine("TOTAL", total)
+            append(SEPL)
+
+            append("[C]PEMBAYARAN\n")
+            append(SEP)
+            appendPriceLine("Tunai", cash)
+            appendPriceLine("Kembalian", change)
+            append(SEP)
+
+            if (!data.notes_transaction_laundry.isNullOrBlank()) {
+                append("[L]Catatan :\n")
+                wrapText(data.notes_transaction_laundry, 28).forEach { line ->
+                    append("[L]  $line\n")
+                }
+                append(SEP)
+            }
+
+            append("[L]PERHATIAN:\n")
+            val rules = listOf(
+                "1 Cucian rusak karena sifat bahan/kain bukan tanggung jawab kami",
+                "2 Cucian luntur yang tidak diberitahukan kepada kami diluar tanggung jawab kami",
+                "3 Apabila konsumen tidak menghitung cucian, jumlah yang kami hitung kami anggap benar",
+                "4 Pengajuan klaim tidak lebih dari 24 jam setelah diterima",
+                "5 Benda berharga/barang yang tertinggal dalam cucian apabila hilang/rusak bukan tanggung jawab kami",
+                "6 Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami"
+            )
+            rules.forEach { rule ->
+                wrapText(rule, 30).forEach { line ->
+                    append("[L]$line\n")
+                }
+            }
+            append(SEP)
+            append("[C]TERIMA KASIH\n")
+            append(SEP)
+        }
+    }
+
+    /**
+     * Helper: cetak "Label   : Nilai" 1 baris jika muat,
+     * atau wrap nilai ke baris berikutnya dengan indent.
+     * Label max 9 char + " : " (3) = 12 char prefix → nilai max 20 char per baris.
+     */
+
+    private fun StringBuilder.appendPriceLine(label: String, value: String) {
+        val cleanLabel = safeEscPos(label)
+        val cleanValue = safeEscPos(value)
+
+        val maxWidth = 30
+        val labelWidth = 14
+        val valueWidth = maxWidth - labelWidth
+
+        append("[L]")
+        append(cleanLabel.take(labelWidth).padEnd(labelWidth))
+        append(cleanValue.take(valueWidth).padStart(valueWidth))
+        append("\n")
+    }
+
+    /**
+     * Membersihkan karakter yang bisa merusak format ESC/POS.
+     */
+
+    private fun safeEscPos(text: String?): String {
+        return text
+            ?.replace("<", "")
+            ?.replace(">", "")
+            ?.replace("[", "")
+            ?.replace("]", "")
+            ?.replace("&", "dan")
+            ?.replace("\n", " ")
+            ?.replace("\r", " ")
+            ?.replace(Regex("\\s+"), " ")
+            ?.trim()
+            ?: "-"
+    }
+
+    private fun limitText(text: String, maxLength: Int): String {
+        return if (text.length > maxLength) {
+            text.take(maxLength)
+        } else {
+            text
+        }
+    }
+    private fun wrapText(text: String, maxLength: Int): List<String> {
+        val cleanText = safeEscPos(text)
+
+        if (cleanText.length <= maxLength) {
+            return listOf(cleanText)
+        }
+
+        val words = cleanText.split(" ")
+        val lines = mutableListOf<String>()
+        var currentLine = ""
+
+        words.forEach { word ->
+            if (word.length > maxLength) {
+                if (currentLine.isNotEmpty()) {
+                    lines.add(currentLine)
+                    currentLine = ""
+                }
+
+                word.chunked(maxLength).forEach {
+                    lines.add(it)
+                }
+            } else if (currentLine.isEmpty()) {
+                currentLine = word
+            } else if (currentLine.length + 1 + word.length <= maxLength) {
+                currentLine += " $word"
+            } else {
+                lines.add(currentLine)
+                currentLine = word
+            }
+        }
+
+        if (currentLine.isNotEmpty()) {
+            lines.add(currentLine)
+        }
+
+        return lines
     }
 
     private fun shareReceipt() {

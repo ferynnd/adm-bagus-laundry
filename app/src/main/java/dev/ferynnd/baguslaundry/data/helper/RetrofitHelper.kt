@@ -20,7 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class RetrofitHelper(context: Context) {
 
 //    private val baseURL = "http://192.168.100.48:8000/"
-     private val baseURL = "https://data.baguslaundry.my.id/"
+     private val baseURL = "https://www.dev.baguslaundry.my.id/"
 
     private val prefs = context.getSharedPreferences("AppSharePref", Context.MODE_PRIVATE)
 

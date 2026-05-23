@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import dev.ferynnd.baguslaundry.controller.user.ListItemTransactionLaundryAdapter
+import dev.ferynnd.baguslaundry.controller.ListItemTransactionLaundryAdapter
 import dev.ferynnd.baguslaundry.data.viewmodel.BottomNavViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.product.LaundryProductViewModel
 import dev.ferynnd.baguslaundry.databinding.FragmentListItemTransactionLaundryBinding

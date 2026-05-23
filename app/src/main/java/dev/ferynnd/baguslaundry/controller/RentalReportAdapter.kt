@@ -1,0 +1,211 @@
+package dev.ferynnd.baguslaundry.controller
+
+import android.annotation.SuppressLint
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import dev.ferynnd.admbaguslaundry.R
+import dev.ferynnd.admbaguslaundry.databinding.CardHeaderBinding
+import dev.ferynnd.admbaguslaundry.databinding.CardReportRentalBinding
+import dev.ferynnd.admbaguslaundry.databinding.ItemRentalServiceBinding
+import dev.ferynnd.admbaguslaundry.model.*
+
+class RentalReportAdapter(
+    private val onPrint: (ReportRental) -> Unit,
+    private val onEdit: (ReportRental) -> Unit,
+    private val onDelete: (ReportRental) -> Unit
+) : ListAdapter<Any, RecyclerView.ViewHolder>(DiffCallback()) {
+
+    private var branches: List<Branch> = emptyList()
+    private var sender: List<User> = emptyList()
+    private var client: List<Client> = emptyList()
+
+    private var rentalProducts: List<ProductRental> = emptyList()
+
+    fun setBranches(branchList: List<Branch>) {
+        branches = branchList
+        notifyDataSetChanged()
+    }
+
+    fun setSender(senderList: List<User>) {
+        sender = senderList
+        notifyDataSetChanged()
+    }
+
+    fun setClient(clientList: List<Client>) {
+        client = clientList
+        notifyDataSetChanged()
+    }
+
+    fun setRentalProducts(productList: List<ProductRental>) {
+        rentalProducts = productList
+        notifyDataSetChanged()
+    }
+
+    inner class ReportRentalViewHolder(val binding: CardReportRentalBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
+    inner class HeaderViewHolder(val binding: CardHeaderBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
+    enum class TYPE_VIEW { HEADER, CONTENT }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_VIEW.HEADER.ordinal -> {
+                HeaderViewHolder(
+                    CardHeaderBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                )
+            }
+
+            TYPE_VIEW.CONTENT.ordinal -> {
+                ReportRentalViewHolder(
+                    CardReportRentalBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                )
+            }
+
+            else -> throw IllegalArgumentException("Invalid view type")
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is String -> TYPE_VIEW.HEADER.ordinal
+            is ReportRental -> TYPE_VIEW.CONTENT.ordinal
+            else -> throw IllegalArgumentException("Unknown item type")
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = getItem(position)) {
+            is String -> bindHeader(holder as HeaderViewHolder, item)
+            is ReportRental -> bindRental(holder as ReportRentalViewHolder, item)
+        }
+    }
+
+    private fun bindHeader(holder: HeaderViewHolder, header: String) {
+        holder.binding.inputNameBranch.text = header
+        holder.binding.root.setCardBackgroundColor(
+            ContextCompat.getColor(holder.binding.root.context, R.color.white)
+        )
+    }
+
+    private fun bindRental(holder: ReportRentalViewHolder, report: ReportRental) {
+        val branchName = branches.find {
+            it.id_branch == report.id_branch_transaction_rental
+        }?.name_branch ?: "Unknown"
+
+        val senderName = sender.find {
+            it.id_user == report.id_kurir_transaction_rental
+        }?.fullname_user ?: "Unknown"
+
+        val clientName = client.find {
+            it.id_client == report.id_client_transaction_rental
+        }?.name_client ?: "Unknown"
+
+        holder.binding.apply {
+            inputBranch.text = branchName
+            inputCLient.text = clientName
+            inputSender.text = senderName
+            inputRecipient.text = report.recipient_name_transaction_rental ?: "-"
+            inputNotes.text = report.notes_transaction_rental.takeIf { !it.isNullOrBlank() } ?: "-"
+            inputTime.text = report.time_transaction_rental ?: "-"
+            idTransactionRental.text = report.number_transaction_rental.toString()
+
+            setupItemsContainer(holder, report)
+
+            buttonEdit.setOnClickListener {
+                onEdit(report)
+            }
+
+            buttonDelete.setOnClickListener {
+                onDelete(report)
+            }
+
+            holder.binding.buttonPrint.setOnClickListener {
+                onPrint(report)
+            }
+        }
+    }
+
+    private fun setupItemsContainer(holder: ReportRentalViewHolder, report: ReportRental) {
+        val container = holder.binding.layoutItemsContainer
+        container.removeAllViews()
+
+        val items = report.list_transaction_rentals ?: emptyList()
+
+        if (items.isEmpty()) {
+            val emptyView = TextView(holder.itemView.context).apply {
+                text = "Tidak ada item"
+                setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray))
+                textSize = 14f
+                setPadding(8, 8, 8, 8)
+            }
+            container.addView(emptyView)
+            return
+        }
+
+        val inflater = LayoutInflater.from(holder.itemView.context)
+
+        items.forEach { item ->
+            val itemView = inflater.inflate(R.layout.item_rental_service, container, false)
+            val bindingItem = ItemRentalServiceBinding.bind(itemView)
+
+            val conditionText = when (item.condition_list_transaction_rental) {
+                ConditionListTransactionRental.dirty -> "Kotor"
+                ConditionListTransactionRental.clean -> "Bersih"
+                ConditionListTransactionRental.damaged -> "Rusak"
+                else -> "Unknown"
+            }
+
+            val statusText = when (item.status_list_transaction_rental) {
+                StatusListTransactionRental.IN -> "Masuk"
+                StatusListTransactionRental.OUT -> "Keluar"
+                StatusListTransactionRental.CANCELLED -> "Dibatalkan"
+                else -> "Unknown"
+            }
+
+            val productName = rentalProducts.find {
+                it.id_rental_item == item.id_item_rental
+            }?.name_rental_item ?: "Layanan Tidak Dikenal"
+
+            bindingItem.tvServiceName.text = productName
+            bindingItem.tvConditionStatus.text = "$conditionText - $statusText"
+            bindingItem.tvWeight.text = "${item.weight_list_transaction_rental ?: 0.0} Kg"
+            bindingItem.tvQuantity.text = "${item.count_list_transaction_rental ?: 0} PCS"
+
+            container.addView(itemView)
+        }
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<Any>() {
+        override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
+            return when {
+                oldItem is String && newItem is String ->
+                    oldItem == newItem
+
+                oldItem is ReportRental && newItem is ReportRental ->
+                    oldItem.id_transaction_rental == newItem.id_transaction_rental
+
+                else -> false
+            }
+        }
+
+        @SuppressLint("DiffUtilEquals")
+        override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
+            return oldItem == newItem
+        }
+    }
+}

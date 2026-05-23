@@ -125,41 +125,39 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-<!--        &lt;!&ndash; Section: Item Rental List &ndash;&gt;-->
-<!--        <TextView-->
-<!--            android:id="@+id/titleItemList"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Daftar Item Rental"-->
-<!--            android:textSize="16sp"-->
-<!--            android:textColor="@color/blue900"-->
-<!--            android:fontFamily="@font/inter_bold"-->
-<!--            android:layout_marginTop="20dp"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/layoutNotes"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toStartOf="@id/btnAddNewItem"/>-->
+        <TextView
+            android:id="@+id/titleItemList"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Daftar Item Rental"
+            android:textSize="16sp"
+            android:textColor="@color/blue900"
+            android:fontFamily="@font/inter_bold"
+            android:layout_marginTop="20dp"
+            app:layout_constraintTop_toBottomOf="@id/layoutNotes"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnAddNewItem"/>
 
-<!--        <ImageView-->
-<!--            android:id="@+id/btnAddNewItem"-->
-<!--            android:layout_width="40dp"-->
-<!--            android:layout_height="40dp"-->
-<!--            android:src="@drawable/adding"-->
-<!--            android:background="?attr/selectableItemBackgroundBorderless"-->
-<!--            android:padding="8dp"-->
-<!--            app:layout_constraintTop_toTopOf="@id/titleItemList"-->
-<!--            app:layout_constraintBottom_toBottomOf="@id/titleItemList"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"/>-->
+        <ImageView
+            android:id="@+id/btnAddNewItem"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/adding"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            app:layout_constraintTop_toTopOf="@id/titleItemList"
+            app:layout_constraintBottom_toBottomOf="@id/titleItemList"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-<!--        &lt;!&ndash; Container untuk dynamic rental items &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:id="@+id/containerRentalItems"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/titleItemList"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"/>-->
+        <LinearLayout
+            android:id="@+id/containerRentalItems"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/titleItemList"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <!-- Buttons -->
         <LinearLayout
@@ -168,7 +166,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            app:layout_constraintTop_toBottomOf="@id/layoutNotes"
+            app:layout_constraintTop_toBottomOf="@id/containerRentalItems"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="20dp">

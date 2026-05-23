@@ -125,11 +125,54 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/layoutPagination"
         app:layout_constraintEnd_toStartOf="@id/guidelineRight"
         app:layout_constraintStart_toEndOf="@id/guidelineLeft"
         app:layout_constraintTop_toBottomOf="@id/layoutSearch"
         tools:listitem="@layout/card_client" />
+
+    <LinearLayout
+    android:id="@+id/layoutPagination"
+    android:layout_width="0dp"
+    android:layout_height="48dp"
+    android:layout_marginBottom="12dp"
+    android:gravity="center"
+    android:orientation="horizontal"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@id/guidelineRight"
+    app:layout_constraintStart_toEndOf="@id/guidelineLeft">
+
+    <TextView
+        android:id="@+id/btnPrevPage"
+        android:layout_width="80dp"
+        android:layout_height="36dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="Prev"
+        android:textColor="@color/blue900"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/textPageInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_marginHorizontal="14dp"
+        android:gravity="center"
+        android:text="1 / 1"
+        android:textColor="@color/blue900"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/btnNextPage"
+        android:layout_width="80dp"
+        android:layout_height="36dp"
+        android:background="@color/primary"
+        android:gravity="center"
+        android:text="Next"
+        android:textColor="@color/white"
+        android:textSize="13sp" />
+
+</LinearLayout>
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progresBar"

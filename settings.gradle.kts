@@ -21,6 +21,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BAGUS LAUNDRY"
+rootProject.name = "ADM BAGUS LAUNDRY"
 include(":app")
  

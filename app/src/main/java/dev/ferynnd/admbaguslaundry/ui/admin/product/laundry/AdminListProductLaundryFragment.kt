@@ -1,0 +1,297 @@
+package dev.ferynnd.admbaguslaundry.ui.admin.product.laundry
+
+import android.content.Context
+import android.os.Bundle
+import android.util.Log
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import dev.ferynnd.admbaguslaundry.R
+import dev.ferynnd.admbaguslaundry.controller.FilterBranchAdapter
+import dev.ferynnd.admbaguslaundry.controller.LaundryProductAdapter
+import dev.ferynnd.admbaguslaundry.data.viewmodel.BranchViewModel
+import dev.ferynnd.admbaguslaundry.data.viewmodel.product.LaundryProductViewModel
+import dev.ferynnd.admbaguslaundry.databinding.FragmentAdminListProductLaundryBinding
+import dev.ferynnd.admbaguslaundry.model.Branch
+import dev.ferynnd.admbaguslaundry.model.ProductLaundry
+import dev.ferynnd.admbaguslaundry.model.Status
+import dev.ferynnd.admbaguslaundry.ui.showAlert
+import dev.ferynnd.admbaguslaundry.ui.user.AdminCreateItemLaundryFragment
+import kotlinx.coroutines.launch
+
+class AdminListProductLaundryFragment : Fragment()  {
+
+    private lateinit var binding: FragmentAdminListProductLaundryBinding
+    private lateinit var laundryProductViewModel : LaundryProductViewModel
+    private lateinit var branchViewModel: BranchViewModel
+    private lateinit var laundryProductAdapter: LaundryProductAdapter
+
+    private var productLaundryList: List<ProductLaundry>? = null
+    private var branchList: List<Branch>? = null
+    private val groupedData = mutableListOf<Any>()
+
+    private var currentPage = 1
+    private var lastPage = 1
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        laundryProductViewModel = ViewModelProvider(this).get(LaundryProductViewModel::class.java)
+        laundryProductViewModel.init(requireContext())
+        branchViewModel = ViewModelProvider(this).get(BranchViewModel::class.java)
+        branchViewModel.init(requireContext())
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentAdminListProductLaundryBinding.inflate(layoutInflater)
+
+        laundryProductAdapter = LaundryProductAdapter()
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = laundryProductAdapter
+        }
+
+        // Set listener untuk edit item
+        laundryProductAdapter.setOnEditClickListener { productLaundry ->
+            openEditFragment(productLaundry.id_laundry_item)
+        }
+
+        // Set listener untuk delete item
+        laundryProductAdapter.setOnDeleteClickListener { productLaundry ->
+            showDeleteConfirmationDialog(productLaundry)
+        }
+
+        // Tombol FAB untuk membuat item baru
+        binding.fabAddProduct.setOnClickListener {
+            openCreateFragment()
+        }
+
+        binding.btnRoutes.setOnClickListener {
+            branchViewModel.branches.value?.let { branches ->
+                showFilterBottomSheet(requireContext(), branches) { selectedBranch ->
+                    if (selectedBranch.id_branch == -1) {
+                        laundryProductViewModel.filterClient(null) // Semua Cabang
+                    } else {
+                        laundryProductViewModel.filterClient(selectedBranch.id_branch)
+                    }
+                }
+            }
+        }
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let { laundryProductViewModel.searchLaundryProducts(it) }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                laundryProductViewModel.searchLaundryProducts(newText.orEmpty())
+                return true
+            }
+        })
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // Observe loading state
+            laundryProductViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+                binding.progresBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                binding.recyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
+
+            // Observe error messages
+            laundryProductViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+                if (errorMessage.isNotBlank()) {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                    laundryProductViewModel.resetErrorMessage()
+                }
+            }
+
+            laundryProductViewModel.filteredProductLaundry.observe(viewLifecycleOwner) { filteredProducts ->
+                laundryProductAdapter.submitList(filteredProducts)
+            }
+
+            branchViewModel.branches.observe(viewLifecycleOwner) { branches ->
+                branchList = branches
+                updateUIIfReady()
+                laundryProductAdapter.setBranches(branches)
+            }
+
+            laundryProductViewModel.laundryProducts.observe(viewLifecycleOwner) { products ->
+                productLaundryList = products
+                updateUIIfReady()
+            }
+
+            laundryProductViewModel.pagination.observe(viewLifecycleOwner) { pagination ->
+                currentPage = pagination.current_page
+                lastPage = pagination.last_page
+
+                binding.textPageInfo.text = "$currentPage / $lastPage"
+
+                binding.btnPrevPage.isEnabled = currentPage > 1
+                binding.btnNextPage.isEnabled = currentPage < lastPage
+
+                binding.btnPrevPage.alpha = if (currentPage > 1) 1f else 0.4f
+                binding.btnNextPage.alpha = if (currentPage < lastPage) 1f else 0.4f
+            }
+        }
+
+        binding.btnPrevPage.setOnClickListener {
+            if (currentPage > 1) {
+                laundryProductViewModel.getProductLaundryPage(currentPage - 1)
+            }
+        }
+
+        binding.btnNextPage.setOnClickListener {
+            if (currentPage < lastPage) {
+                laundryProductViewModel.getProductLaundryPage(currentPage + 1)
+            }
+        }
+
+        binding.arrowBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
+        return binding.root
+    }
+
+    private fun openCreateFragment() {
+        val fragment = AdminCreateItemLaundryFragment()
+        val bundle = Bundle().apply {
+            putBoolean("isAdmin", true)
+        }
+        fragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.host_fragment_admin, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun openEditFragment(productId: Int?) {
+        val fragment = AdminCreateItemLaundryFragment()
+        val bundle = Bundle().apply {
+            putInt("productLaundryID", productId ?: 0)
+            putBoolean("isAdmin", true)
+        }
+        fragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.host_fragment_admin, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun showDeleteConfirmationDialog(productLaundry: ProductLaundry) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Layanan")
+            .setMessage("Apakah Anda yakin ingin menghapus layanan \"${productLaundry.name_laundry_item}\"?")
+            .setPositiveButton("Hapus") { dialog, _ ->
+                deleteProductLaundry(productLaundry)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Batal") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun deleteProductLaundry(productLaundry: ProductLaundry) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                laundryProductViewModel.deleteProductLaundry(productLaundry)
+                showAlert(
+                    title = "Berhasil!",
+                    message = "Layanan berhasil dihapus",
+                    backgroundColorRes = R.color.primary,
+                    iconRes = R.drawable.success
+                )
+            } catch (e: Exception) {
+                showAlert(
+                    title = "Gagal!",
+                    message = "Gagal menghapus layanan: ${e.message}",
+                    backgroundColorRes = R.color.red600,
+                    iconRes = R.drawable.failed,
+                    duration = 4000
+                )
+            }
+        }
+    }
+
+    private fun updateUIIfReady() {
+        val products = productLaundryList
+        val branches = branchList
+
+        if (!products.isNullOrEmpty() && !branches.isNullOrEmpty()) {
+            Log.d("LaundryFragment", "Kedua data tersedia, memproses display")
+            setProductLaundry(products)
+        }
+    }
+
+    private fun setProductLaundry(newProductLaundrys: List<ProductLaundry>) {
+        groupedData.clear()
+
+        val branchList = branchViewModel.branches.value ?: emptyList()
+        Log.d("LaundryFragment", "Jumlah branch: ${branchList.size}")
+
+        val groupedMap = newProductLaundrys.groupBy { it.id_branch_laundry_item }
+
+        for ((branchId, products) in groupedMap) {
+            val branch = branchList.find { it.id_branch == branchId }
+
+            if (branch != null) {
+                groupedData.add(branch)
+                groupedData.addAll(products)
+            } else {
+                val unknownBranch = Branch(
+                    id_branch = branchId,
+                    name_branch = "UNKNOWN",
+                    city_branch = "",
+                    is_active_branch = Status.active
+                )
+
+                groupedData.add(unknownBranch)
+                groupedData.addAll(products)
+            }
+        }
+        laundryProductAdapter.submitList(groupedData)
+    }
+
+    private fun showFilterBottomSheet(
+        context: Context,
+        items: List<Branch>,
+        onBranchSelected: (Branch) -> Unit
+    ) {
+        val bottomSheetDialog = BottomSheetDialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_filter_branch, null)
+
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewFilterBranch)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
+        val adapter = FilterBranchAdapter { selectedBranch ->
+            onBranchSelected(selectedBranch)
+            bottomSheetDialog.dismiss()
+        }
+
+        recyclerView.adapter = adapter
+        adapter.submitList(items)
+
+        bottomSheetDialog.setContentView(view)
+        val layoutParams = bottomSheetDialog.window?.attributes
+        layoutParams?.height = WindowManager.LayoutParams.WRAP_CONTENT
+        bottomSheetDialog.window?.attributes = layoutParams
+
+        bottomSheetDialog.show()
+    }
+}

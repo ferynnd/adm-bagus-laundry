@@ -33,10 +33,7 @@
             android:name=".ui.user.UserActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.admin.AdminActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.LoginActivity"
+            android:name="dev.ferynnd.baguslaundry.ui.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import dev.ferynnd.baguslaundry.R
-import dev.ferynnd.baguslaundry.controller.user.KurirProductAdapter
+import dev.ferynnd.baguslaundry.controller.KurirProductAdapter
 import dev.ferynnd.baguslaundry.data.helper.Constant.Companion.PREF_USER_ID
 import dev.ferynnd.baguslaundry.data.helper.SharePrefrenceHelper
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel

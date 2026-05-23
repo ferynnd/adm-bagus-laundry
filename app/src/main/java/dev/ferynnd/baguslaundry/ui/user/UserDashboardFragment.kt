@@ -22,9 +22,8 @@ import dev.ferynnd.baguslaundry.data.viewmodel.UserViewModel
 import dev.ferynnd.baguslaundry.databinding.KurirFragmentUserDashboardBinding
 import dev.ferynnd.baguslaundry.ui.LoginActivity
 import dev.ferynnd.baguslaundry.ui.user.transaksi_rental.CreateListTransaksiRentalFragment
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.ferynnd.baguslaundry.ui.BluetoothPairingFragment
-import dev.ferynnd.baguslaundry.controller.user.KurirLatestTransactionLaundryAdapter
+import dev.ferynnd.baguslaundry.controller.KurirLatestTransactionLaundryAdapter
 import dev.ferynnd.baguslaundry.data.viewmodel.BottomNavViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.BranchViewModel
 import dev.ferynnd.baguslaundry.data.viewmodel.ClientViewModel
